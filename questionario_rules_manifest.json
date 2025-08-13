@@ -1,0 +1,186 @@
+{
+  "version": "1.0",
+  "name": "NIS2 Supplier Assessment Rules",
+  "description": "Regole di valutazione conformità NIS2 per fornitori",
+  "scoring_defaults": {
+    "threshold": 0.80,
+    "partial_weight": 0.5,
+    "iso27001_auto_percentage": 0.90
+  },
+  "topics": [
+    {
+      "code": "GSI.03",
+      "name": "Piano per la gestione della continuità operativa",
+      "essential": true,
+      "questions": [
+        {
+          "id": "GSI.03_1",
+          "text": "Viene testato con periodicità almeno annuale?",
+          "weight": 1.0,
+          "essential": true
+        },
+        {
+          "id": "GSI.03_2", 
+          "text": "Include la parte IT con una Business Impact Analysis ad esso relativa?",
+          "weight": 1.0,
+          "essential": true
+        },
+        {
+          "id": "GSI.03_3",
+          "text": "Prevede un piano di disaster recovery per i servizi critici?",
+          "weight": 1.0,
+          "essential": true
+        },
+        {
+          "id": "GSI.03_4",
+          "text": "E' mantenuto aggiornato almeno annualmente?",
+          "weight": 1.0,
+          "essential": true
+        }
+      ]
+    },
+    {
+      "code": "GSI.04",
+      "name": "Continuità operativa dei sistemi ICT",
+      "essential": true,
+      "questions": [
+        {
+          "id": "GSI.04_1",
+          "text": "E' assicurata tramite il mantenimento di una terza copia di backup dei dati in un sito remoto?",
+          "weight": 1.0,
+          "essential": true
+        },
+        {
+          "id": "GSI.04_2",
+          "text": "E' assicurata tramite l'allocazione di risorse dimensionate in modo da garantire sempre la disponibilità?",
+          "weight": 1.0,
+          "essential": true
+        },
+        {
+          "id": "GSI.04_3",
+          "text": "E' assicurata tramite la ridondanza locale di tutti i sistemi critici adottando soluzioni ad alta affidabilità?",
+          "weight": 0.8,
+          "essential": false
+        },
+        {
+          "id": "GSI.04_4",
+          "text": "E' assicurata tramite la ridondanza geografica di tutti i sistemi critici in un sito remoto situato a più di 50 km dal sito primario?",
+          "weight": 1.0,
+          "essential": true
+        }
+      ]
+    },
+    {
+      "code": "GSI.05",
+      "name": "Responsabilità in merito alla cybersecurity / sicurezza delle informazioni / sicurezza informatica",
+      "essential": true,
+      "questions": [
+        {
+          "id": "GSI.05_1",
+          "text": "E' designata una persona responsabile della cybersecurity?",
+          "weight": 1.0,
+          "essential": true
+        },
+        {
+          "id": "GSI.05_2",
+          "text": "La persona responsabile ha competenze adeguate?",
+          "weight": 1.0,
+          "essential": true
+        },
+        {
+          "id": "GSI.05_3",
+          "text": "E' definito un organigramma delle responsabilità?",
+          "weight": 0.8,
+          "essential": false
+        }
+      ]
+    },
+    {
+      "code": "SIT.03",
+      "name": "Backup",
+      "essential": true,
+      "questions": [
+        {
+          "id": "SIT.03_1",
+          "text": "Vengono effettuati backup regolari dei dati critici?",
+          "weight": 1.0,
+          "essential": true
+        },
+        {
+          "id": "SIT.03_2",
+          "text": "I backup vengono testati periodicamente?",
+          "weight": 1.0,
+          "essential": true
+        },
+        {
+          "id": "SIT.03_3",
+          "text": "I backup sono crittografati?",
+          "weight": 0.8,
+          "essential": false
+        }
+      ]
+    },
+    {
+      "code": "SFA.01",
+      "name": "Accesso perimetro organizzazione",
+      "essential": false,
+      "questions": [
+        {
+          "id": "SFA.01_1",
+          "text": "E' controllato l'accesso al perimetro dell'organizzazione?",
+          "weight": 0.7,
+          "essential": false
+        },
+        {
+          "id": "SFA.01_2",
+          "text": "Sono presenti sistemi di sorveglianza?",
+          "weight": 0.6,
+          "essential": false
+        }
+      ]
+    },
+    {
+      "code": "SFA.02",
+      "name": "Accesso locali server",
+      "essential": true,
+      "questions": [
+        {
+          "id": "SFA.02_1",
+          "text": "L'accesso ai locali server è controllato?",
+          "weight": 1.0,
+          "essential": true
+        },
+        {
+          "id": "SFA.02_2",
+          "text": "E' presente un sistema di autenticazione per l'accesso?",
+          "weight": 1.0,
+          "essential": true
+        }
+      ]
+    }
+  ],
+  "iso27001_rules": {
+    "enabled": true,
+    "auto_questions": [
+      "GSI.03_1", "GSI.03_2", "GSI.03_3", "GSI.03_4",
+      "GSI.04_1", "GSI.04_2", "GSI.04_4",
+      "GSI.05_1", "GSI.05_2",
+      "SIT.03_1", "SIT.03_2",
+      "SFA.02_1", "SFA.02_2"
+    ]
+  },
+  "report_templates": {
+    "passport": {
+      "title": "Passaporto Digitale Fornitore NIS2",
+      "subtitle": "Certificazione di Conformità",
+      "color": "#22c55e",
+      "icon": "✅"
+    },
+    "recall": {
+      "title": "Richiamo Conformità NIS2",
+      "subtitle": "Azioni Correttive Necessarie",
+      "color": "#ef4444",
+      "icon": "⚠️"
+    }
+  }
+}

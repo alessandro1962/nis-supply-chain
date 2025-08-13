@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invia Assessment - NIS2 Supply Chain</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .send-assessment-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .back-link {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 400;
+            margin-right: 1rem;
+            transition: color 0.2s;
+        }
+        
+        .back-link:hover {
+            color: #10b981;
+        }
+        
+        .back-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background: #4b5563;
+        }
+        
+        .info-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 2rem;
+        }
+        
+        .info-text {
+            font-size: 1rem;
+            color: #374151;
+            line-height: 1.6;
+        }
+        
+        .suppliers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .supplier-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .supplier-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .supplier-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .supplier-info {
+            flex: 1;
+        }
+        
+        .supplier-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .supplier-email {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .assessment-status {
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-sent {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .supplier-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .action-btn {
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 0.875rem;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .assessment-link {
+            background: #f8fafc;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+            word-break: break-all;
+            display: none;
+        }
+        
+        .copy-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
+        .copy-btn:hover {
+            background: #4b5563;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-text {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .add-supplier-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .add-supplier-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/company-dashboard/1" class="logo">
+                <div class="logo-icon">N</div>
+                <span>NIS2 Supply Chain</span>
+            </a>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name">Admin</div>
+                    <div class="user-role">Amministratore Aziendale</div>
+                </div>
+                <a href="/company-logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="send-assessment-container">
+        <div class="page-header">
+            <h1 class="page-title">
+                <a href="/company-dashboard/1" class="back-link">← Dashboard</a>
+                Invia Assessment
+            </h1>
+                            <a href="/company-dashboard/{{ user.company_id }}" class="back-btn">← Torna alla Dashboard</a>
+        </div>
+
+        <div class="info-box">
+            <div class="info-text">
+                <strong>Invio Assessment NIS2:</strong> Seleziona i fornitori a cui inviare l'assessment di conformità NIS2. 
+                Clicca su "Invia Assessment" per generare un link unico che il fornitore potrà utilizzare per compilare l'assessment.
+            </div>
+        </div>
+
+        {% if suppliers %}
+            <div class="suppliers-grid">
+                {% for supplier in suppliers %}
+                <div class="supplier-card" data-supplier-id="{{ supplier[0] }}">
+                    <div class="supplier-header">
+                        <div class="supplier-info">
+                            <div class="supplier-name">{{ supplier[1] }}</div>
+                            <div class="supplier-email">{{ supplier[2] }}</div>
+                        </div>
+                        <div class="assessment-status status-pending">In Attesa</div>
+                    </div>
+                    
+                    <div class="supplier-actions">
+                        <button class="action-btn btn-primary send-assessment-btn" onclick="sendAssessment({{ supplier[0] }})">
+                            📤 Invia Assessment
+                        </button>
+                    </div>
+                    
+                    <div class="assessment-link" id="link-{{ supplier[0] }}">
+                        <div>Link Assessment:</div>
+                        <div class="link-text"></div>
+                        <button class="copy-btn" onclick="copyLink({{ supplier[0] }})">📋 Copia Link</button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <div class="empty-title">Nessun fornitore da valutare</div>
+                <div class="empty-text">
+                    Tutti i fornitori hanno già completato l'assessment o non ci sono fornitori registrati.
+                </div>
+                <a href="/new-supplier" class="add-supplier-btn">Aggiungi Nuovo Fornitore</a>
+            </div>
+        {% endif %}
+    </main>
+
+    <script>
+        async function sendAssessment(supplierId) {
+            const btn = document.querySelector(`[data-supplier-id="${supplierId}"] .send-assessment-btn`);
+            const originalText = btn.textContent;
+            
+            btn.disabled = true;
+            btn.textContent = 'Invio in corso...';
+            
+            try {
+                const response = await fetch(`/api/send-assessment/${supplierId}`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Mostra il link generato
+                    const linkContainer = document.getElementById(`link-${supplierId}`);
+                    const linkText = linkContainer.querySelector('.link-text');
+                    linkText.textContent = result.assessment_link;
+                    linkContainer.style.display = 'block';
+                    
+                    // Aggiorna lo status
+                    const status = document.querySelector(`[data-supplier-id="${supplierId}"] .assessment-status`);
+                    status.textContent = 'Inviato';
+                    status.className = 'assessment-status status-sent';
+                    
+                    // Disabilita il bottone
+                    btn.textContent = '✅ Inviato';
+                    btn.disabled = true;
+                    btn.className = 'action-btn btn-success';
+                    
+                } else {
+                    alert('Errore durante l\'invio dell\'assessment');
+                }
+            } catch (error) {
+                alert('Errore di connessione');
+            } finally {
+                if (!btn.disabled) {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
+            }
+        }
+        
+        function copyLink(supplierId) {
+            const linkText = document.querySelector(`#link-${supplierId} .link-text`).textContent;
+            navigator.clipboard.writeText(linkText).then(() => {
+                const copyBtn = document.querySelector(`#link-${supplierId} .copy-btn`);
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✅ Copiato!';
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

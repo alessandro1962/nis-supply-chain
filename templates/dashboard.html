@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard NIS2 Supply Chain - {company_name}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/company-dashboard/{company_id}" class="logo">
+                <div class="logo-icon">N</div>
+                <span>NIS2 Supply Chain</span>
+            </a>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name">{admin_name}</div>
+                    <div class="user-role">Amministratore Aziendale</div>
+                </div>
+                <a href="/company-logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </header>
+
+            <!-- Main Container -->
+        <main class="main-container">
+            <!-- Navigation Menu -->
+            <div class="nav-menu">
+                <a href="/suppliers" class="nav-btn">
+                    <span>👥</span>
+                    <span>Gestione Fornitori</span>
+                </a>
+                <a href="/new-supplier" class="nav-btn">
+                    <span>➕</span>
+                    <span>Nuovo Fornitore</span>
+                </a>
+                <a href="/send-assessment" class="nav-btn">
+                    <span>📋</span>
+                    <span>Invia Assessment</span>
+                </a>
+                <a href="/assessments" class="nav-btn">
+                    <span>📊</span>
+                    <span>Visualizza Assessment</span>
+                </a>
+            </div>
+
+            <!-- Informazioni Azienda -->
+            <div class="company-info-card">
+                <div class="company-details">
+                    <h3>📋 Informazioni Azienda</h3>
+                    <div class="company-grid">
+                        <div class="company-field">
+                            <strong>Nome:</strong> {{ company_name }}
+                        </div>
+                        <div class="company-field">
+                            <strong>Email:</strong> {{ company_email }}
+                        </div>
+                        {% if company_address %}
+                        <div class="company-field">
+                            <strong>Indirizzo:</strong> {{ company_address }}, {{ company_city }} {{ company_postal_code }}
+                        </div>
+                        {% endif %}
+                        {% if company_phone %}
+                        <div class="company-field">
+                            <strong>Telefono:</strong> {{ company_phone }}
+                        </div>
+                        {% endif %}
+                        {% if company_piva %}
+                        <div class="company-field">
+                            <strong>P.IVA:</strong> {{ company_piva }}
+                        </div>
+                        {% endif %}
+                        {% if company_cf %}
+                        <div class="company-field">
+                            <strong>Codice Fiscale:</strong> {{ company_cf }}
+                        </div>
+                        {% endif %}
+                        {% if company_website %}
+                        <div class="company-field">
+                            <strong>Sito Web:</strong> <a href="{{ company_website }}" target="_blank">{{ company_website }}</a>
+                        </div>
+                        {% endif %}
+                        {% if company_description %}
+                        <div class="company-field full-width">
+                            <strong>Descrizione:</strong> {{ company_description }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="dashboard-grid">
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Fornitori Totali</span>
+                    <div class="kpi-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">📊</div>
+                </div>
+                <div class="kpi-value counter" data-target="{{ total_suppliers }}">{{ total_suppliers }}</div>
+                <div class="kpi-change positive">
+                    <span>↗</span>
+                    <span>Fornitori registrati</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Conformi NIS2</span>
+                    <div class="kpi-icon" style="background: linear-gradient(135deg, #10b981, #059669);">✅</div>
+                </div>
+                <div class="kpi-value counter" data-target="{{ conformi }}">{{ conformi }}</div>
+                <div class="kpi-change positive">
+                    <span>↗</span>
+                    <span>Score ≥ 70%</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Non Conformi</span>
+                    <div class="kpi-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">⚠️</span>
+                </div>
+                <div class="kpi-value counter" data-target="{{ non_conformi }}">{{ non_conformi }}</div>
+                <div class="kpi-change negative">
+                    <span>↘</span>
+                    <span>Score < 70%</span>
+                </div>
+            </div>
+
+            <div class="kpi-card">
+                <div class="kpi-header">
+                    <span class="kpi-title">Assessment Completati</span>
+                    <div class="kpi-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">📋</div>
+                </div>
+                <div class="kpi-value counter" data-target="{{ conformi + non_conformi }}">{{ conformi + non_conformi }}</div>
+                <div class="kpi-change positive">
+                    <span>↗</span>
+                    <span>Assessment totali</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Trend Assessment Ultimi 30 Giorni</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Conformità NIS2</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="complianceChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Assessment Chart -->
+        <div class="chart-card" style="margin-bottom: 2rem;">
+            <div class="chart-header">
+                <h3 class="chart-title">Distribuzione Livelli di Rischio</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="riskChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-section">
+            <div class="activity-header">
+                <h3 class="activity-title">Attività Recenti</h3>
+                <a href="/suppliers" class="view-all-btn">Visualizza Tutti</a>
+            </div>
+            <div class="activity-list">
+                {% if recent_activities %}
+                    {% for activity in recent_activities %}
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: {% if activity[1] and activity[1] >= 70 %}#10b981{% elif activity[1] and activity[1] >= 50 %}#f59e0b{% else %}#ef4444{% endif %};">{% if activity[1] and activity[1] >= 70 %}✓{% elif activity[1] and activity[1] >= 50 %}⚠️{% else %}❌{% endif %}</div>
+                            <div class="activity-content">
+                                <div class="activity-text">Assessment completato per {{ activity[0] }} (Score: {{ activity[1] }}%)</div>
+                                <div class="activity-time">{{ activity[2] if activity[2] else 'Data non disponibile' }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: #6b7280;">📊</div>
+                        <div class="activity-content">
+                            <div class="activity-text">Nessuna attività recente</div>
+                            <div class="activity-time">Aggiungi il primo fornitore</div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <!-- Certificate Modal -->
+    <div id="certificateModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Certificato NIS2</h3>
+                <button class="close-btn" onclick="closeCertificateModal()">&times;</button>
+            </div>
+            <div id="certificateContent">
+                <!-- Certificate content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Passa i dati del rischio al JavaScript
+        window.riskData = {{ risk_data | tojson }};
+    </script>
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

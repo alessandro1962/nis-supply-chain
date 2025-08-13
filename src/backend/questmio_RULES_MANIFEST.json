@@ -1,0 +1,271 @@
+{
+  "version": "1.0.0",
+  "title": "Questionario NIS2 - Valutazione Conformità Fornitori",
+  "description": "Questionario per la valutazione della conformità alla Direttiva NIS2",
+  "scoring_defaults": {
+    "threshold": 0.80,
+    "response_values": {
+      "SI": 1.0,
+      "NO": 0.0,
+      "PARZIALE": 0.5
+    }
+  },
+  "iso27001_coverage": {
+    "percentage": 0.90,
+    "applicable_questions": [
+      "GSI.03.Q1", "GSI.03.Q2", "GSI.03.Q3", "GSI.03.Q4",
+      "GSI.05.Q1", "GSI.05.Q4", "GSI.05.Q5", "GSI.05.Q6",
+      "GSI.06.Q1", "GSI.06.Q4", "GSI.06.Q5",
+      "GSI.07.Q3", "GSI.07.Q4",
+      "GSI.08.Q6",
+      "GSI.09.Q1", "GSI.09.Q5",
+      "GSI.10.Q2", "GSI.10.Q4",
+      "GSI.15.Q1", "GSI.15.Q2", "GSI.15.Q5",
+      "SIT.01.Q1", "SIT.01.Q2", "SIT.01.Q3", "SIT.01.Q4", "SIT.01.Q5",
+      "SIT.03.Q2", "SIT.03.Q3", "SIT.03.Q4", "SIT.03.Q5", "SIT.03.Q6", "SIT.03.Q7", "SIT.03.Q8",
+      "SIT.04.Q3",
+      "SIT.05.Q1", "SIT.05.Q3",
+      "SIT.06.Q2", "SIT.06.Q3", "SIT.06.Q4",
+      "SIT.08.Q1", "SIT.08.Q2",
+      "SIT.09.Q3",
+      "SIT.10.Q3",
+      "SIT.11.Q1", "SIT.11.Q2", "SIT.11.Q3", "SIT.11.Q4", "SIT.11.Q5",
+      "SIT.12.Q1", "SIT.12.Q2", "SIT.12.Q4", "SIT.12.Q5",
+      "SIT.13.Q1", "SIT.13.Q2", "SIT.13.Q3",
+      "SIT.14.Q2",
+      "SIT.15.Q2", "SIT.15.Q5",
+      "SIT.16.Q5",
+      "SIT.18.Q2", "SIT.18.Q4", "SIT.18.Q5", "SIT.18.Q6",
+      "SIT.19.Q5",
+      "SIT.20.Q1",
+      "SIT.21.Q1", "SIT.21.Q3",
+      "SIT.22.Q1",
+      "SIT.23.Q4", "SIT.23.Q6",
+      "SIT.24.Q2", "SIT.24.Q3", "SIT.24.Q4"
+    ]
+  },
+  "topics": [
+    {
+      "id": "GSI",
+      "title": "Gestione della Sicurezza delle Informazioni",
+      "description": "Aspetti organizzativi e di governance della sicurezza",
+      "sections": [
+        {
+          "id": "GSI.03",
+          "title": "Piano per la gestione della continuità operativa",
+          "compliance_rule": "AFFIDABILE se (Q1 == SÌ) AND (Q2 == SÌ) AND (Q3 == SÌ) AND (Q4 == SÌ)",
+          "weight": 10,
+          "questions": [
+            {
+              "id": "GSI.03.Q1",
+              "text": "Viene testato con periodicità almeno annuale?",
+              "weight": 2.5,
+              "essential": true,
+              "positive_feedback": "Conferma controllo su: Viene testato con periodicità almeno annuale?",
+              "negative_feedback": "Lacuna su: Viene testato con periodicità almeno annuale?; aumento rischio in 'Piano per la gestione della continuità operativa'"
+            },
+            {
+              "id": "GSI.03.Q2",
+              "text": "Include la parte IT con una Business Impact Analysis ad esso relativa?",
+              "weight": 2.5,
+              "essential": true,
+              "positive_feedback": "Conferma controllo su: Include la parte IT con una Business Impact Analysis ad esso relativa?",
+              "negative_feedback": "Lacuna su: Include la parte IT con una Business Impact Analysis ad esso relativa?; aumento rischio in 'Piano per la gestione della continuità operativa'"
+            },
+            {
+              "id": "GSI.03.Q3",
+              "text": "Prevede un piano di disaster recovery per i servizi critici?",
+              "weight": 2.5,
+              "essential": true,
+              "positive_feedback": "Conferma controllo su: Prevede un piano di disaster recovery per i servizi critici?",
+              "negative_feedback": "Lacuna su: Prevede un piano di disaster recovery per i servizi critici?; aumento rischio in 'Piano per la gestione della continuità operativa'"
+            },
+            {
+              "id": "GSI.03.Q4",
+              "text": "E' mantenuto aggiornato almeno annualmente?",
+              "weight": 2.5,
+              "essential": true,
+              "positive_feedback": "Conferma controllo su: E' mantenuto aggiornato almeno annualmente?",
+              "negative_feedback": "Lacuna su: E' mantenuto aggiornato almeno annualmente?; aumento rischio in 'Piano per la gestione della continuità operativa'"
+            }
+          ]
+        },
+        {
+          "id": "GSI.04",
+          "title": "Continuità operativa dei sistemi ICT",
+          "compliance_rule": "AFFIDABILE se (Q1 == SÌ) AND (Q3 == SÌ) AND (Q4 == SÌ)",
+          "weight": 10,
+          "questions": [
+            {
+              "id": "GSI.04.Q1",
+              "text": "E' assicurata tramite il mantenimento di una terza copia di backup dei dati in un sito remoto?",
+              "weight": 2.5,
+              "essential": true,
+              "positive_feedback": "Conferma controllo su: E' assicurata tramite il mantenimento di una terza copia di backup dei dati in un sito remoto?",
+              "negative_feedback": "Lacuna su: E' assicurata tramite il mantenimento di una terza copia di backup dei dati in un sito remoto?; aumento rischio in 'Continuità operativa dei sistemi ICT'"
+            },
+            {
+              "id": "GSI.04.Q2",
+              "text": "E' assicurata tramite l'allocazione di risorse dimensionate in modo da garantire sempre la disponibilità?",
+              "weight": 2.5,
+              "essential": false,
+              "positive_feedback": "Conferma controllo su: E' assicurata tramite l'allocazione di risorse dimensionate in modo da garantire sempre la disponibilità?",
+              "negative_feedback": "Lacuna su: E' assicurata tramite l'allocazione di risorse dimensionate in modo da garantire sempre la disponibilità?; aumento rischio in 'Continuità operativa dei sistemi ICT'"
+            },
+            {
+              "id": "GSI.04.Q3",
+              "text": "E' assicurata tramite la ridondanza locale di tutti i sistemi critici adottando soluzioni ad alta affidabilità?",
+              "weight": 2.5,
+              "essential": true,
+              "positive_feedback": "Conferma controllo su: E' assicurata tramite la ridondanza locale di tutti i sistemi critici adottando soluzioni ad alta affidabilità?",
+              "negative_feedback": "Lacuna su: E' assicurata tramite la ridondanza locale di tutti i sistemi critici adottando soluzioni ad alta affidabilità?; aumento rischio in 'Continuità operativa dei sistemi ICT'",
+              "exclusions": "Superflua se Q4 == SÌ (geografica copre il rischio)"
+            },
+            {
+              "id": "GSI.04.Q4",
+              "text": "E' assicurata tramite la ridondanza geografica di tutti i sistemi critici in un sito remoto situato a più di 50 km dal sito primario?",
+              "weight": 2.5,
+              "essential": true,
+              "positive_feedback": "Conferma controllo su: E' assicurata tramite la ridondanza geografica di tutti i sistemi critici in un sito remoto situato a più di 50 km dal sito primario?",
+              "negative_feedback": "Lacuna su: E' assicurata tramite la ridondanza geografica di tutti i sistemi critici in un sito remoto situato a più di 50 km dal sito primario?; aumento rischio in 'Continuità operativa dei sistemi ICT'"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "platform_implementation": {
+    "version": "2.0.0",
+    "last_updated": "2024-12-19",
+    "features_implemented": [
+      {
+        "name": "Dashboard Aziendale",
+        "description": "Dashboard principale con KPI real-time e statistiche fornitori",
+        "components": [
+          "KPI cards con dati reali dal database",
+          "Grafici Chart.js per conformità e distribuzione rischi",
+          "Attività recenti dinamiche",
+          "Menu di navigazione integrato"
+        ],
+        "routes": ["/company-dashboard/{company_id}"]
+      },
+      {
+        "name": "Gestione Fornitori",
+        "description": "Sistema completo di gestione fornitori con assessment NIS2",
+        "components": [
+          "Lista fornitori con filtri e ricerca",
+          "Aggiunta nuovi fornitori",
+          "Eliminazione fornitori",
+          "Visualizzazione dettagli assessment"
+        ],
+        "routes": ["/suppliers", "/new-supplier", "/assessment/{supplier_id}"]
+      },
+      {
+        "name": "Assessment NIS2",
+        "description": "Sistema di invio e gestione assessment di conformità",
+        "components": [
+          "Invio assessment ai fornitori",
+          "Simulazione punteggi di conformità",
+          "Calcolo automatico livelli di rischio",
+          "Visualizzazione assessment completati"
+        ],
+        "routes": ["/send-assessment", "/assessments", "/api/send-assessment/{supplier_id}"]
+      },
+      {
+        "name": "Certificati e Documenti",
+        "description": "Sistema di generazione certificati e documenti professionali",
+                 "components": [
+           "Certificato QR con dati reali e QR code generato dinamicamente",
+           "PDF certificato professionale per fornitori conformi (≥70%) con design commerciale",
+           "PDF richiamo dettagliato per fornitori non conformi (<70%) con piano implementativo",
+           "Requisiti NIS2 dettagliati e raccomandazioni specifiche nei documenti",
+           "Piani di implementazione prioritari con timeline e scadenze",
+           "Conseguenze legali e commerciali della non conformità",
+           "Verifica autenticità tramite hash e QR code",
+           "Generazione QR code in base64 per embedding nei documenti"
+         ],
+        "routes": ["/v/{certificate_hash}", "/certificate/{supplier_id}", "/warning/{supplier_id}"]
+      },
+      {
+        "name": "Autenticazione e Sicurezza",
+        "description": "Sistema di autenticazione JWT e gestione sessioni",
+        "components": [
+          "Login aziendale con JWT",
+          "Gestione sessioni sicure",
+          "Protezione route con middleware",
+          "Logout automatico"
+        ],
+        "routes": ["/company-login", "/api/auth/company-login", "/company-logout"]
+      },
+      {
+        "name": "Database e Dati",
+        "description": "Sistema di gestione dati con SQLite",
+        "components": [
+          "Database SQLite con tabelle normalizzate",
+          "Dati di esempio per demo",
+          "Query ottimizzate per performance",
+          "Gestione transazioni sicure"
+        ],
+        "tables": ["companies", "suppliers", "assessments"]
+      },
+      {
+        "name": "Frontend e UI/UX",
+        "description": "Interfaccia utente moderna e responsive",
+        "components": [
+          "Template Jinja2 modulari",
+          "CSS moderno con design system",
+          "JavaScript interattivo con Chart.js",
+          "Layout responsive per mobile"
+        ],
+        "files": [
+          "templates/dashboard.html",
+          "templates/suppliers.html", 
+          "templates/assessment.html",
+          "templates/certificate_pdf.html",
+          "templates/warning_pdf.html",
+          "static/css/dashboard.css",
+          "static/js/dashboard.js",
+          "static/js/suppliers.js"
+        ]
+      }
+    ],
+         "technical_stack": {
+       "backend": "FastAPI + Python 3.13",
+       "database": "SQLite3",
+       "authentication": "JWT (PyJWT)",
+       "templating": "Jinja2",
+       "frontend": "HTML5 + CSS3 + JavaScript (Chart.js)",
+       "server": "Uvicorn ASGI",
+       "qr_generation": "qrcode[pil] + PIL"
+     },
+    "api_endpoints": {
+      "authentication": [
+        "POST /api/auth/company-login"
+      ],
+      "suppliers": [
+        "POST /api/suppliers",
+        "DELETE /api/suppliers/{supplier_id}"
+      ],
+      "assessments": [
+        "POST /api/send-assessment/{supplier_id}"
+      ]
+    },
+    "security_features": [
+      "JWT token authentication",
+      "HTTP-only cookies",
+      "Route protection middleware",
+      "Input validation",
+      "SQL injection prevention"
+    ],
+         "compliance_features": [
+       "NIS2 directive compliance scoring",
+       "Risk level calculation",
+       "Professional PDF generation with commercial design",
+       "Detailed implementation plans and recommendations",
+       "Legal consequences and compliance requirements",
+       "QR code certificate verification",
+       "Audit trail for assessments",
+       "Timeline-based compliance roadmaps"
+     ]
+  }
+} 

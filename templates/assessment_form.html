@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment NIS2 - {{ supplier[1] }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .assessment-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 2rem;
+            padding: 3rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.125rem;
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+        
+        .supplier-info {
+            background: #f8fafc;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .info-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .info-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .assessment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-description {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .question-group {
+            background: #f8fafc;
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 2px solid #e5e7eb;
+            transition: border-color 0.2s;
+            margin-bottom: 1rem;
+        }
+        
+        .question-group:focus-within {
+            border-color: #10b981;
+        }
+        
+        .question-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        
+        .question-description {
+            font-size: 1rem;
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .option:hover {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .option input[type="radio"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: #10b981;
+        }
+        
+        .option-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1f2937;
+            flex: 1;
+        }
+        
+        .option-score {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 600;
+        }
+        
+        .submit-section {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 1rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .progress-bar {
+            background: #e5e7eb;
+            border-radius: 1rem;
+            height: 0.5rem;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(135deg, #10b981, #059669);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 768px) {
+            .assessment-container {
+                padding: 2rem;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="assessment-container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">N</div>
+                <span class="logo-text">NIS2 Supply Chain</span>
+            </div>
+            <h1 class="title">Assessment Conformità NIS2</h1>
+            <p class="subtitle">Valutazione della conformità alla Direttiva NIS2 - 57 domande</p>
+        </div>
+        
+        <div class="supplier-info">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Fornitore</div>
+                    <div class="info-value">{{ supplier[1] }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">{{ supplier[2] }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Azienda Richiedente</div>
+                    <div class="info-value">{{ supplier[3] }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <form class="assessment-form" id="assessmentForm">
+            <!-- Include il questionario completo generato automaticamente -->
+            {% include 'questionnaire_sections.html' %}
+            
+            <div class="submit-section">
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    Invia Assessment
+                </button>
+            </div>
+        </form>
+        
+        <div class="footer">
+            <p>© 2024 NIS2 Supply Chain Platform - Tutti i diritti riservati</p>
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('assessmentForm');
+        const progressFill = document.getElementById('progressFill');
+        const submitBtn = document.getElementById('submitBtn');
+        const questions = document.querySelectorAll('.question-group');
+        
+        // Aggiorna la barra di progresso
+        function updateProgress() {
+            const answered = document.querySelectorAll('input[type="radio"]:checked').length;
+            const total = questions.length;
+            const percentage = (answered / total) * 100;
+            progressFill.style.width = percentage + '%';
+            
+            if (answered === total) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+        
+        // Aggiungi listener per i radio button
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', updateProgress);
+        });
+        
+        // Gestione del submit
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Invio in corso...';
+            
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/api/submit-assessment/{{ token }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Reindirizza alla pagina di ringraziamento con il punteggio
+                    window.location.href = `/thank-you/${result.score}`;
+                } else {
+                    alert('Errore durante l\'invio dell\'assessment');
+                }
+            } catch (error) {
+                alert('Errore di connessione');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Invia Assessment';
+            }
+        });
+        
+        // Inizializza la barra di progresso
+        updateProgress();
+    </script>
+</body>
+</html>
+

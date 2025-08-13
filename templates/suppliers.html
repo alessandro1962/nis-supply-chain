@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Fornitori - NIS2 Supply Chain</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .suppliers-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .back-link {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 400;
+            margin-right: 1rem;
+            transition: color 0.2s;
+        }
+        
+        .back-link:hover {
+            color: #10b981;
+        }
+        
+        .add-supplier-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .add-supplier-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .suppliers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .supplier-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .supplier-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .supplier-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .supplier-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .supplier-email {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        
+        .compliance-score {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .score-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .score-high {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .score-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .score-low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .risk-level {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .risk-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .risk-low {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .risk-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .risk-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .risk-critical {
+            background: #fecaca;
+            color: #7f1d1d;
+        }
+        
+        .supplier-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #d97706;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal.hidden {
+            display: none;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+        
+        .back-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background: #4b5563;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/company-dashboard/{{ user.company_id }}" class="logo">
+                <div class="logo-icon">N</div>
+                <span>NIS2 Supply Chain</span>
+            </a>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name">Admin</div>
+                    <div class="user-role">Amministratore Aziendale</div>
+                </div>
+                <a href="/company-dashboard/{{ user.company_id }}" class="logout-btn" style="margin-right: 1rem;">Dashboard</a>
+                <a href="/company-logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="suppliers-container">
+        <div class="page-header">
+            <h1 class="page-title">
+                <a href="/company-dashboard/{{ user.company_id }}" class="back-link">← Dashboard</a>
+                Gestione Fornitori
+            </h1>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <a href="/company-dashboard/{{ user.company_id }}" class="back-btn" style="text-decoration: none;">← Torna alla Dashboard</a>
+                <button class="add-supplier-btn" onclick="openAddSupplierModal()">
+                    <span>+</span>
+                    <span>Nuovo Fornitore</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="suppliers-grid">
+            {% for supplier in suppliers %}
+            <div class="supplier-card">
+                <div class="supplier-header">
+                    <div>
+                        <div class="supplier-name">{{ supplier[1] }}</div>
+                        <div class="supplier-email">{{ supplier[2] }}</div>
+                    </div>
+                </div>
+                
+                <div class="compliance-score">
+                    <span>Conformità:</span>
+                    {% if supplier[3] and supplier[3]|int >= 70 %}
+                        <span class="score-badge score-high">{{ supplier[3] }}%</span>
+                    {% elif supplier[3] and supplier[3]|int >= 50 %}
+                        <span class="score-badge score-medium">{{ supplier[3] }}%</span>
+                    {% else %}
+                        <span class="score-badge score-low">{{ supplier[3] or 'N/A' }}%</span>
+                    {% endif %}
+                </div>
+                
+                <div class="risk-level">
+                    <span>Rischio:</span>
+                    {% if supplier[4] == 'Basso' %}
+                        <span class="risk-badge risk-low">{{ supplier[4] }}</span>
+                    {% elif supplier[4] == 'Medio' %}
+                        <span class="risk-badge risk-medium">{{ supplier[4] }}</span>
+                    {% elif supplier[4] == 'Alto' %}
+                        <span class="risk-badge risk-high">{{ supplier[4] }}</span>
+                    {% elif supplier[4] == 'Critico' %}
+                        <span class="risk-badge risk-critical">{{ supplier[4] }}</span>
+                    {% else %}
+                        <span class="risk-badge risk-medium">Non Valutato</span>
+                    {% endif %}
+                </div>
+                
+                <div class="supplier-actions">
+                    <a href="/edit-supplier/{{ supplier[0] }}" class="action-btn btn-warning">✏️ Modifica</a>
+                    <a href="/assessment/{{ supplier[0] }}" class="action-btn btn-primary">Visualizza Assessment</a>
+                    {% if supplier[3] and supplier[3]|int >= 70 %}
+                        <a href="/v/{{ supplier[0] }}" class="action-btn btn-success">📱 Certificato QR</a>
+                        <a href="/certificate/{{ supplier[0] }}" class="action-btn btn-success" target="_blank">📄 PDF Certificato</a>
+                    {% elif supplier[3] and supplier[3]|int < 70 %}
+                        <a href="/warning/{{ supplier[0] }}" class="action-btn btn-warning" target="_blank">⚠️ PDF Richiamo</a>
+                    {% else %}
+                        <button class="action-btn btn-primary send-assessment-btn" onclick="sendAssessment({{ supplier[0] }})">
+                            📤 Invia Assessment
+                        </button>
+                    {% endif %}
+                </div>
+                    
+                <div class="assessment-link" id="link-{{ supplier[0] }}" style="display: none;">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">Link Assessment:</div>
+                    <div class="link-text" style="font-family: monospace; background: #f8fafc; padding: 0.5rem; border-radius: 0.25rem; word-break: break-all;"></div>
+                    <button class="copy-btn" onclick="copyLink({{ supplier[0] }})" style="margin-top: 0.5rem; background: #6b7280; color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.25rem; cursor: pointer;">📋 Copia Link</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <!-- Add Supplier Modal -->
+    <div id="addSupplierModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nuovo Fornitore</h3>
+                <button class="close-btn" onclick="closeAddSupplierModal()">&times;</button>
+            </div>
+            <form id="addSupplierForm" method="POST" action="/api/suppliers">
+                <div class="form-group">
+                    <label class="form-label" for="supplierName">Nome Fornitore</label>
+                    <input type="text" id="supplierName" name="name" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="supplierEmail">Email</label>
+                    <input type="email" id="supplierEmail" name="email" class="form-input" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="back-btn" onclick="closeAddSupplierModal()">Annulla</button>
+                    <button type="submit" class="add-supplier-btn">Aggiungi Fornitore</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/js/suppliers.js"></script>
+</body>
+</html>

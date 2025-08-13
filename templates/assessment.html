@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment NIS2 - {{ supplier[0] }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .assessment-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .back-link {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 400;
+            margin-right: 1rem;
+            transition: color 0.2s;
+        }
+        
+        .back-link:hover {
+            color: #10b981;
+        }
+        
+        .back-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background: #4b5563;
+        }
+        
+        .assessment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .assessment-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .assessment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .assessment-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .supplier-info {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 2rem;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .info-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .info-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .compliance-score {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .score-circle {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .score-high {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .score-medium {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .score-low {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .risk-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .risk-low {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .risk-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .risk-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .assessment-details {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #d97706;
+        }
+        
+        @media (max-width: 768px) {
+            .assessment-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/company-dashboard/1" class="logo">
+                <div class="logo-icon">N</div>
+                <span>NIS2 Supply Chain</span>
+            </a>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name">Admin</div>
+                    <div class="user-role">Amministratore Aziendale</div>
+                </div>
+                <a href="/company-logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="assessment-container">
+        <div class="page-header">
+            <h1 class="page-title">
+                <a href="/company-dashboard/1" class="back-link">← Dashboard</a>
+                Assessment NIS2 - {{ supplier[0] }}
+            </h1>
+            <a href="/suppliers" class="back-btn">← Torna ai Fornitori</a>
+        </div>
+
+        <!-- Supplier Info -->
+        <div class="supplier-info">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Nome Fornitore</div>
+                    <div class="info-value">{{ supplier[0] }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email</div>
+                    <div class="info-value">{{ supplier[1] }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Punteggio Conformità</div>
+                    <div class="compliance-score">
+                        {% if supplier[2] and supplier[2] >= 70 %}
+                            <div class="score-circle score-high">{{ supplier[2] }}%</div>
+                        {% elif supplier[2] and supplier[2] >= 50 %}
+                            <div class="score-circle score-medium">{{ supplier[2] }}%</div>
+                        {% else %}
+                            <div class="score-circle score-low">{{ supplier[2] or 'N/A' }}%</div>
+                        {% endif %}
+                        <div>
+                            <div style="font-weight: 600; color: #1f2937;">
+                                {% if supplier[2] and supplier[2] >= 70 %}
+                                    Conforme
+                                {% elif supplier[2] and supplier[2] >= 50 %}
+                                    Parzialmente Conforme
+                                {% else %}
+                                    Non Conforme
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Livello di Rischio</div>
+                    <div>
+                        {% if supplier[3] == 'Basso' %}
+                            <span class="risk-badge risk-low">{{ supplier[3] }}</span>
+                        {% elif supplier[3] == 'Medio' %}
+                            <span class="risk-badge risk-medium">{{ supplier[3] }}</span>
+                        {% elif supplier[3] == 'Alto' %}
+                            <span class="risk-badge risk-high">{{ supplier[3] }}</span>
+                        {% else %}
+                            <span class="risk-badge risk-medium">Non Valutato</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Data Assessment</div>
+                    <div class="info-value">{{ supplier[4] or 'Non completato' }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assessment Details -->
+        <div class="assessment-details">
+            <div class="assessment-header">
+                <h3 class="assessment-title">Dettagli Assessment NIS2</h3>
+            </div>
+            
+            <div class="detail-item">
+                <span class="detail-label">Governance e Gestione del Rischio</span>
+                <span class="detail-value">85%</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Sicurezza delle Reti e Sistemi</span>
+                <span class="detail-value">78%</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Gestione degli Incidenti</span>
+                <span class="detail-value">72%</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Business Continuity</span>
+                <span class="detail-value">88%</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Supply Chain Security</span>
+                <span class="detail-value">65%</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Conformità Normativa</span>
+                <span class="detail-value">82%</span>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            {% if supplier[2] is not none %}
+                {% if supplier[2] >= 70 %}
+                    <a href="/v/{{ supplier_id }}" class="action-btn btn-success">📱 Certificato QR</a>
+                    <a href="/certificate/{{ supplier_id }}" class="action-btn btn-success" target="_blank">📄 PDF Certificato</a>
+                {% else %}
+                    <a href="/warning/{{ supplier_id }}" class="action-btn btn-warning" target="_blank">⚠️ PDF Richiamo</a>
+                {% endif %}
+            {% else %}
+                <button class="action-btn btn-primary" onclick="sendAssessment({{ supplier_id }})">📤 Invia Assessment</button>
+            {% endif %}
+            <a href="/suppliers" class="action-btn btn-primary">Torna ai Fornitori</a>
+        </div>
+    </main>
+
+    <script>
+        async function sendAssessment(supplierId) {
+            try {
+                const response = await fetch(`/api/send-assessment/${supplierId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    alert('Assessment inviato con successo!');
+                    location.reload();
+                } else {
+                    alert('Errore nell\'invio dell\'assessment');
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+                alert('Errore nell\'invio dell\'assessment');
+            }
+        }
+    </script>
+</body>
+</html>

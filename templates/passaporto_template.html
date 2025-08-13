@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ document_type }}</title>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ document_type }}</h1>
+        <div class="subtitle">Valutazione Conformità Direttiva NIS2 - {{ generated_date }}</div>
+        <div class="status-badge status-conforme">{{ compliance_status }}</div>
+    </div>
+
+    <div class="info-section">
+        <h3>Informazioni Fornitore</h3>
+        <table class="data-table">
+            <tr>
+                <th>Ragione Sociale</th>
+                <td>{{ supplier.company_name }}</td>
+            </tr>
+            <tr>
+                <th>Codice Fiscale/P.IVA</th>
+                <td>{{ supplier.tax_code }}</td>
+            </tr>
+            <tr>
+                <th>Settore</th>
+                <td>{{ supplier.sector }}</td>
+            </tr>
+            <tr>
+                <th>Paese</th>
+                <td>{{ supplier.country }}</td>
+            </tr>
+            <tr>
+                <th>Email di contatto</th>
+                <td>{{ supplier.email }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="info-section">
+        <h3>Risultati Assessment</h3>
+        <table class="data-table">
+            <tr>
+                <th>Punteggio Totale</th>
+                <td><strong>{{ assessment.final_score }}%</strong></td>
+            </tr>
+            <tr>
+                <th>Esito Valutazione</th>
+                <td><strong>{{ assessment.result }}</strong></td>
+            </tr>
+            <tr>
+                <th>Data Valutazione</th>
+                <td>{{ assessment.completed_at.strftime('%d/%m/%Y') if assessment.completed_at else 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Validità</th>
+                <td>{{ validity_period }}</td>
+            </tr>
+            <tr>
+                <th>Certificazioni ISO</th>
+                <td>
+                    {% if supplier.certifications %}
+                        {% for cert in supplier.certifications %}
+                            {{ cert }}<br>
+                        {% endfor %}
+                    {% else %}
+                        Nessuna certificazione dichiarata
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    {% if assessment.strengths %}
+    <div class="strengths">
+        <h4>🟢 Punti di Forza Identificati</h4>
+        <ul>
+            {% for strength in assessment.strengths %}
+            <li>{{ strength }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="qr-section">
+        <h3>Verifica Pubblica</h3>
+        <p>Scansiona il QR code per verificare l'autenticità di questo documento</p>
+        <img src="{{ qr_code_path }}" alt="QR Code Verifica" class="qr-code" width="200">
+        <div class="verification-url">{{ verification_url }}</div>
+    </div>
+
+    <div class="info-section">
+        <h3>Dichiarazione di Conformità</h3>
+        <p>Il presente documento certifica che il fornitore <strong>{{ supplier.company_name }}</strong> 
+        ha superato con successo la valutazione di conformità ai requisiti della Direttiva NIS2, 
+        ottenendo un punteggio di <strong>{{ assessment.final_score }}%</strong>.</p>
+        
+        <p>La valutazione è stata condotta attraverso un questionario strutturato che copre tutti gli 
+        aspetti richiesti dalla normativa europea in materia di cybersecurity per i settori critici 
+        e importanti.</p>
+        
+        <p><strong>Livello di Rischio:</strong> {{ supplier.risk_level | default('BASSO') }}</p>
+    </div>
+
+    <div class="footer">
+        <p>Documento generato automaticamente dalla Piattaforma NIS2 Supplier Assessment</p>
+        <p>Data e ora di generazione: {{ generated_date }} alle {{ generated_time }}</p>
+        <p>Questo documento ha valore legale limitato alla validità della valutazione effettuata</p>
+    </div>
+</body>
+</html> 

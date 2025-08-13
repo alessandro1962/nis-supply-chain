@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Richiamo NIS2 - {{ supplier_name }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+        body {
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: white;
+            font-size: 12px;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 4px solid #dc2626;
+            padding-bottom: 25px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: #f59e0b;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #dc2626;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #dc2626;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #6b7280;
+            font-style: italic;
+        }
+        .warning-body {
+            margin: 40px 0;
+        }
+        .warning-text {
+            font-size: 14px;
+            text-align: justify;
+            margin-bottom: 25px;
+            line-height: 1.8;
+        }
+        .supplier-info {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 3px solid #dc2626;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 35px 0;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            font-size: 14px;
+            align-items: center;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #1f2937;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+        .info-value {
+            color: #dc2626;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .score-highlight {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 25px 0;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+        .requirements-section {
+            background: #f8fafc;
+            border-left: 5px solid #dc2626;
+            padding: 25px;
+            margin: 30px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .requirement-item {
+            margin-bottom: 15px;
+            padding-left: 25px;
+            position: relative;
+            font-size: 12px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 15px 15px 15px 25px;
+        }
+        .requirement-item:before {
+            content: "⚠️";
+            color: #dc2626;
+            font-weight: bold;
+            position: absolute;
+            left: 8px;
+            top: 15px;
+        }
+        .requirement-title {
+            font-weight: bold;
+            color: #dc2626;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        .implementation-plan {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        .plan-item {
+            margin-bottom: 15px;
+            padding-left: 25px;
+            position: relative;
+            font-size: 12px;
+        }
+        .plan-item:before {
+            content: "📋";
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        .deadline-section {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 3px solid #dc2626;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .deadline-title {
+            font-weight: bold;
+            color: #dc2626;
+            font-size: 20px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        .deadline-urgent {
+            background: #dc2626;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 15px 0;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+        .legal-consequences {
+            background: #1f2937;
+            color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .consequence-item {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+            font-size: 12px;
+        }
+        .consequence-item:before {
+            content: "⚖️";
+            position: absolute;
+            left: 0;
+        }
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 11px;
+            color: #6b7280;
+            border-top: 2px solid #e5e7eb;
+            padding-top: 20px;
+        }
+        .signature-section {
+            margin-top: 80px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature-box {
+            width: 45%;
+            text-align: center;
+        }
+        .signature-line {
+            border-top: 2px solid #1f2937;
+            margin-top: 60px;
+            padding-top: 15px;
+            font-size: 12px;
+        }
+        .qr-section {
+            text-align: center;
+            margin: 35px 0;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        .qr-placeholder {
+            width: 120px;
+            height: 120px;
+            background: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            display: inline-block;
+            line-height: 120px;
+            color: #9ca3af;
+            font-size: 10px;
+            border-radius: 8px;
+        }
+        .status-badge {
+            background: #dc2626;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        .priority-high {
+            background: #dc2626;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .priority-medium {
+            background: #f59e0b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .signature-stamp {
+            width: 200px;
+            height: 80px;
+            border: 2px solid #dc2626;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+        }
+        .signature-line {
+            position: absolute;
+            bottom: 25px;
+            left: 20px;
+            right: 20px;
+            height: 3px;
+            background: #dc2626;
+            border-radius: 2px;
+        }
+        .signature-text {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            font-size: 12px;
+            color: #dc2626;
+            font-weight: 600;
+        }
+        .signature-name {
+            position: absolute;
+            bottom: 8px;
+            left: 20px;
+            font-size: 16px;
+            color: #dc2626;
+            font-weight: 700;
+            font-family: 'Brush Script MT', cursive;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">NIS2 SUPPLY CHAIN</div>
+        <div class="title">Richiamo di Conformità</div>
+        <div class="subtitle">Direttiva (UE) 2022/2555 - Network and Information Security</div>
+    </div>
+
+    <div class="warning-body">
+        <div class="warning-text">
+            Si comunica ufficialmente al fornitore <strong>{{ supplier_name }}</strong> che l'assessment di conformità NIS2 
+            condotto da <strong>{{ company_name }}</strong> ha evidenziato criticità significative che richiedono 
+            interventi immediati per garantire la conformità ai requisiti di sicurezza della supply chain 
+            secondo la Direttiva NIS2 (UE) 2022/2555.
+        </div>
+
+        <div class="supplier-info">
+            <div class="info-row">
+                <span class="info-label">Nome Fornitore:</span>
+                <span class="info-value">{{ supplier_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Azienda Richiedente:</span>
+                <span class="info-value">{{ company_name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Data Assessment:</span>
+                <span class="info-value">{{ assessment_date }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Punteggio Conformità:</span>
+                <span class="info-value">{{ compliance_score }}%</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Stato Conformità:</span>
+                <span class="status-badge">⚠️ NON CONFORME NIS2</span>
+            </div>
+        </div>
+
+        <div class="score-highlight">
+            ⚠️ FORNITORE NON CONFORME - Punteggio: {{ compliance_score }}%
+        </div>
+
+        <div class="requirements-section">
+            <div class="section-title">Requisiti NIS2 Critici da Implementare</div>
+            
+            <div class="requirement-item">
+                <div class="requirement-title">Gestione del Rischio Informatico <span class="priority-high">ALTA PRIORITÀ</span></div>
+                <div>Implementare un framework completo di gestione del rischio informatico conforme alla Direttiva NIS2, 
+                inclusa identificazione, valutazione e mitigazione dei rischi.</div>
+            </div>
+            
+            <div class="requirement-item">
+                <div class="requirement-title">Politiche di Sicurezza <span class="priority-high">ALTA PRIORITÀ</span></div>
+                <div>Definire e documentare politiche di sicurezza informatica che coprano tutti gli aspetti 
+                richiesti dalla normativa NIS2.</div>
+            </div>
+            
+            <div class="requirement-item">
+                <div class="requirement-title">Controlli di Accesso <span class="priority-high">ALTA PRIORITÀ</span></div>
+                <div>Implementare controlli di accesso robusti, autenticazione multi-fattore e gestione 
+                delle identità per tutti i sistemi critici.</div>
+            </div>
+            
+            <div class="requirement-item">
+                <div class="requirement-title">Gestione degli Incidenti <span class="priority-medium">MEDIA PRIORITÀ</span></div>
+                <div>Stabilire procedure formali per la gestione, rilevamento e risposta agli incidenti 
+                di sicurezza informatica.</div>
+            </div>
+            
+            <div class="requirement-item">
+                <div class="requirement-title">Business Continuity <span class="priority-medium">MEDIA PRIORITÀ</span></div>
+                <div>Sviluppare piani di continuità operativa e disaster recovery testati e aggiornati 
+                regolarmente.</div>
+            </div>
+            
+            <div class="requirement-item">
+                <div class="requirement-title">Formazione del Personale <span class="priority-medium">MEDIA PRIORITÀ</span></div>
+                <div>Implementare programmi di formazione e sensibilizzazione sulla sicurezza informatica 
+                per tutto il personale.</div>
+            </div>
+            
+            <div class="requirement-item">
+                <div class="requirement-title">Monitoraggio e Logging <span class="priority-medium">MEDIA PRIORITÀ</span></div>
+                <div>Implementare sistemi di monitoraggio continuo e logging degli eventi di sicurezza 
+                per tutti i sistemi critici.</div>
+            </div>
+            
+            <div class="requirement-item">
+                <div class="requirement-title">Supply Chain Security <span class="priority-medium">MEDIA PRIORITÀ</span></div>
+                <div>Stabilire controlli di sicurezza per i fornitori e partner della supply chain 
+                secondo i requisiti NIS2.</div>
+            </div>
+        </div>
+
+        <div class="implementation-plan">
+            <div class="section-title">Piano di Implementazione Prioritario</div>
+            
+            <div class="plan-item">
+                <strong>Settimana 1-2:</strong> Nominare un Responsabile della Sicurezza Informatica e costituire 
+                un team di sicurezza dedicato.
+            </div>
+            
+            <div class="plan-item">
+                <strong>Settimana 3-4:</strong> Condurre un assessment completo dei rischi informatici 
+                e definire le politiche di sicurezza di base.
+            </div>
+            
+            <div class="plan-item">
+                <strong>Settimana 5-6:</strong> Implementare controlli di accesso e autenticazione 
+                multi-fattore sui sistemi critici.
+            </div>
+            
+            <div class="plan-item">
+                <strong>Settimana 7-8:</strong> Sviluppare procedure di gestione degli incidenti 
+                e testare i piani di disaster recovery.
+            </div>
+            
+            <div class="plan-item">
+                <strong>Settimana 9-10:</strong> Avviare programmi di formazione del personale 
+                e implementare sistemi di monitoraggio.
+            </div>
+            
+            <div class="plan-item">
+                <strong>Settimana 11-12:</strong> Condurre audit interni e prepararsi per 
+                la certificazione finale NIS2.
+            </div>
+        </div>
+
+        <div class="deadline-section">
+            <div class="deadline-title">Termine di Conformità</div>
+            <div class="deadline-urgent">30 GIORNI</div>
+            <p style="font-size: 14px; margin: 15px 0;">
+                Il fornitore deve implementare tutte le misure richieste entro <strong>30 giorni</strong> 
+                dalla data di emissione di questo richiamo.
+            </p>
+            <p style="font-size: 12px; color: #6b7280;">
+                Al termine del periodo, sarà condotto un nuovo assessment per verificare la conformità. 
+                La mancata conformità entro i termini stabiliti comporterà conseguenze legali e commerciali.
+            </p>
+        </div>
+
+        <div class="legal-consequences">
+            <div class="section-title" style="color: white;">Conseguenze della Mancata Conformità</div>
+            
+            <div class="consequence-item">
+                <strong>Sospensione Commerciale:</strong> Possibile sospensione immediata di tutti i contratti commerciali
+            </div>
+            
+            <div class="consequence-item">
+                <strong>Sanzioni Amministrative:</strong> Applicazione di sanzioni pecuniarie fino al 2% del fatturato globale
+            </div>
+            
+            <div class="consequence-item">
+                <strong>Responsabilità Legale:</strong> Possibili azioni legali per danni derivanti da incidenti di sicurezza
+            </div>
+            
+            <div class="consequence-item">
+                <strong>Danno Reputazionale:</strong> Impatto negativo sulla reputazione aziendale e relazioni commerciali
+            </div>
+            
+            <div class="consequence-item">
+                <strong>Esclusione da Gare:</strong> Possibile esclusione da future gare d'appalto e contratti pubblici
+            </div>
+        </div>
+
+        <div class="warning-text">
+            <strong>IMPORTANTE:</strong> Questo richiamo è ufficiale e legalmente vincolante. 
+            La mancata conformità entro i termini stabiliti potrà comportare la sospensione o la cessazione 
+            della collaborazione commerciale, in conformità con le disposizioni della Direttiva NIS2 (UE) 2022/2555 
+            e le normative nazionali di recepimento.
+        </div>
+
+        <div class="qr-section">
+            {% if qr_code %}
+                <img src="{{ qr_code }}" alt="QR Code" style="width: 120px; height: 120px; border: 2px solid #d1d5db; border-radius: 8px;">
+            {% else %}
+                <div class="qr-placeholder">QR CODE</div>
+            {% endif %}
+            <p style="font-size: 11px; color: #6b7280; margin-top: 10px;">
+                Scansiona per verificare l'autenticità del documento
+            </p>
+        </div>
+    </div>
+
+    <div class="signature-section">
+        <div class="signature-box">
+            <div class="signature-stamp">
+                <div class="signature-text">Firma Digitale</div>
+                <div class="signature-line"></div>
+                <div class="signature-name">Dr. Marco Rossi</div>
+            </div>
+            <div class="signature-line">
+                Responsabile Sicurezza Informatica<br>
+                {{ company_name }}<br>
+                <small>Firma e timbro</small>
+            </div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-line">
+                Data Emissione<br>
+                {{ assessment_date }}<br>
+                <small>Termine ultimo: 30 giorni</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p><strong>NIS2 SUPPLY CHAIN PLATFORM</strong> - Sistema di Gestione Conformità</p>
+        <p>ID Richiamo: WARN-{{ supplier_id }}-{{ assessment_date.replace('-', '') if assessment_date else 'NODATE' }}</p>
+        <p>Questo documento è generato automaticamente e contiene informazioni protette dalla Direttiva NIS2</p>
+        <p style="color: #dc2626; font-weight: bold;">DOCUMENTO UFFICIALE - RICHIAMO DI CONFORMITÀ</p>
+    </div>
+</body>
+</html>

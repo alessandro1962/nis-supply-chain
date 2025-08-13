@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Completati - NIS2 Supply Chain</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .assessments-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .back-link {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 400;
+            margin-right: 1rem;
+            transition: color 0.2s;
+        }
+        
+        .back-link:hover {
+            color: #10b981;
+        }
+        
+        .back-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background: #4b5563;
+        }
+        
+        .info-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 2rem;
+        }
+        
+        .info-text {
+            font-size: 1rem;
+            color: #374151;
+            line-height: 1.6;
+        }
+        
+        .assessments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .assessment-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .assessment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .assessment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .supplier-info {
+            flex: 1;
+        }
+        
+        .supplier-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .supplier-email {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .assessment-date {
+            font-size: 0.875rem;
+            color: #6b7280;
+            text-align: right;
+        }
+        
+        .compliance-score {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .score-circle {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .score-high {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .score-medium {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .score-low {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .score-info {
+            flex: 1;
+        }
+        
+        .score-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .score-status {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        
+        .risk-level {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .risk-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .risk-low {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .risk-medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .risk-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .assessment-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            font-size: 0.875rem;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #d97706;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-text {
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .send-assessment-btn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .send-assessment-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/company-dashboard/1" class="logo">
+                <div class="logo-icon">N</div>
+                <span>NIS2 Supply Chain</span>
+            </a>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name">Admin</div>
+                    <div class="user-role">Amministratore Aziendale</div>
+                </div>
+                <a href="/company-logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="assessments-container">
+        <div class="page-header">
+            <h1 class="page-title">
+                <a href="/company-dashboard/1" class="back-link">← Dashboard</a>
+                Assessment Completati
+            </h1>
+                            <a href="/company-dashboard/{{ user.company_id }}" class="back-btn">← Torna alla Dashboard</a>
+        </div>
+
+        <div class="info-box">
+            <div class="info-text">
+                <strong>Assessment NIS2:</strong> Visualizza tutti gli assessment di conformità NIS2 completati dai fornitori. 
+                Clicca su "Visualizza Assessment" per vedere i dettagli completi o "Certificato QR" per generare il certificato.
+            </div>
+        </div>
+
+        {% if assessments %}
+            <div class="assessments-grid">
+                {% for assessment in assessments %}
+                <div class="assessment-card">
+                    <div class="assessment-header">
+                        <div class="supplier-info">
+                            <div class="supplier-name">{{ assessment[1] }}</div>
+                            <div class="supplier-email">{{ assessment[2] }}</div>
+                        </div>
+                        <div class="assessment-date">
+                            {{ assessment[5] or 'Data non disponibile' }}
+                        </div>
+                    </div>
+                    
+                    <div class="compliance-score">
+                        {% if assessment[3] and assessment[3] >= 70 %}
+                            <div class="score-circle score-high">{{ assessment[3] }}%</div>
+                        {% elif assessment[3] and assessment[3] >= 50 %}
+                            <div class="score-circle score-medium">{{ assessment[3] }}%</div>
+                        {% else %}
+                            <div class="score-circle score-low">{{ assessment[3] or 'N/A' }}%</div>
+                        {% endif %}
+                        <div class="score-info">
+                            <div class="score-value">
+                                {% if assessment[3] and assessment[3] >= 70 %}
+                                    Conforme
+                                {% elif assessment[3] and assessment[3] >= 50 %}
+                                    Parzialmente Conforme
+                                {% else %}
+                                    Non Conforme
+                                {% endif %}
+                            </div>
+                            <div class="score-status">Direttiva NIS2</div>
+                        </div>
+                    </div>
+                    
+                    <div class="risk-level">
+                        <span>Rischio:</span>
+                        {% if assessment[4] == 'Basso' %}
+                            <span class="risk-badge risk-low">{{ assessment[4] }}</span>
+                        {% elif assessment[4] == 'Medio' %}
+                            <span class="risk-badge risk-medium">{{ assessment[4] }}</span>
+                        {% elif assessment[4] == 'Alto' %}
+                            <span class="risk-badge risk-high">{{ assessment[4] }}</span>
+                        {% else %}
+                            <span class="risk-badge risk-medium">Non Valutato</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="assessment-actions">
+                        <a href="/assessment/{{ assessment[0] }}" class="action-btn btn-primary">Visualizza Assessment</a>
+                        {% if assessment[3] and assessment[3] >= 70 %}
+                            <a href="/v/{{ assessment[0] }}" class="action-btn btn-success">📱 Certificato QR</a>
+                            <a href="/certificate/{{ assessment[0] }}" class="action-btn btn-success" target="_blank">📄 PDF Certificato</a>
+                        {% else %}
+                            <a href="/warning/{{ assessment[0] }}" class="action-btn btn-warning" target="_blank">⚠️ PDF Richiamo</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📊</div>
+                <div class="empty-title">Nessun assessment completato</div>
+                <div class="empty-text">
+                    Non ci sono ancora assessment NIS2 completati. Invia assessment ai fornitori per iniziare.
+                </div>
+                <a href="/send-assessment" class="send-assessment-btn">Invia Assessment</a>
+            </div>
+        {% endif %}
+    </main>
+</body>
+</html>

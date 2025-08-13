@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Aziende - NIS2 Supply Chain Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1f2937;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .nav-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .nav-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #d97706;
+        }
+        
+        .companies-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: #f8fafc;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .table-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .table-content {
+            padding: 1rem;
+        }
+        
+                 .company-row {
+             display: grid;
+             grid-template-columns: 2fr 2fr 1fr 1fr 1fr 1fr 1fr auto;
+             gap: 1rem;
+             padding: 1rem;
+             border-bottom: 1px solid #f3f4f6;
+             align-items: center;
+         }
+        
+        .company-row:last-child {
+            border-bottom: none;
+        }
+        
+        .company-row.header {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .company-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .company-email {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .company-sector {
+            color: #059669;
+            font-weight: 500;
+        }
+        
+        .company-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .status-active {
+            background: #dcfce7;
+            color: #059669;
+        }
+        
+        .status-inactive {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .company-suppliers {
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .company-date {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .company-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-small {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+        }
+        
+        .success-message {
+            background: #dcfce7;
+            border: 1px solid #bbf7d0;
+            color: #059669;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏢 Pannello di Amministrazione NIS2</h1>
+        <div class="user-info">
+            <span>Admin</span>
+            <a href="/admin-logout" class="logout-btn">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="nav-menu">
+            <a href="/admin-dashboard" class="nav-btn">Dashboard</a>
+            <a href="/admin/companies" class="nav-btn active">Gestione Aziende</a>
+        </div>
+        
+        {% if request.query_params.get('success') == 'created' %}
+        <div class="success-message">
+            ✅ Azienda creata con successo!
+        </div>
+        {% endif %}
+        
+        {% if request.query_params.get('success') == 'updated' %}
+        <div class="success-message">
+            ✅ Azienda aggiornata con successo!
+        </div>
+        {% endif %}
+        
+        {% if request.query_params.get('error') == 'duplicate' %}
+        <div class="error-message">
+            ❌ Email già registrata. Usa un'email diversa.
+        </div>
+        {% endif %}
+        
+        <div class="page-header">
+            <div class="section-title">🏢 Gestione Aziende</div>
+            <button onclick="showCreateForm()" class="btn btn-primary">➕ Nuova Azienda</button>
+        </div>
+        
+        <div class="companies-table">
+            <div class="table-header">
+                <h3>Aziende Registrate ({{ companies|length }})</h3>
+            </div>
+            <div class="table-content">
+                                 <div class="company-row header">
+                     <div>Nome Azienda</div>
+                     <div>Email Admin</div>
+                     <div>Settore</div>
+                     <div>Città</div>
+                     <div>Telefono</div>
+                     <div>P.IVA</div>
+                     <div>Fornitori</div>
+                     <div>Azioni</div>
+                 </div>
+                
+                {% for company in companies %}
+                                 <div class="company-row">
+                     <div class="company-name">{{ company[1] }}</div>
+                     <div class="company-email">{{ company[2] }}</div>
+                     <div class="company-sector">{{ company[3] }}</div>
+                     <div class="company-city">{{ company[6] or '-' }}</div>
+                     <div class="company-phone">{{ company[7] or '-' }}</div>
+                     <div class="company-piva">{{ company[8] or '-' }}</div>
+                     <div class="company-suppliers">{{ company[9] }}</div>
+                     <div class="company-actions">
+                         <a href="/company-dashboard/{{ company[0] }}" class="btn btn-primary btn-small" title="Visualizza">👁️</a>
+                         <a href="/admin/companies/{{ company[0] }}/edit" class="btn btn-warning btn-small" title="Modifica">✏️</a>
+                         <button onclick="deleteCompany({{ company[0] }})" class="btn btn-danger btn-small" title="Elimina">🗑️</button>
+                     </div>
+                 </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal per creare nuova azienda -->
+    <div id="createModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 12px; width: 90%; max-width: 500px;">
+            <h3 style="margin-bottom: 1rem;">➕ Nuova Azienda</h3>
+            <form method="POST" action="/api/admin/companies">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Nome Azienda *</label>
+                        <input type="text" name="name" required style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Email Admin *</label>
+                        <input type="email" name="admin_email" required style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Password Admin *</label>
+                        <input type="password" name="admin_password" required style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Settore *</label>
+                        <select name="sector" required style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                            <option value="">Seleziona settore</option>
+                            <option value="Tecnologia">Tecnologia</option>
+                            <option value="Finanza">Finanza</option>
+                            <option value="Sanità">Sanità</option>
+                            <option value="Trasporti">Trasporti</option>
+                            <option value="Energia">Energia</option>
+                            <option value="Acqua">Acqua</option>
+                            <option value="Digitale">Digitale</option>
+                            <option value="Spazio">Spazio</option>
+                            <option value="Chimica">Chimica</option>
+                            <option value="Alimentare">Alimentare</option>
+                            <option value="Manifatturiero">Manifatturiero</option>
+                            <option value="Altro">Altro</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Indirizzo</label>
+                        <input type="text" name="address" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Città</label>
+                        <input type="text" name="city" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">CAP</label>
+                        <input type="text" name="postal_code" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Paese</label>
+                        <input type="text" name="country" value="Italia" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Telefono</label>
+                        <input type="text" name="phone" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">P.IVA</label>
+                        <input type="text" name="piva" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Codice Fiscale</label>
+                        <input type="text" name="cf" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Sito Web</label>
+                        <input type="url" name="website" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px;">
+                    </div>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Descrizione Azienda</label>
+                    <textarea name="description" rows="3" style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; resize: vertical;"></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary">Crea Azienda</button>
+                    <button type="button" onclick="hideCreateForm()" class="btn" style="background: #6b7280; color: white;">Annulla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function showCreateForm() {
+            document.getElementById('createModal').style.display = 'block';
+        }
+        
+        function hideCreateForm() {
+            document.getElementById('createModal').style.display = 'none';
+        }
+        
+        function deleteCompany(companyId) {
+            if (confirm('Sei sicuro di voler eliminare questa azienda? Questa azione eliminerà anche tutti i fornitori associati.')) {
+                fetch(`/api/admin/companies/${companyId}`, {
+                    method: 'DELETE',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Errore durante l\'eliminazione');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Errore durante l\'eliminazione');
+                });
+            }
+        }
+        
+        // Chiudi modal cliccando fuori
+        document.getElementById('createModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideCreateForm();
+            }
+        });
+    </script>
+</body>
+</html>

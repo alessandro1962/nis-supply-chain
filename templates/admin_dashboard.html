@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - NIS2 Supply Chain Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1f2937;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card p {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+        
+        .companies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .company-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #667eea;
+        }
+        
+        .company-card h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+        
+        .company-info {
+            margin-bottom: 1rem;
+        }
+        
+        .company-info p {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .company-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        
+        .btn-success {
+            background: #059669;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #047857;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .nav-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .nav-btn.active {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏢 Pannello di Amministrazione NIS2</h1>
+        <div class="user-info">
+            <span>Admin</span>
+            <a href="/admin-logout" class="logout-btn">Logout</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="nav-menu">
+            <a href="/admin-dashboard" class="nav-btn active">Dashboard</a>
+            <a href="/admin/companies" class="nav-btn">Gestione Aziende</a>
+        </div>
+        
+        <div class="section-title">📊 Statistiche Generali</div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>{{ total_companies }}</h3>
+                <p>Aziende Registrate</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ total_suppliers }}</h3>
+                <p>Fornitori Totali</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ completed_assessments }}</h3>
+                <p>Assessment Completati</p>
+            </div>
+        </div>
+        
+        <div class="section-title">🏢 Aziende Registrate</div>
+        
+        <div class="companies-grid">
+            {% for company in companies %}
+            <div class="company-card">
+                <h4>{{ company[1] }}</h4>
+                <div class="company-info">
+                    <p><strong>Email:</strong> {{ company[2] }}</p>
+                    <p><strong>Settore:</strong> {{ company[3] }}</p>
+                    <p><strong>Stato:</strong> 
+                        <span style="color: {% if company[4] == 'active' %}#059669{% else %}#dc2626{% endif %}; font-weight: 600;">
+                            {{ company[4]|title }}
+                        </span>
+                    </p>
+                    <p><strong>Fornitori:</strong> {{ company[6] }}</p>
+                    <p><strong>Registrata:</strong> {{ company[5][:10] }}</p>
+                </div>
+                <div class="company-actions">
+                    <a href="/company-dashboard/{{ company[0] }}" class="btn btn-primary">Visualizza Dashboard</a>
+                    <button onclick="deleteCompany({{ company[0] }})" class="btn btn-danger">Elimina</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <script>
+        function deleteCompany(companyId) {
+            if (confirm('Sei sicuro di voler eliminare questa azienda? Questa azione eliminerà anche tutti i fornitori associati.')) {
+                fetch(`/api/admin/companies/${companyId}`, {
+                    method: 'DELETE',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Errore durante l\'eliminazione');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Errore durante l\'eliminazione');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

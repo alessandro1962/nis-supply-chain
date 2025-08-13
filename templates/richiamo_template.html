@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ document_type }}</title>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ document_type }}</h1>
+        <div class="subtitle">Valutazione Conformità Direttiva NIS2 - {{ generated_date }}</div>
+        <div class="status-badge status-non-conforme">{{ compliance_status }}</div>
+    </div>
+
+    <div class="info-section">
+        <h3>Informazioni Fornitore</h3>
+        <table class="data-table">
+            <tr>
+                <th>Ragione Sociale</th>
+                <td>{{ supplier.company_name }}</td>
+            </tr>
+            <tr>
+                <th>Codice Fiscale/P.IVA</th>
+                <td>{{ supplier.tax_code }}</td>
+            </tr>
+            <tr>
+                <th>Settore</th>
+                <td>{{ supplier.sector }}</td>
+            </tr>
+            <tr>
+                <th>Paese</th>
+                <td>{{ supplier.country }}</td>
+            </tr>
+            <tr>
+                <th>Email di contatto</th>
+                <td>{{ supplier.email }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="info-section">
+        <h3>Risultati Assessment</h3>
+        <table class="data-table">
+            <tr>
+                <th>Punteggio Totale</th>
+                <td><strong style="color: #ef4444;">{{ assessment.final_score }}%</strong></td>
+            </tr>
+            <tr>
+                <th>Esito Valutazione</th>
+                <td><strong style="color: #ef4444;">{{ assessment.result }}</strong></td>
+            </tr>
+            <tr>
+                <th>Data Valutazione</th>
+                <td>{{ assessment.completed_at.strftime('%d/%m/%Y') if assessment.completed_at else 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>Azione Richiesta</th>
+                <td><strong>{{ action_required }}</strong></td>
+            </tr>
+            <tr>
+                <th>Livello di Rischio</th>
+                <td><strong style="color: #ef4444;">{{ supplier.risk_level | default('ALTO') }}</strong></td>
+            </tr>
+        </table>
+    </div>
+
+    {% if assessment.improvement_areas %}
+    <div class="improvement-areas">
+        <h4>🔴 Aree di Miglioramento Richieste</h4>
+        <ul>
+            {% for area in assessment.improvement_areas %}
+            <li>{{ area }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if assessment.essential_questions_failed %}
+    <div class="improvement-areas">
+        <h4>⚠️ Controlli Essenziali Non Conformi</h4>
+        <p><strong>ATTENZIONE:</strong> Il fornitore non ha superato alcuni controlli considerati essenziali per la conformità NIS2.</p>
+        <ul>
+            {% for question in assessment.essential_questions_failed %}
+            <li>{{ question }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="qr-section">
+        <h3>Verifica Pubblica</h3>
+        <p>Scansiona il QR code per verificare l'autenticità di questo documento</p>
+        <img src="{{ qr_code_path }}" alt="QR Code Verifica" class="qr-code" width="200">
+        <div class="verification-url">{{ verification_url }}</div>
+    </div>
+
+    <div class="info-section">
+        <h3>Raccomandazioni</h3>
+        <p>Il fornitore <strong>{{ supplier.company_name }}</strong> non ha raggiunto il livello minimo 
+        di conformità richiesto dalla Direttiva NIS2, ottenendo un punteggio di <strong>{{ assessment.final_score }}%</strong>.</p>
+        
+        <p><strong>Si raccomanda di:</strong></p>
+        <ul>
+            <li>Implementare immediatamente le misure correttive per le aree di miglioramento identificate</li>
+            <li>Rivedere e aggiornare le politiche di sicurezza informatica</li>
+            <li>Fornire formazione adeguata al personale sui temi di cybersecurity</li>
+            <li>Ripetere la valutazione dopo l'implementazione delle misure correttive</li>
+        </ul>
+    </div>
+
+    <div class="info-section">
+        <h3>Prossimi Passi</h3>
+        <ol>
+            <li><strong>Analisi dettagliata:</strong> Esaminare tutte le aree di non conformità</li>
+            <li><strong>Piano di rimedio:</strong> Sviluppare un piano dettagliato per affrontare le lacune</li>
+            <li><strong>Implementazione:</strong> Attuare le misure correttive identificate</li>
+            <li><strong>Verifica:</strong> Sottoporsi a una nuova valutazione dopo le implementazioni</li>
+        </ol>
+    </div>
+
+    <div class="footer">
+        <p>Documento generato automaticamente dalla Piattaforma NIS2 Supplier Assessment</p>
+        <p>Data e ora di generazione: {{ generated_date }} alle {{ generated_time }}</p>
+        <p>Questo documento identifica le non conformità riscontrate e le azioni correttive necessarie</p>
+    </div>
+</body>
+</html> 

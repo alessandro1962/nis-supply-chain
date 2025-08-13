@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifica Autenticità - NIS2 Supply Chain</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .verification-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 2rem;
+            padding: 3rem;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.125rem;
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+        
+        .verification-status {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .status-valid {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            color: #166534;
+            border: 2px solid #22c55e;
+        }
+        
+        .status-invalid {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #991b1b;
+            border: 2px solid #ef4444;
+        }
+        
+        .status-icon {
+            font-size: 1.5rem;
+        }
+        
+        .document-info {
+            background: #f8fafc;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .info-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .info-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .compliance-score {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .score-circle {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .score-high {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .score-medium {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .score-low {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .verification-details {
+            background: #f8fafc;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .details-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        
+        .details-list {
+            list-style: none;
+        }
+        
+        .details-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .details-item:last-child {
+            border-bottom: none;
+        }
+        
+        .check-icon {
+            color: #10b981;
+            font-size: 1.25rem;
+        }
+        
+        .warning-icon {
+            color: #f59e0b;
+            font-size: 1.25rem;
+        }
+        
+        .footer {
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .footer a {
+            color: #10b981;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .verification-container {
+                padding: 2rem;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">N</div>
+                <span class="logo-text">NIS2 Supply Chain</span>
+            </div>
+            <h1 class="title">Verifica Autenticità Documento</h1>
+            <p class="subtitle">Sistema di verifica certificati e documenti NIS2</p>
+        </div>
+        
+        <div class="verification-status">
+            {% if is_valid %}
+                <div class="status-badge status-valid">
+                    <span class="status-icon">✅</span>
+                    <span>DOCUMENTO AUTENTICO</span>
+                </div>
+                <p>Questo documento è stato verificato e risulta autentico nel nostro sistema.</p>
+            {% else %}
+                <div class="status-badge status-invalid">
+                    <span class="status-icon">❌</span>
+                    <span>DOCUMENTO NON VALIDO</span>
+                </div>
+                <p>Attenzione: questo documento non risulta autentico nel nostro sistema.</p>
+            {% endif %}
+        </div>
+        
+        {% if supplier_data %}
+        <div class="document-info">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Fornitore</div>
+                    <div class="info-value">{{ supplier_data[0] }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Azienda Certificante</div>
+                    <div class="info-value">{{ supplier_data[3] }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Punteggio Conformità</div>
+                    <div class="compliance-score">
+                        {% if supplier_data[1] and supplier_data[1] >= 70 %}
+                            <div class="score-circle score-high">{{ supplier_data[1] }}%</div>
+                        {% elif supplier_data[1] and supplier_data[1] >= 50 %}
+                            <div class="score-circle score-medium">{{ supplier_data[1] }}%</div>
+                        {% else %}
+                            <div class="score-circle score-low">{{ supplier_data[1] or 'N/A' }}%</div>
+                        {% endif %}
+                        <div>
+                            {% if supplier_data[1] and supplier_data[1] >= 70 %}
+                                <div style="font-weight: 600; color: #166534;">Conforme NIS2</div>
+                            {% elif supplier_data[1] and supplier_data[1] >= 50 %}
+                                <div style="font-weight: 600; color: #92400e;">Parzialmente Conforme</div>
+                            {% else %}
+                                <div style="font-weight: 600; color: #991b1b;">Non Conforme</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Data Assessment</div>
+                    <div class="info-value">{{ supplier_data[2] or 'Non disponibile' }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">ID Documento</div>
+                    <div class="info-value">{{ certificate_hash }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Data Verifica</div>
+                    <div class="info-value">{{ verification_date }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="verification-details">
+            <h3 class="details-title">Dettagli Verifica</h3>
+            <ul class="details-list">
+                <li class="details-item">
+                    <span class="check-icon">✓</span>
+                    <span>Firma digitale verificata</span>
+                </li>
+                <li class="details-item">
+                    <span class="check-icon">✓</span>
+                    <span>Hash del documento confermato</span>
+                </li>
+                <li class="details-item">
+                    <span class="check-icon">✓</span>
+                    <span>Timestamp di emissione valido</span>
+                </li>
+                <li class="details-item">
+                    <span class="check-icon">✓</span>
+                    <span>Dati del fornitore verificati</span>
+                </li>
+                <li class="details-item">
+                    <span class="check-icon">✓</span>
+                    <span>Conformità NIS2 confermata</span>
+                </li>
+            </ul>
+        </div>
+        {% endif %}
+        
+        <div class="footer">
+            <p>Per ulteriori informazioni, contattare <a href="mailto:support@nis2supplychain.com">support@nis2supplychain.com</a></p>
+            <p>© 2024 NIS2 Supply Chain Platform - Tutti i diritti riservati</p>
+        </div>
+    </div>
+</body>
+</html>

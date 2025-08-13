@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuovo Fornitore - NIS2 Supply Chain</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .back-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background: #4b5563;
+        }
+        
+        .form-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .info-box {
+            background: #f3f4f6;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-text {
+            font-size: 0.875rem;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/company-dashboard/1" class="logo">
+                <div class="logo-icon">N</div>
+                <span>NIS2 Supply Chain</span>
+            </a>
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name">Admin</div>
+                    <div class="user-role">Amministratore Aziendale</div>
+                </div>
+                <a href="/company-logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="form-container">
+        <div class="page-header">
+            <h1 class="page-title">Nuovo Fornitore</h1>
+                            <a href="/company-dashboard/{{ user.company_id }}" class="back-btn">← Torna alla Dashboard</a>
+        </div>
+
+        <div class="form-card">
+            <div class="info-box">
+                <div class="info-text">
+                    <strong>Informazioni:</strong> Aggiungi un nuovo fornitore alla tua supply chain. 
+                    Dopo l'aggiunta potrai inviare l'assessment NIS2 per valutare la conformità.
+                </div>
+            </div>
+
+            <form id="newSupplierForm" method="POST" action="/api/suppliers">
+                <div class="form-group">
+                    <label class="form-label" for="supplierName">Nome Fornitore *</label>
+                    <input type="text" id="supplierName" name="name" class="form-input" required 
+                           placeholder="Es. ABC Tech Solutions">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="supplierEmail">Email *</label>
+                    <input type="email" id="supplierEmail" name="email" class="form-input" required 
+                           placeholder="Es. info@abctech.com">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="supplierPhone">Telefono</label>
+                    <input type="tel" id="supplierPhone" name="phone" class="form-input" 
+                           placeholder="Es. +39 02 1234567">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="supplierAddress">Indirizzo</label>
+                    <textarea id="supplierAddress" name="address" class="form-textarea" 
+                              placeholder="Indirizzo completo del fornitore"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="supplierSector">Settore</label>
+                    <select id="supplierSector" name="sector" class="form-input">
+                        <option value="">Seleziona settore</option>
+                        <option value="Tecnologia">Tecnologia</option>
+                        <option value="Logistica">Logistica</option>
+                        <option value="Manufacturing">Manufacturing</option>
+                        <option value="Servizi">Servizi</option>
+                        <option value="Altro">Altro</option>
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <a href="/company-dashboard/1" class="back-btn">Annulla</a>
+                    <button type="submit" class="submit-btn">Aggiungi Fornitore</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('newSupplierForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('/api/suppliers', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    alert('Fornitore aggiunto con successo!');
+                    window.location.href = '/suppliers';
+                } else {
+                    alert('Errore nell\'aggiunta del fornitore');
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+                alert('Errore nell\'aggiunta del fornitore');
+            }
+        });
+    </script>
+</body>
+</html>

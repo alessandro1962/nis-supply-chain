@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifica Azienda - NIS2 Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 30px;
+        }
+        .btn-secondary {
+            border-radius: 25px;
+            padding: 10px 30px;
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h3><i class="fas fa-edit me-2"></i>Modifica Azienda</h3>
+                        <p class="mb-0">Aggiorna i dati dell'azienda</p>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if request.query_params.get('error') %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {% if request.query_params.get('error') == 'duplicate' %}
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Errore: Email già esistente nel sistema.
+                                {% elif request.query_params.get('error') == 'unknown' %}
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Errore: Si è verificato un problema durante l'aggiornamento.
+                                {% endif %}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endif %}
+
+                        <form method="POST" action="/api/admin/companies/{{ company.id }}/edit">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="name" class="form-label">
+                                        <i class="fas fa-building me-2"></i>Nome Azienda
+                                    </label>
+                                    <input type="text" class="form-control" id="name" name="name" 
+                                           value="{{ company.name }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="admin_email" class="form-label">
+                                        <i class="fas fa-envelope me-2"></i>Email Amministratore
+                                    </label>
+                                    <input type="email" class="form-control" id="admin_email" name="admin_email" 
+                                           value="{{ company.admin_email }}" required>
+                                </div>
+                            </div>
+
+                                                         <div class="row">
+                                 <div class="col-md-6 mb-3">
+                                     <label for="sector" class="form-label">
+                                         <i class="fas fa-industry me-2"></i>Settore
+                                     </label>
+                                     <select class="form-control" id="sector" name="sector" required>
+                                         <option value="Tecnologia" {% if company.sector == 'Tecnologia' %}selected{% endif %}>Tecnologia</option>
+                                         <option value="Finanza" {% if company.sector == 'Finanza' %}selected{% endif %}>Finanza</option>
+                                         <option value="Sanità" {% if company.sector == 'Sanità' %}selected{% endif %}>Sanità</option>
+                                         <option value="Trasporti" {% if company.sector == 'Trasporti' %}selected{% endif %}>Trasporti</option>
+                                         <option value="Energia" {% if company.sector == 'Energia' %}selected{% endif %}>Energia</option>
+                                         <option value="Acqua" {% if company.sector == 'Acqua' %}selected{% endif %}>Acqua</option>
+                                         <option value="Digitale" {% if company.sector == 'Digitale' %}selected{% endif %}>Digitale</option>
+                                         <option value="Spazio" {% if company.sector == 'Spazio' %}selected{% endif %}>Spazio</option>
+                                         <option value="Chimico" {% if company.sector == 'Chimico' %}selected{% endif %}>Chimico</option>
+                                         <option value="Alimentare" {% if company.sector == 'Alimentare' %}selected{% endif %}>Alimentare</option>
+                                         <option value="Altro" {% if company.sector == 'Altro' %}selected{% endif %}>Altro</option>
+                                     </select>
+                                 </div>
+                                 <div class="col-md-6 mb-3">
+                                     <label for="status" class="form-label">
+                                         <i class="fas fa-toggle-on me-2"></i>Stato
+                                     </label>
+                                     <select class="form-control" id="status" name="status" required>
+                                         <option value="active" {% if company.status == 'active' %}selected{% endif %}>Attiva</option>
+                                         <option value="inactive" {% if company.status == 'inactive' %}selected{% endif %}>Inattiva</option>
+                                         <option value="suspended" {% if company.status == 'suspended' %}selected{% endif %}>Sospesa</option>
+                                     </select>
+                                 </div>
+                             </div>
+
+                             <div class="row">
+                                 <div class="col-md-6 mb-3">
+                                     <label for="address" class="form-label">
+                                         <i class="fas fa-map-marker-alt me-2"></i>Indirizzo
+                                     </label>
+                                     <input type="text" class="form-control" id="address" name="address" 
+                                            value="{{ company.address or '' }}">
+                                 </div>
+                                 <div class="col-md-6 mb-3">
+                                     <label for="city" class="form-label">
+                                         <i class="fas fa-city me-2"></i>Città
+                                     </label>
+                                     <input type="text" class="form-control" id="city" name="city" 
+                                            value="{{ company.city or '' }}">
+                                 </div>
+                             </div>
+
+                             <div class="row">
+                                 <div class="col-md-6 mb-3">
+                                     <label for="postal_code" class="form-label">
+                                         <i class="fas fa-mailbox me-2"></i>CAP
+                                     </label>
+                                     <input type="text" class="form-control" id="postal_code" name="postal_code" 
+                                            value="{{ company.postal_code or '' }}">
+                                 </div>
+                                 <div class="col-md-6 mb-3">
+                                     <label for="country" class="form-label">
+                                         <i class="fas fa-flag me-2"></i>Paese
+                                     </label>
+                                     <input type="text" class="form-control" id="country" name="country" 
+                                            value="{{ company.country or 'Italia' }}">
+                                 </div>
+                             </div>
+
+                             <div class="row">
+                                 <div class="col-md-6 mb-3">
+                                     <label for="phone" class="form-label">
+                                         <i class="fas fa-phone me-2"></i>Telefono
+                                     </label>
+                                     <input type="text" class="form-control" id="phone" name="phone" 
+                                            value="{{ company.phone or '' }}">
+                                 </div>
+                                 <div class="col-md-6 mb-3">
+                                     <label for="piva" class="form-label">
+                                         <i class="fas fa-building me-2"></i>P.IVA
+                                     </label>
+                                     <input type="text" class="form-control" id="piva" name="piva" 
+                                            value="{{ company.piva or '' }}">
+                                 </div>
+                             </div>
+
+                             <div class="row">
+                                 <div class="col-md-6 mb-3">
+                                     <label for="cf" class="form-label">
+                                         <i class="fas fa-id-card me-2"></i>Codice Fiscale
+                                     </label>
+                                     <input type="text" class="form-control" id="cf" name="cf" 
+                                            value="{{ company.cf or '' }}">
+                                 </div>
+                                 <div class="col-md-6 mb-3">
+                                     <label for="website" class="form-label">
+                                         <i class="fas fa-globe me-2"></i>Sito Web
+                                     </label>
+                                     <input type="url" class="form-control" id="website" name="website" 
+                                            value="{{ company.website or '' }}">
+                                 </div>
+                             </div>
+
+                             <div class="mb-3">
+                                 <label for="description" class="form-label">
+                                     <i class="fas fa-align-left me-2"></i>Descrizione Azienda
+                                 </label>
+                                 <textarea class="form-control" id="description" name="description" rows="3">{{ company.description or '' }}</textarea>
+                             </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="/admin/companies" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Torna alla Lista
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Salva Modifiche
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
