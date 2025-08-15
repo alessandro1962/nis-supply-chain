@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NIS2 Supply Chain Assessment{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/professional.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app-container">
+        <!-- ===== SIDEBAR PROFESSIONALE ===== -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="sidebar-logo-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="sidebar-logo-text">NIS2 Platform</div>
+                </div>
+                <div class="sidebar-subtitle">Supply Chain Assessment</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <!-- Dashboard -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Dashboard</div>
+                    <a href="/company-dashboard/{{ company_id }}" class="nav-item">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div class="nav-item-text">Dashboard</div>
+                    </a>
+                </div>
+                
+                <!-- Gestione Fornitori -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Gestione Fornitori</div>
+                    <a href="/suppliers/{{ company_id }}" class="nav-item">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="nav-item-text">Fornitori</div>
+                    </a>
+                    <a href="/add-supplier/{{ company_id }}" class="nav-item">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <div class="nav-item-text">Aggiungi Fornitore</div>
+                    </a>
+                </div>
+                
+                <!-- Assessments -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Assessments</div>
+                    <a href="/assessments/{{ company_id }}" class="nav-item">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <div class="nav-item-text">Valutazioni</div>
+                    </a>
+                    <a href="/questionnaire" class="nav-item">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="nav-item-text">Questionario</div>
+                    </a>
+                </div>
+                
+                <!-- Report e PDF -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Report</div>
+                    <a href="/reports/{{ company_id }}" class="nav-item">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="nav-item-text">Report</div>
+                    </a>
+                    <a href="/pdfs/{{ company_id }}" class="nav-item">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="nav-item-text">PDF Generati</div>
+                    </a>
+                </div>
+                
+                <!-- Amministrazione -->
+                <div class="nav-section">
+                    <div class="nav-section-title">Amministrazione</div>
+                    <a href="/settings/{{ company_id }}" class="nav-item">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="nav-item-text">Impostazioni</div>
+                    </a>
+                    <a href="/users/{{ company_id }}" class="nav-item">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="nav-item-text">Utenti</div>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- ===== CONTENUTO PRINCIPALE ===== -->
+        <main class="main-content">
+            <!-- ===== HEADER PROFESSIONALE ===== -->
+            <header class="header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <!-- Mobile menu toggle -->
+                        <button class="mobile-menu-toggle hidden lg:block" style="background: none; border: none; font-size: 1.5rem; color: #1e3a8a; cursor: pointer;">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        
+                        <div>
+                            <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                            <nav class="breadcrumb">
+                                <a href="/company-dashboard/{{ company_id }}" class="text-secondary hover:text-primary">Dashboard</a>
+                                {% block breadcrumb %}{% endblock %}
+                            </nav>
+                        </div>
+                    </div>
+                    
+                    <div class="header-right">
+                        <!-- Notifications -->
+                        <button class="btn btn-secondary btn-sm" style="position: relative;">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge badge-danger" style="position: absolute; top: -5px; right: -5px; font-size: 0.625rem;">3</span>
+                        </button>
+                        
+                        <!-- User Menu -->
+                        <div class="user-menu">
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="user-info">
+                                <div class="user-name">Admin User</div>
+                                <div class="user-role">Amministratore</div>
+                            </div>
+                            <i class="fas fa-chevron-down" style="font-size: 0.75rem; color: #6b7280;"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- ===== CONTENUTO PAGINA ===== -->
+            <div class="page-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    
+    <!-- ===== JAVASCRIPT ===== -->
+    <script src="{{ url_for('static', filename='js/professional.js') }}"></script>
+    
+    {% block extra_js %}{% endblock %}
+    
+    <!-- ===== SCRIPT DI INIZIALIZZAZIONE ===== -->
+    <script>
+        // Set company_id for navigation
+        window.COMPANY_ID = {{ company_id }};
+        
+        // Initialize professional UI
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set active navigation based on current page
+            const currentPath = window.location.pathname;
+            const navItems = document.querySelectorAll('.nav-item');
+            
+            navItems.forEach(item => {
+                const href = item.getAttribute('href');
+                if (href && currentPath.includes(href)) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Add fade-in animation to page content
+            const pageContent = document.querySelector('.page-content');
+            if (pageContent) {
+                pageContent.classList.add('fade-in');
+            }
+        });
+    </script>
+</body>
+</html>

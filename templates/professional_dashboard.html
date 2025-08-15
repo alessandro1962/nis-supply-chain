@@ -1,0 +1,365 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Dashboard - NIS2 Supply Chain Assessment{% endblock %}
+
+{% block page_title %}Dashboard Aziendale{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-separator">/</span>
+<span>Panoramica</span>
+{% endblock %}
+
+{% block content %}
+<!-- ===== STATISTICHE PRINCIPALI ===== -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon success">
+                <i class="fas fa-check-circle"></i>
+            </div>
+        </div>
+        <div class="stat-value">{{ stats.compliant_count }}</div>
+        <div class="stat-label">Fornitori Conformi</div>
+        <div class="stat-change positive">
+            <i class="fas fa-arrow-up"></i> +12% questo mese
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon warning">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+        </div>
+        <div class="stat-value">{{ stats.non_compliant_count }}</div>
+        <div class="stat-label">Fornitori Non Conformi</div>
+        <div class="stat-change negative">
+            <i class="fas fa-arrow-down"></i> -5% questo mese
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon info">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+        </div>
+        <div class="stat-value">{{ stats.total_assessments }}</div>
+        <div class="stat-label">Assessments Totali</div>
+        <div class="stat-change positive">
+            <i class="fas fa-arrow-up"></i> +8% questo mese
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-icon success">
+                <i class="fas fa-percentage"></i>
+            </div>
+        </div>
+        <div class="stat-value">{{ "%.1f"|format(stats.compliance_rate) }}%</div>
+        <div class="stat-label">Tasso di Conformità</div>
+        <div class="stat-change positive">
+            <i class="fas fa-arrow-up"></i> +3.2% questo mese
+        </div>
+    </div>
+</div>
+
+<!-- ===== GRAFICI E ANALISI ===== -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6" style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <!-- Grafico Conformità -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fas fa-chart-pie"></i>
+                Distribuzione Conformità
+            </div>
+            <div class="card-subtitle">Stato attuale dei fornitori</div>
+        </div>
+        <div class="card-body">
+            <canvas id="complianceChart" height="300"></canvas>
+        </div>
+    </div>
+    
+    <!-- Trend Mensili -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fas fa-chart-line"></i>
+                Trend Assessments
+            </div>
+            <div class="card-subtitle">Assessments completati per mese</div>
+        </div>
+        <div class="card-body">
+            <canvas id="trendsChart" height="300"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- ===== FORNITORI RECENTI ===== -->
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">
+            <i class="fas fa-building"></i>
+            Fornitori Recenti
+        </div>
+        <div class="card-subtitle">Ultimi fornitori aggiunti e valutati</div>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table class="table">
+                <thead class="table-header">
+                    <tr>
+                        <th>Fornitore</th>
+                        <th>Settore</th>
+                        <th>Stato Assessment</th>
+                        <th>Punteggio</th>
+                        <th>Ultimo Aggiornamento</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for supplier in recent_suppliers %}
+                    <tr data-id="{{ supplier.id }}">
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-semibold">
+                                    {{ supplier.name[:2].upper() }}
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-primary">{{ supplier.name }}</div>
+                                    <div class="text-sm text-secondary">{{ supplier.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-info">{{ supplier.sector }}</span>
+                        </td>
+                        <td>
+                            {% if supplier.compliance_score >= 70 %}
+                                <span class="badge badge-success">
+                                    <i class="fas fa-check-circle mr-1"></i> Conforme
+                                </span>
+                            {% elif supplier.compliance_score >= 50 %}
+                                <span class="badge badge-warning">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i> Parziale
+                                </span>
+                            {% else %}
+                                <span class="badge badge-danger">
+                                    <i class="fas fa-times-circle mr-1"></i> Non Conforme
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="text-lg font-bold text-primary">{{ "%.1f"|format(supplier.compliance_score) }}%</div>
+                                <div class="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full {% if supplier.compliance_score >= 70 %}bg-green-500{% elif supplier.compliance_score >= 50 %}bg-yellow-500{% else %}bg-red-500{% endif %}" 
+                                         style="width: {{ supplier.compliance_score }}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-sm text-secondary">
+                                {{ supplier.last_assessment_date.strftime('%d/%m/%Y') if supplier.last_assessment_date else 'N/A' }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex gap-2">
+                                <a href="/supplier/{{ supplier.id }}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if supplier.compliance_score >= 70 %}
+                                    <a href="/certificate/{{ supplier.id }}" class="btn btn-success btn-sm" data-action="generate-pdf">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                {% else %}
+                                    <a href="/warning/{{ supplier.id }}" class="btn btn-danger btn-sm" data-action="generate-pdf">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer">
+        <a href="/suppliers/{{ company_id }}" class="btn btn-primary">
+            <i class="fas fa-list"></i>
+            Visualizza Tutti i Fornitori
+        </a>
+    </div>
+</div>
+
+<!-- ===== ATTIVITÀ RECENTI ===== -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6" style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+    <!-- Notifiche -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fas fa-bell"></i>
+                Notifiche Recenti
+            </div>
+            <div class="card-subtitle">Ultime attività del sistema</div>
+        </div>
+        <div class="card-body">
+            <div class="space-y-4">
+                {% for notification in recent_notifications %}
+                <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold
+                                {% if notification.type == 'success' %}bg-green-500
+                                {% elif notification.type == 'warning' %}bg-yellow-500
+                                {% elif notification.type == 'danger' %}bg-red-500
+                                {% else %}bg-blue-500{% endif %}">
+                        <i class="fas {% if notification.type == 'success' %}fa-check
+                                     {% elif notification.type == 'warning' %}fa-exclamation-triangle
+                                     {% elif notification.type == 'danger' %}fa-times
+                                     {% else %}fa-info{% endif %}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-semibold text-primary">{{ notification.title }}</div>
+                        <div class="text-sm text-secondary">{{ notification.message }}</div>
+                        <div class="text-xs text-gray-400 mt-1">{{ notification.timestamp.strftime('%d/%m/%Y %H:%M') }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Azioni Rapide -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fas fa-bolt"></i>
+                Azioni Rapide
+            </div>
+            <div class="card-subtitle">Operazioni frequenti</div>
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-2 gap-4">
+                <a href="/add-supplier/{{ company_id }}" class="btn btn-primary flex-col p-4 text-center">
+                    <i class="fas fa-plus-circle text-2xl mb-2"></i>
+                    <span>Aggiungi Fornitore</span>
+                </a>
+                
+                <a href="/questionnaire" class="btn btn-success flex-col p-4 text-center">
+                    <i class="fas fa-clipboard-check text-2xl mb-2"></i>
+                    <span>Nuovo Assessment</span>
+                </a>
+                
+                <a href="/reports/{{ company_id }}" class="btn btn-info flex-col p-4 text-center">
+                    <i class="fas fa-chart-bar text-2xl mb-2"></i>
+                    <span>Genera Report</span>
+                </a>
+                
+                <a href="/export/{{ company_id }}" class="btn btn-secondary flex-col p-4 text-center" data-action="export">
+                    <i class="fas fa-download text-2xl mb-2"></i>
+                    <span>Esporta Dati</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Aggiorna i dati dei grafici con i dati reali dal server
+document.addEventListener('DOMContentLoaded', function() {
+    // Dati per il grafico di conformità
+    const complianceData = {
+        compliant: {{ stats.compliant_count }},
+        nonCompliant: {{ stats.non_compliant_count }},
+        inProgress: {{ stats.total_suppliers - stats.compliant_count - stats.non_compliant_count }}
+    };
+    
+    // Aggiorna il grafico di conformità
+    const complianceCtx = document.getElementById('complianceChart');
+    if (complianceCtx) {
+        new Chart(complianceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Conforme', 'Non Conforme', 'In Valutazione'],
+                datasets: [{
+                    data: [complianceData.compliant, complianceData.nonCompliant, complianceData.inProgress],
+                    backgroundColor: ['#059669', '#dc2626', '#ca8a04'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: {
+                                family: 'Inter',
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Aggiorna il grafico dei trend
+    const trendsCtx = document.getElementById('trendsChart');
+    if (trendsCtx) {
+        new Chart(trendsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu'],
+                datasets: [{
+                    label: 'Assessments Completati',
+                    data: [12, 19, 15, 25, 22, 30],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f3f4f6'
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Inter'
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Inter'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

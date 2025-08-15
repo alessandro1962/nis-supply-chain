@@ -500,32 +500,62 @@ async def company_dashboard(request: Request, company_id: int):
     stats = cursor.fetchone()
     total_suppliers, conformi, non_conformi = stats
     
-    # Ottieni distribuzione livelli di rischio
+    # Calcola tasso di conformità
+    compliance_rate = (conformi / total_suppliers * 100) if total_suppliers > 0 else 0
+    
+    # Ottieni fornitori recenti
     cursor.execute('''
-        SELECT 
-            risk_level,
-            COUNT(*) as count
+        SELECT id, name, email, sector, compliance_score, assessment_date
         FROM suppliers 
-        WHERE company_id = ? AND risk_level IS NOT NULL
-        GROUP BY risk_level
+        WHERE company_id = ?
+        ORDER BY assessment_date DESC NULLS LAST, created_at DESC
+        LIMIT 10
     ''', (company_id,))
     
-    risk_distribution = cursor.fetchall()
-    risk_data = {'Basso': 0, 'Medio': 0, 'Alto': 0, 'Critico': 0}
-    for risk_level, count in risk_distribution:
-        risk_data[risk_level] = count
+    recent_suppliers = []
+    for row in cursor.fetchall():
+        supplier_id, name, email, sector, compliance_score, assessment_date = row
+        recent_suppliers.append({
+            'id': supplier_id,
+            'name': name,
+            'email': email,
+            'sector': sector or 'N/A',
+            'compliance_score': compliance_score or 0,
+            'last_assessment_date': assessment_date
+        })
     
-    # Ottieni attività recenti
-    cursor.execute('''
-        SELECT s.name, s.compliance_score, s.assessment_date
-        FROM suppliers s
-        WHERE s.company_id = ?
-        ORDER BY s.assessment_date DESC
-        LIMIT 5
-    ''', (company_id,))
+    # Ottieni notifiche recenti (simulate per ora)
+    recent_notifications = [
+        {
+            'type': 'success',
+            'title': 'Assessment Completato',
+            'message': 'TechCorp ha completato la valutazione NIS2',
+            'timestamp': datetime.now()
+        },
+        {
+            'type': 'warning',
+            'title': 'Scadenza Imminente',
+            'message': '3 fornitori hanno assessment in scadenza',
+            'timestamp': datetime.now()
+        },
+        {
+            'type': 'info',
+            'title': 'Nuovo Fornitore',
+            'message': 'Digital Solutions è stato aggiunto alla piattaforma',
+            'timestamp': datetime.now()
+        }
+    ]
     
-    recent_activities = cursor.fetchall()
     conn.close()
+    
+    # Prepara statistiche per il template professionale
+    stats_data = {
+        'compliant_count': conformi,
+        'non_compliant_count': non_conformi,
+        'total_assessments': total_suppliers,
+        'compliance_rate': compliance_rate,
+        'total_suppliers': total_suppliers
+    }
     
     context = {
         "request": request,
@@ -542,14 +572,12 @@ async def company_dashboard(request: Request, company_id: int):
         "company_website": company[9] or "N/A",
         "company_description": company[10] or "N/A",
         "admin_name": user.get("sub", "Admin"),
-        "total_suppliers": total_suppliers,
-        "conformi": conformi,
-        "non_conformi": non_conformi,
-        "risk_data": risk_data,
-        "recent_activities": recent_activities
+        "stats": stats_data,
+        "recent_suppliers": recent_suppliers,
+        "recent_notifications": recent_notifications
     }
     
-    return templates.TemplateResponse("dashboard.html", context)
+    return templates.TemplateResponse("professional_dashboard.html", context)
 
 @app.get("/suppliers")
 async def suppliers_page(request: Request):
