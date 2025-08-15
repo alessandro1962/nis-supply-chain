@@ -7,4 +7,4 @@ qrcode[pil]==7.4.2
 pillow==10.1.0
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
-weasyprint==60.2
+reportlab==4.0.4

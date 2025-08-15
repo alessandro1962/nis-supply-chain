@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Form, HTTPException, Depends
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import uvicorn
@@ -14,8 +14,6 @@ from pydantic import BaseModel
 import qrcode
 import base64
 from io import BytesIO
-# from weasyprint import HTML  # Temporaneamente commentato per Windows
-from fastapi.responses import FileResponse
 import tempfile
 import os
 
@@ -761,67 +759,77 @@ async def generate_certificate_pdf(request: Request, supplier_id: int):
     if not user:
         return RedirectResponse(url="/company-login")
     
-    conn = sqlite3.connect('nis2_supply_chain.db')
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        SELECT s.name, s.compliance_score, s.assessment_date, c.name as company_name,
-               c.address, c.city, c.postal_code, c.country, c.phone, c.piva, c.cf, c.website, c.description
-        FROM suppliers s
-        JOIN companies c ON s.company_id = c.id
-        WHERE s.id = ?
-    ''', (supplier_id,))
-    
-    supplier_data = cursor.fetchone()
-    conn.close()
-    
-    if not supplier_data:
-        raise HTTPException(status_code=404, detail="Fornitore non trovato")
-    
-    supplier_name, compliance_score, assessment_date, company_name = supplier_data[:4]
-    company_address, company_city, company_postal_code, company_country, company_phone, company_piva, company_cf, company_website, company_description = supplier_data[4:]
-    
-    # Verifica che il fornitore sia conforme (≥70%)
-    if compliance_score < 70:
-        raise HTTPException(status_code=400, detail="Il fornitore non è conforme per generare un certificato")
-    
-    # Ottieni l'email e l'indirizzo del fornitore per il certificato
-    conn = sqlite3.connect('nis2_supply_chain.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT email, address, city FROM suppliers WHERE id = ?', (supplier_id,))
-    supplier_details = cursor.fetchone()
-    supplier_email, supplier_address, supplier_city = supplier_details
-    conn.close()
-    
-    # Genera testo certificazione per QR code
-    certificate_text = f"Questo certificato attesta che il fornitore {supplier_name} ({supplier_address}, {supplier_city}, {supplier_email}) è conforme alla Direttiva NIS2 e rientra nella lista dei fornitori certificati di {company_name}. Certificato N° {supplier_id} - Data: {assessment_date}"
-    
-    # Genera QR code con il testo della certificazione
-    qr_code_data = generate_qr_code(certificate_text)
-    
-    context = {
-        "request": request,
-        "supplier_name": supplier_name,
-        "compliance_score": compliance_score,
-        "assessment_date": assessment_date,
-        "company_name": company_name,
-        "company_address": company_address or "N/A",
-        "company_city": company_city or "N/A",
-        "supplier_address": supplier_address or "N/A",
-        "supplier_city": supplier_city or "N/A",
-        "company_postal_code": company_postal_code or "N/A",
-        "company_country": company_country or "N/A",
-        "company_phone": company_phone or "N/A",
-        "company_piva": company_piva or "N/A",
-        "company_cf": company_cf or "N/A",
-        "company_website": company_website or "N/A",
-        "company_description": company_description or "N/A",
-        "supplier_id": supplier_id,
-        "qr_code": qr_code_data
-    }
-    
-    # Per ora restituiamo l'HTML come PDF (temporaneo per Windows)
-    return templates.TemplateResponse("certificate_pdf.html", context)
+    try:
+        # Importa il generatore PDF professionale
+        from pdf_generator_professional import ProfessionalNIS2PDFGenerator
+        
+        conn = sqlite3.connect('nis2_supply_chain.db')
+        cursor = conn.cursor()
+        
+        # Ottieni dati assessment completato per questo fornitore
+        cursor.execute('''
+            SELECT a.id, a.status, a.evaluation_result, a.completed_at,
+                   s.name, s.email, s.address, s.city,
+                   c.name as company_name
+            FROM assessments a
+            JOIN suppliers s ON a.supplier_id = s.id
+            JOIN companies c ON s.company_id = c.id
+            WHERE s.id = ? AND a.status = 'completed'
+            ORDER BY a.completed_at DESC
+            LIMIT 1
+        ''', (supplier_id,))
+        
+        result = cursor.fetchone()
+        conn.close()
+        
+        if not result:
+            raise HTTPException(status_code=404, detail="Nessun assessment completato trovato per questo fornitore")
+        
+        assessment_data = {
+            'id': result[0],
+            'status': result[1],
+            'evaluation_result': result[2],
+            'completed_at': result[3]
+        }
+        
+        supplier_data = {
+            'company_name': result[4],
+            'email': result[5],
+            'address': result[6],
+            'city': result[7]
+        }
+        
+        company_data = {
+            'name': result[8]
+        }
+        
+        # Verifica che il fornitore sia conforme
+        evaluation_result = json.loads(assessment_data['evaluation_result'])
+        outcome = evaluation_result.get('outcome', 'NEGATIVO')
+        
+        if outcome != 'POSITIVO':
+            raise HTTPException(status_code=400, detail="Il fornitore non è conforme per generare un certificato")
+        
+        # Genera il PDF
+        generator = ProfessionalNIS2PDFGenerator()
+        output_dir = "static/pdfs"
+        os.makedirs(output_dir, exist_ok=True)
+        
+        filename = f"passaporto_nis2_{supplier_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        output_path = os.path.join(output_dir, filename)
+        
+        generator.generate_passport_pdf(assessment_data, supplier_data, company_data, output_path)
+        
+        # Restituisci il file PDF
+        return FileResponse(
+            path=output_path,
+            filename=filename,
+            media_type='application/pdf'
+        )
+        
+    except Exception as e:
+        print(f"Errore generazione PDF: {e}")
+        raise HTTPException(status_code=500, detail=f"Errore nella generazione del PDF: {str(e)}")
 
 @app.get("/warning/{supplier_id}")
 async def generate_warning_pdf(request: Request, supplier_id: int):
@@ -830,55 +838,77 @@ async def generate_warning_pdf(request: Request, supplier_id: int):
     if not user:
         return RedirectResponse(url="/company-login")
     
-    conn = sqlite3.connect('nis2_supply_chain.db')
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        SELECT s.name, s.compliance_score, s.assessment_date, c.name as company_name
-        FROM suppliers s
-        JOIN companies c ON s.company_id = c.id
-        WHERE s.id = ?
-    ''', (supplier_id,))
-    
-    supplier_data = cursor.fetchone()
-    conn.close()
-    
-    if not supplier_data:
-        raise HTTPException(status_code=404, detail="Fornitore non trovato")
-    
-    supplier_name, compliance_score, assessment_date, company_name = supplier_data
-    
-    # Verifica che il fornitore NON sia conforme (<70%)
-    if compliance_score >= 70:
-        raise HTTPException(status_code=400, detail="Il fornitore è conforme, non è necessario un richiamo")
-    
-    # Genera URL per la verifica
-    verification_url = f"http://localhost:8000/verify/{supplier_id}"
-    
-    # Genera QR code
-    qr_code_data = generate_qr_code(verification_url)
-    
-    context = {
-        "request": request,
-        "supplier_name": supplier_name,
-        "compliance_score": compliance_score,
-        "assessment_date": assessment_date,
-        "company_name": company_name,
-        "company_address": "N/A",
-        "company_city": "N/A",
-        "company_postal_code": "N/A",
-        "company_country": "N/A",
-        "company_phone": "N/A",
-        "company_piva": "N/A",
-        "company_cf": "N/A",
-        "company_website": "N/A",
-        "company_description": "N/A",
-        "supplier_id": supplier_id,
-        "qr_code": qr_code_data
-    }
-    
-    # Per ora restituiamo l'HTML come PDF (temporaneo per Windows)
-    return templates.TemplateResponse("warning_pdf.html", context)
+    try:
+        # Importa il generatore PDF professionale
+        from pdf_generator_professional import ProfessionalNIS2PDFGenerator
+        
+        conn = sqlite3.connect('nis2_supply_chain.db')
+        cursor = conn.cursor()
+        
+        # Ottieni dati assessment completato per questo fornitore
+        cursor.execute('''
+            SELECT a.id, a.status, a.evaluation_result, a.completed_at,
+                   s.name, s.email, s.address, s.city,
+                   c.name as company_name
+            FROM assessments a
+            JOIN suppliers s ON a.supplier_id = s.id
+            JOIN companies c ON s.company_id = c.id
+            WHERE s.id = ? AND a.status = 'completed'
+            ORDER BY a.completed_at DESC
+            LIMIT 1
+        ''', (supplier_id,))
+        
+        result = cursor.fetchone()
+        conn.close()
+        
+        if not result:
+            raise HTTPException(status_code=404, detail="Nessun assessment completato trovato per questo fornitore")
+        
+        assessment_data = {
+            'id': result[0],
+            'status': result[1],
+            'evaluation_result': result[2],
+            'completed_at': result[3]
+        }
+        
+        supplier_data = {
+            'company_name': result[4],
+            'email': result[5],
+            'address': result[6],
+            'city': result[7]
+        }
+        
+        company_data = {
+            'name': result[8]
+        }
+        
+        # Verifica che il fornitore NON sia conforme
+        evaluation_result = json.loads(assessment_data['evaluation_result'])
+        outcome = evaluation_result.get('outcome', 'NEGATIVO')
+        
+        if outcome == 'POSITIVO':
+            raise HTTPException(status_code=400, detail="Il fornitore è conforme, non è necessario un richiamo")
+        
+        # Genera il PDF
+        generator = ProfessionalNIS2PDFGenerator()
+        output_dir = "static/pdfs"
+        os.makedirs(output_dir, exist_ok=True)
+        
+        filename = f"richiamo_nis2_{supplier_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        output_path = os.path.join(output_dir, filename)
+        
+        generator.generate_recall_pdf(assessment_data, supplier_data, company_data, output_path)
+        
+        # Restituisci il file PDF
+        return FileResponse(
+            path=output_path,
+            filename=filename,
+            media_type='application/pdf'
+        )
+        
+    except Exception as e:
+        print(f"Errore generazione PDF: {e}")
+        raise HTTPException(status_code=500, detail=f"Errore nella generazione del PDF: {str(e)}")
 
 @app.get("/verify/{certificate_hash}")
 async def verify_certificate(request: Request, certificate_hash: str):
