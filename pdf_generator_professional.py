@@ -283,9 +283,28 @@ class ProfessionalNIS2PDFGenerator:
         story.append(Paragraph("VERIFICA PUBBLICA", self.subtitle_style))
         story.append(Paragraph("Scansiona il QR code per verificare l'autenticità del documento online.", self.body_style))
         
-        # QR Code per verifica (semplificato per ora)
+        # QR Code per verifica
         qr_data = f"NIS2_PASSPORT|{assessment_data.get('id', '0')}|{supplier_data.get('company_name', '')}|{assessment_data.get('completed_at', '')}"
-        story.append(Paragraph(f"<b>QR Code per verifica:</b> {qr_data}", self.body_style))
+        qr_buffer = self.generate_qr_code(qr_data, f"qr_passport_{assessment_data.get('id', '0')}")
+        if qr_buffer:
+            try:
+                # Crea file temporaneo per ReportLab
+                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+                temp_file.write(qr_buffer.getvalue())
+                temp_file.close()
+                
+                # Aggiungi QR code al PDF
+                qr_img = Image(temp_file.name, width=4*cm, height=4*cm)
+                story.append(Spacer(1, 10))
+                story.append(qr_img)
+                
+                # NON eliminare il file temporaneo - ReportLab lo gestirà
+                # os.unlink(temp_file.name)  # RIMOSSO
+            except Exception as e:
+                print(f"Errore aggiunta QR code: {e}")
+                story.append(Paragraph(f"<b>QR Code per verifica:</b> {qr_data}", self.body_style))
+        else:
+            story.append(Paragraph(f"<b>QR Code per verifica:</b> {qr_data}", self.body_style))
         
         # Footer professionale
         story.append(Spacer(1, 40))
@@ -417,9 +436,28 @@ class ProfessionalNIS2PDFGenerator:
         story.append(Paragraph("VERIFICA PUBBLICA", self.subtitle_style))
         story.append(Paragraph("Scansiona il QR code per verificare l'autenticità del documento online.", self.body_style))
         
-        # QR Code per verifica (semplificato per ora)
+        # QR Code per verifica
         qr_data = f"NIS2_RECALL|{assessment_data.get('id', '0')}|{supplier_data.get('company_name', '')}|{assessment_data.get('completed_at', '')}"
-        story.append(Paragraph(f"<b>QR Code per verifica:</b> {qr_data}", self.body_style))
+        qr_buffer = self.generate_qr_code(qr_data, f"qr_recall_{assessment_data.get('id', '0')}")
+        if qr_buffer:
+            try:
+                # Crea file temporaneo per ReportLab
+                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+                temp_file.write(qr_buffer.getvalue())
+                temp_file.close()
+                
+                # Aggiungi QR code al PDF
+                qr_img = Image(temp_file.name, width=4*cm, height=4*cm)
+                story.append(Spacer(1, 10))
+                story.append(qr_img)
+                
+                # NON eliminare il file temporaneo - ReportLab lo gestirà
+                # os.unlink(temp_file.name)  # RIMOSSO
+            except Exception as e:
+                print(f"Errore aggiunta QR code: {e}")
+                story.append(Paragraph(f"<b>QR Code per verifica:</b> {qr_data}", self.body_style))
+        else:
+            story.append(Paragraph(f"<b>QR Code per verifica:</b> {qr_data}", self.body_style))
         
         # Footer professionale
         story.append(Spacer(1, 40))

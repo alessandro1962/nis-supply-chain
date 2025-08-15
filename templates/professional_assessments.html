@@ -116,6 +116,9 @@
                                     <a href="/certificate/{{ assessment.id }}" class="btn btn-success btn-sm" title="Genera Certificato PDF" data-action="generate-pdf">
                                         <i class="fas fa-file-pdf"></i>
                                     </a>
+                                    <a href="/v/{{ assessment.id }}" class="btn btn-info btn-sm" title="Visualizza Certificato QR" target="_blank">
+                                        <i class="fas fa-qrcode"></i>
+                                    </a>
                                 {% else %}
                                     <a href="/warning/{{ assessment.id }}" class="btn btn-danger btn-sm" title="Genera Avviso PDF" data-action="generate-pdf">
                                         <i class="fas fa-exclamation-triangle"></i>

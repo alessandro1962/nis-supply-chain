@@ -1,438 +1,296 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestione Fornitori - NIS2 Supply Chain</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/dashboard.css">
-    <style>
-        .suppliers-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-        
-        .page-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #1f2937;
-        }
-        
-        .back-link {
-            color: #6b7280;
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 400;
-            margin-right: 1rem;
-            transition: color 0.2s;
-        }
-        
-        .back-link:hover {
-            color: #10b981;
-        }
-        
-        .add-supplier-btn {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .add-supplier-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
-        }
-        
-        .suppliers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .supplier-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-        
-        .supplier-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-        
-        .supplier-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-        
-        .supplier-name {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #1f2937;
-        }
-        
-        .supplier-email {
-            color: #6b7280;
-            font-size: 0.875rem;
-            margin-bottom: 1rem;
-        }
-        
-        .compliance-score {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .score-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-        
-        .score-high {
-            background: #dcfce7;
-            color: #166534;
-        }
-        
-        .score-medium {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        
-        .score-low {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        
-        .risk-level {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .risk-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-        
-        .risk-low {
-            background: #dcfce7;
-            color: #166534;
-        }
-        
-        .risk-medium {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        
-        .risk-high {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-        
-        .risk-critical {
-            background: #fecaca;
-            color: #7f1d1d;
-        }
-        
-        .supplier-actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        
-        .action-btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            font-size: 0.875rem;
-        }
-        
-        .btn-primary {
-            background: #3b82f6;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #2563eb;
-        }
-        
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #059669;
-        }
-        
-        .btn-warning {
-            background: #f59e0b;
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            background: #d97706;
-        }
-        
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-        
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        
-        .modal.hidden {
-            display: none;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 1rem;
-            padding: 2rem;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1f2937;
-        }
-        
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #6b7280;
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        .form-label {
-            display: block;
-            font-weight: 500;
-            color: #374151;
-            margin-bottom: 0.5rem;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-            margin-top: 1.5rem;
-        }
-        
-        .back-btn {
-            background: #6b7280;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-        
-        .back-btn:hover {
-            background: #4b5563;
-        }
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <a href="/company-dashboard/{{ user.company_id }}" class="logo">
-                <div class="logo-icon">N</div>
-                <span>NIS2 Supply Chain</span>
-            </a>
-            <div class="user-menu">
-                <div class="user-info">
-                    <div class="user-name">Admin</div>
-                    <div class="user-role">Amministratore Aziendale</div>
-                </div>
-                <a href="/company-dashboard/{{ user.company_id }}" class="logout-btn" style="margin-right: 1rem;">Dashboard</a>
-                <a href="/company-logout" class="logout-btn">Logout</a>
-            </div>
-        </div>
-    </header>
+{% extends "professional_base.html" %}
 
-    <!-- Main Container -->
-    <main class="suppliers-container">
-        <div class="page-header">
-            <h1 class="page-title">
-                <a href="/company-dashboard/{{ user.company_id }}" class="back-link">← Dashboard</a>
-                Gestione Fornitori
-            </h1>
-            <div style="display: flex; gap: 1rem; align-items: center;">
-                <a href="/company-dashboard/{{ user.company_id }}" class="back-btn" style="text-decoration: none;">← Torna alla Dashboard</a>
-                <button class="add-supplier-btn" onclick="openAddSupplierModal()">
-                    <span>+</span>
-                    <span>Nuovo Fornitore</span>
-                </button>
-            </div>
-        </div>
+{% block title %}Gestione Fornitori - NIS2 Supply Chain{% endblock %}
 
-        <div class="suppliers-grid">
-            {% for supplier in suppliers %}
-            <div class="supplier-card">
-                <div class="supplier-header">
-                    <div>
-                        <div class="supplier-name">{{ supplier[1] }}</div>
-                        <div class="supplier-email">{{ supplier[2] }}</div>
-                    </div>
-                </div>
-                
-                <div class="compliance-score">
-                    <span>Conformità:</span>
-                    {% if supplier[3] and supplier[3]|int >= 70 %}
-                        <span class="score-badge score-high">{{ supplier[3] }}%</span>
-                    {% elif supplier[3] and supplier[3]|int >= 50 %}
-                        <span class="score-badge score-medium">{{ supplier[3] }}%</span>
-                    {% else %}
-                        <span class="score-badge score-low">{{ supplier[3] or 'N/A' }}%</span>
-                    {% endif %}
-                </div>
-                
-                <div class="risk-level">
-                    <span>Rischio:</span>
-                    {% if supplier[4] == 'Basso' %}
-                        <span class="risk-badge risk-low">{{ supplier[4] }}</span>
-                    {% elif supplier[4] == 'Medio' %}
-                        <span class="risk-badge risk-medium">{{ supplier[4] }}</span>
-                    {% elif supplier[4] == 'Alto' %}
-                        <span class="risk-badge risk-high">{{ supplier[4] }}</span>
-                    {% elif supplier[4] == 'Critico' %}
-                        <span class="risk-badge risk-critical">{{ supplier[4] }}</span>
-                    {% else %}
-                        <span class="risk-badge risk-medium">Non Valutato</span>
-                    {% endif %}
-                </div>
-                
-                <div class="supplier-actions">
-                    <a href="/edit-supplier/{{ supplier[0] }}" class="action-btn btn-warning">✏️ Modifica</a>
-                    <a href="/assessment/{{ supplier[0] }}" class="action-btn btn-primary">Visualizza Assessment</a>
-                    {% if supplier[3] and supplier[3]|int >= 70 %}
-                        <a href="/v/{{ supplier[0] }}" class="action-btn btn-success">📱 Certificato QR</a>
-                        <a href="/certificate/{{ supplier[0] }}" class="action-btn btn-success" target="_blank">📄 PDF Certificato</a>
-                    {% elif supplier[3] and supplier[3]|int < 70 %}
-                        <a href="/warning/{{ supplier[0] }}" class="action-btn btn-warning" target="_blank">⚠️ PDF Richiamo</a>
-                    {% else %}
-                        <button class="action-btn btn-primary send-assessment-btn" onclick="sendAssessment({{ supplier[0] }})">
-                            📤 Invia Assessment
-                        </button>
-                    {% endif %}
-                </div>
-                    
-                <div class="assessment-link" id="link-{{ supplier[0] }}" style="display: none;">
-                    <div style="font-weight: 600; margin-bottom: 0.5rem;">Link Assessment:</div>
-                    <div class="link-text" style="font-family: monospace; background: #f8fafc; padding: 0.5rem; border-radius: 0.25rem; word-break: break-all;"></div>
-                    <button class="copy-btn" onclick="copyLink({{ supplier[0] }})" style="margin-top: 0.5rem; background: #6b7280; color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.25rem; cursor: pointer;">📋 Copia Link</button>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </main>
+{% block page_title %}Gestione Fornitori{% endblock %}
 
-    <!-- Add Supplier Modal -->
-    <div id="addSupplierModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Nuovo Fornitore</h3>
-                <button class="close-btn" onclick="closeAddSupplierModal()">&times;</button>
-            </div>
-            <form id="addSupplierForm" method="POST" action="/api/suppliers">
-                <div class="form-group">
-                    <label class="form-label" for="supplierName">Nome Fornitore</label>
-                    <input type="text" id="supplierName" name="name" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="supplierEmail">Email</label>
-                    <input type="email" id="supplierEmail" name="email" class="form-input" required>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="back-btn" onclick="closeAddSupplierModal()">Annulla</button>
-                    <button type="submit" class="add-supplier-btn">Aggiungi Fornitore</button>
-                </div>
-            </form>
+{% block breadcrumb %}
+<span class="breadcrumb-separator">/</span>
+<span>Fornitori</span>
+{% endblock %}
+
+{% block content %}
+<!-- ===== HEADER SEZIONE ===== -->
+<div class="section-header">
+    <div class="section-title">
+        <i class="fas fa-building"></i>
+        Gestione Fornitori
+    </div>
+    <div class="section-subtitle">
+        Gestisci i fornitori della tua supply chain e monitora la loro conformità NIS2
+    </div>
+</div>
+
+<!-- ===== AZIONI PRINCIPALI ===== -->
+<div class="content-card mb-6">
+    <div class="card-header">
+        <h3>Azioni Rapide</h3>
+    </div>
+    <div class="card-body">
+        <div class="flex gap-4">
+            <button class="btn btn-primary" onclick="openAddSupplierModal()">
+                <i class="fas fa-plus"></i>
+                Nuovo Fornitore
+            </button>
+            <button class="btn btn-secondary">
+                <i class="fas fa-download"></i>
+                Esporta Lista
+            </button>
+            <button class="btn btn-secondary">
+                <i class="fas fa-filter"></i>
+                Filtra
+            </button>
         </div>
     </div>
+</div>
 
-    <script src="/static/js/suppliers.js"></script>
-</body>
-</html>
+<!-- ===== LISTA FORNITORI ===== -->
+<div class="content-card">
+    <div class="card-header">
+        <h3>Fornitori ({{ suppliers|length }})</h3>
+    </div>
+    <div class="card-body">
+        {% if suppliers %}
+        <div class="table-container">
+            <table class="table">
+                <thead class="table-header">
+                    <tr>
+                        <th>Fornitore</th>
+                        <th>Email</th>
+                        <th>Conformità</th>
+                        <th>Livello Rischio</th>
+                        <th>Ultimo Assessment</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for supplier in suppliers %}
+                    <tr>
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-semibold">
+                                    {{ supplier[1][0]|upper }}
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">{{ supplier[1] }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-sm text-gray-600">{{ supplier[2] }}</div>
+                        </td>
+                        <td>
+                            {% if supplier[3] and supplier[3]|int >= 70 %}
+                                <span class="badge badge-success">{{ supplier[3] }}%</span>
+                            {% elif supplier[3] and supplier[3]|int >= 50 %}
+                                <span class="badge badge-warning">{{ supplier[3] }}%</span>
+                            {% else %}
+                                <span class="badge badge-danger">{{ supplier[3] or 'N/A' }}%</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if supplier[4] == 'Basso' %}
+                                <span class="badge badge-success">{{ supplier[4] }}</span>
+                            {% elif supplier[4] == 'Medio' %}
+                                <span class="badge badge-warning">{{ supplier[4] }}</span>
+                            {% elif supplier[4] == 'Alto' %}
+                                <span class="badge badge-danger">{{ supplier[4] }}</span>
+                            {% else %}
+                                <span class="badge badge-info">Non Valutato</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="text-sm text-gray-600">
+                                {% if supplier[5] %}
+                                    {{ supplier[5][:10] }}
+                                {% else %}
+                                    Nessun assessment
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex gap-2">
+                                <a href="/edit-supplier/{{ supplier[0] }}" class="btn btn-secondary btn-sm" title="Modifica">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="/assessment/{{ supplier[0] }}" class="btn btn-primary btn-sm" title="Assessment">
+                                    <i class="fas fa-clipboard-check"></i>
+                                </a>
+                                {% if supplier[3] and supplier[3]|int >= 70 %}
+                                    <a href="/v/{{ supplier[0] }}" class="btn btn-success btn-sm" title="Certificato QR">
+                                        <i class="fas fa-qrcode"></i>
+                                    </a>
+                                    <a href="/certificate/{{ supplier[0] }}" class="btn btn-success btn-sm" title="PDF Certificato" target="_blank">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                {% elif supplier[3] and supplier[3]|int < 70 %}
+                                    <a href="/warning/{{ supplier[0] }}" class="btn btn-warning btn-sm" title="PDF Richiamo" target="_blank">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-primary btn-sm" onclick="sendAssessment({{ supplier[0] }})" title="Invia Assessment">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Link Assessment (nascosto di default) -->
+                            <div class="assessment-link mt-2" id="link-{{ supplier[0] }}" style="display: none;">
+                                <div class="text-sm font-semibold mb-1">Link Assessment:</div>
+                                <div class="link-text text-xs bg-gray-100 p-2 rounded font-mono break-all"></div>
+                                <button class="btn btn-secondary btn-sm mt-1" onclick="copyLink({{ supplier[0] }})">
+                                    <i class="fas fa-copy"></i> Copia
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+            <div class="text-gray-500 mb-4">
+                <i class="fas fa-building text-4xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Nessun fornitore trovato</h3>
+            <p class="text-gray-500 mb-4">Inizia aggiungendo il tuo primo fornitore per monitorare la conformità NIS2</p>
+            <button class="btn btn-primary" onclick="openAddSupplierModal()">
+                <i class="fas fa-plus"></i>
+                Aggiungi Primo Fornitore
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ===== MODAL AGGIUNGI FORNITORE ===== -->
+<div id="addSupplierModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-plus-circle"></i>
+                Nuovo Fornitore
+            </h3>
+            <button class="close-btn" onclick="closeAddSupplierModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form id="addSupplierForm" method="POST" action="/api/suppliers">
+            <div class="form-group">
+                <label class="form-label" for="supplierName">
+                    <i class="fas fa-building"></i>
+                    Nome Fornitore
+                </label>
+                <input type="text" id="supplierName" name="name" class="form-input" placeholder="Inserisci il nome del fornitore" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="supplierEmail">
+                    <i class="fas fa-envelope"></i>
+                    Email
+                </label>
+                <input type="email" id="supplierEmail" name="email" class="form-input" placeholder="email@fornitore.com" required>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeAddSupplierModal()">
+                    <i class="fas fa-times"></i>
+                    Annulla
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Aggiungi Fornitore
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== STILI MODAL ===== -->
+<style>
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    border-radius: var(--border-radius-lg);
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: var(--gradient-secondary);
+}
+
+.modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-blue);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: var(--secondary-gray);
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+    transition: var(--transition-fast);
+}
+
+.close-btn:hover {
+    background: #f3f4f6;
+    color: var(--primary-blue);
+}
+
+#addSupplierForm {
+    padding: 1.5rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .table {
+        min-width: 600px;
+    }
+}
+</style>
+
+<script src="/static/js/suppliers.js"></script>
+{% endblock %}
