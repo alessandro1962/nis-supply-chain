@@ -183,10 +183,11 @@ class ProfessionalNIS2PDFGenerator:
         story.append(Spacer(1, 30))
         
         # Messaggio di successo
+        company_name = company_data.get('name', "l'azienda cliente")
         success_text = f"""
         <b>CONGRATULAZIONI!</b><br/>
         {supplier_data.get('company_name', 'Il fornitore')} ha superato con successo 
-        la valutazione di conformità NIS2 per {company_data.get('name', 'l\'azienda cliente')}.
+        la valutazione di conformità NIS2 per {company_name}.
         Questo certificato attesta la conformità alle normative europee sulla sicurezza delle reti e dei sistemi informativi.
         """
         story.append(Paragraph(success_text, self.success_style))
@@ -328,11 +329,12 @@ class ProfessionalNIS2PDFGenerator:
         story.append(Spacer(1, 30))
         
         # Alert critico
+        company_name = company_data.get('name', "l'azienda cliente")
         alert_text = f"""
         <b>ATTENZIONE CRITICA</b><br/>
         Questo report indica <b>NON CONFORMITÀ</b> alle normative NIS2. 
         È richiesto un <b>intervento immediato</b> per ripristinare la conformità 
-        e mantenere l'accordo di fornitura con <b>{company_data.get('name', 'l\'azienda cliente')}</b>.
+        e mantenere l'accordo di fornitura con <b>{company_name}</b>.
         <br/><br/>
         <b>Conseguenze:</b> Possibile sospensione o terminazione del contratto di fornitura.
         """
