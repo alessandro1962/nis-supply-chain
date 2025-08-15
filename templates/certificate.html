@@ -1,329 +1,355 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Certificato NIS2 - {{ supplier_name }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-        
-        .certificate-container {
-            background: white;
-            border-radius: 1rem;
-            padding: 3rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-            width: 100%;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .certificate-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 8px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-        }
-        
-        .header {
-            margin-bottom: 2rem;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .logo-icon {
-            width: 3rem;
-            height: 3rem;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #1f2937;
-        }
-        
-        .certificate-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 0.5rem;
-        }
-        
-        .certificate-subtitle {
-            font-size: 1.25rem;
-            color: #6b7280;
-            margin-bottom: 2rem;
-        }
-        
-        .certificate-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            margin-bottom: 2rem;
-        }
-        
-        .certificate-info {
-            text-align: left;
-        }
-        
-        .info-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .info-label {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-        }
-        
-        .info-value {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #1f2937;
-        }
-        
-        .compliance-score {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .score-circle {
-            width: 4rem;
-            height: 4rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: white;
-        }
-        
-        .score-high {
-            background: linear-gradient(135deg, #10b981, #059669);
-        }
-        
-        .score-medium {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-        }
-        
-        .score-low {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-        }
-        
-        .qr-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .qr-code {
-            width: 200px;
-            height: 200px;
-            background: #f3f4f6;
-            border-radius: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
-            border: 2px dashed #d1d5db;
-        }
-        
-        .qr-text {
-            font-size: 0.875rem;
-            color: #6b7280;
-            text-align: center;
-        }
-        
-        .certificate-footer {
-            border-top: 2px solid #e5e7eb;
-            padding-top: 2rem;
-            margin-top: 2rem;
-        }
-        
-        .footer-text {
-            font-size: 0.875rem;
-            color: #6b7280;
-            line-height: 1.5;
-        }
-        
-        .validity-info {
-            background: #f3f4f6;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-        
-        .validity-text {
-            font-size: 0.875rem;
-            color: #374151;
-        }
-        
-        .back-btn {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 2rem;
-        }
-        
-        .back-btn:hover {
-            background: #2563eb;
-            transform: translateY(-1px);
-        }
-        
-        @media (max-width: 768px) {
-            .certificate-content {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-            
-            .certificate-container {
-                padding: 2rem;
-            }
-            
-            .certificate-title {
-                font-size: 2rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="certificate-container">
-        <div class="header">
-            <div class="logo">
-                <div class="logo-icon">N</div>
-                <div class="logo-text">NIS2 Supply Chain</div>
+{% extends "professional_base.html" %}
+
+{% block title %}Certificato NIS2 - {{ supplier_name }}{% endblock %}
+
+{% block page_title %}Certificato NIS2{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-separator">/</span>
+<span>Certificato</span>
+<span class="breadcrumb-separator">/</span>
+<span>{{ supplier_name }}</span>
+{% endblock %}
+
+{% block content %}
+<!-- ===== HEADER SEZIONE ===== -->
+<div class="section-header">
+    <div class="section-title">
+        <i class="fas fa-certificate"></i>
+        Certificato di Conformità NIS2
+    </div>
+    <div class="section-subtitle">
+        Verifica pubblica del certificato di conformità
+    </div>
+</div>
+
+<!-- ===== CERTIFICATO CONTENUTO ===== -->
+<div class="certificate-container">
+    <div class="certificate-header">
+        <div class="logo">
+            <div class="logo-icon">
+                <i class="fas fa-shield-alt"></i>
             </div>
-            <h1 class="certificate-title">Certificato di Conformità NIS2</h1>
-            <p class="certificate-subtitle">Questo certificato attesta che il fornitore {{ supplier_name }} ({{ supplier_address }}, {{ supplier_city }}, {{ supplier_email }}) è conforme alla Direttiva NIS2 e rientra nella lista dei fornitori certificati di {{ company_name }}</p>
+            <div class="logo-text">NIS2 SUPPLY CHAIN</div>
         </div>
-        
-        <div class="certificate-content">
-            <div class="certificate-info">
-                <div class="info-group">
-                    <div class="info-label">Fornitore</div>
-                    <div class="info-value">{{ supplier_name }}</div>
+        <h1 class="certificate-title">PASSAPORTO DIGITALE NIS2</h1>
+        <p class="certificate-subtitle">Certificato di Conformità alla Direttiva NIS2</p>
+    </div>
+
+    <div class="certificate-content">
+        <div class="certificate-info">
+            <h3>Informazioni Fornitore</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">Nome Azienda:</span>
+                    <span class="value">{{ supplier_name }}</span>
                 </div>
-                
-                <div class="info-group">
-                    <div class="info-label">Azienda Richiedente</div>
-                    <div class="info-value">{{ company_name }}</div>
+                <div class="info-item">
+                    <span class="label">Email:</span>
+                    <span class="value">{{ supplier_email }}</span>
                 </div>
-                
-                <div class="info-group">
-                    <div class="info-label">Data Assessment</div>
-                    <div class="info-value">{{ assessment_date }}</div>
+                <div class="info-item">
+                    <span class="label">Indirizzo:</span>
+                    <span class="value">{{ supplier_address }}, {{ supplier_city }}</span>
                 </div>
-                
-                <div class="info-group">
-                    <div class="info-label">Punteggio Conformità</div>
-                    <div class="compliance-score">
-                        {% if compliance_score >= 70 %}
-                            <div class="score-circle score-high">{{ compliance_score }}%</div>
-                        {% elif compliance_score >= 50 %}
-                            <div class="score-circle score-medium">{{ compliance_score }}%</div>
-                        {% else %}
-                            <div class="score-circle score-low">{{ compliance_score }}%</div>
-                        {% endif %}
-                        <div>
-                            <div style="font-weight: 600; color: #1f2937;">
-                                {% if compliance_score >= 70 %}
-                                    Conforme
-                                {% elif compliance_score >= 50 %}
-                                    Parzialmente Conforme
-                                {% else %}
-                                    Non Conforme
-                                {% endif %}
-                            </div>
-                            <div style="font-size: 0.875rem; color: #6b7280;">
-                                Direttiva NIS2
-                            </div>
-                        </div>
+                <div class="info-item">
+                    <span class="label">ID Certificato:</span>
+                    <span class="value">{{ certificate_hash }}</span>
+                </div>
+            </div>
+
+            <h3>Risultati Valutazione</h3>
+            <div class="score-display">
+                <div class="score-circle">
+                    <span class="score-number">{{ compliance_score }}%</span>
+                    <span class="score-label">Punteggio Conformità</span>
+                </div>
+                <div class="score-details">
+                    <div class="score-item">
+                        <span class="label">Data Valutazione:</span>
+                        <span class="value">{{ assessment_date }}</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="label">Stato:</span>
+                        <span class="value status-conforme">CONFORME</span>
                     </div>
                 </div>
             </div>
-            
-            <div class="qr-section">
-                <div class="qr-code">
-                    {% if qr_code %}
-                        <img src="{{ qr_code }}" alt="QR Code" style="width: 150px; height: 150px; border: 2px solid #d1d5db; border-radius: 8px;">
-                    {% else %}
-                        <div style="text-align: center;">
-                            <div style="font-size: 3rem; margin-bottom: 0.5rem;">📱</div>
-                            <div style="font-size: 0.75rem; color: #6b7280;">QR Code</div>
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="qr-text">
-                    Scansiona per verificare<br>
-                    la validità del certificato
-                </div>
-                <div style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.5rem;">
-                    Hash: {{ certificate_hash }}
-                </div>
+        </div>
+
+        <div class="certificate-qr">
+            <h3>Verifica Pubblica</h3>
+            <div class="qr-code">
+                <img src="{{ qr_code }}" alt="QR Code per verifica" />
+            </div>
+            <p class="qr-instructions">
+                Scansiona il QR code per verificare l'autenticità di questo certificato online
+            </p>
+            <div class="verification-info">
+                <p><strong>Piattaforma:</strong> NIS2 Supply Chain Assessment</p>
+                <p><strong>URL Verifica:</strong> https://nis2-supply-chain.ondigitalocean.app/v/{{ certificate_hash }}</p>
             </div>
         </div>
-        
-        <div class="certificate-footer">
-            <div class="validity-info">
-                <div class="validity-text">
-                    <strong>Validità:</strong> Questo certificato è valido per 12 mesi dalla data di emissione.
-                    La conformità è verificata secondo i requisiti della Direttiva NIS2 (UE) 2022/2555.
-                </div>
-            </div>
-            
-            <div class="footer-text">
-                Questo certificato è stato generato automaticamente dal sistema NIS2 Supply Chain Platform.
-                Per verificare l'autenticità, scansiona il QR code o visita il portale ufficiale.
-            </div>
-        </div>
-        
-                        <a href="/company-dashboard/{{ user.company_id }}" class="back-btn">Torna alla Dashboard</a>
     </div>
-</body>
-</html>
+
+    <div class="certificate-footer">
+        <div class="validity-info">
+            <h4>Validità del Certificato</h4>
+            <ul>
+                <li><strong>Durata:</strong> 12 mesi dalla data di emissione</li>
+                <li><strong>Rinnovo:</strong> Richiesto assessment annuale</li>
+                <li><strong>Verifica:</strong> Possibile in qualsiasi momento tramite ID certificato</li>
+            </ul>
+        </div>
+        
+        <div class="company-info">
+            <h4>Informazioni Azienda Cliente</h4>
+            <div class="company-details">
+                <p><strong>Nome:</strong> {{ company_name }}</p>
+                <p><strong>Indirizzo:</strong> {{ company_address }}, {{ company_city }}</p>
+                <p><strong>Certificato conforme alla Direttiva (UE) 2022/2555 del Parlamento Europeo</strong></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.certificate-container {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.certificate-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.logo-icon {
+    width: 3rem;
+    height: 3rem;
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e40af;
+}
+
+.certificate-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.certificate-subtitle {
+    font-size: 1.1rem;
+    color: #6b7280;
+}
+
+.certificate-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 2rem;
+}
+
+.certificate-info h3,
+.certificate-qr h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.info-grid {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.info-item .label {
+    font-weight: 500;
+    color: #374151;
+}
+
+.info-item .value {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.score-display {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981, #059669);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+}
+
+.score-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.score-label {
+    font-size: 0.75rem;
+    opacity: 0.9;
+    margin-top: 0.25rem;
+}
+
+.score-details {
+    flex: 1;
+}
+
+.score-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.score-item .label {
+    font-weight: 500;
+    color: #374151;
+}
+
+.score-item .value {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.status-conforme {
+    color: #059669;
+    font-weight: 700;
+}
+
+.certificate-qr {
+    text-align: center;
+}
+
+.qr-code {
+    margin: 1rem 0;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    display: inline-block;
+}
+
+.qr-code img {
+    max-width: 200px;
+    height: auto;
+}
+
+.qr-instructions {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin: 1rem 0;
+}
+
+.verification-info {
+    background: #f0f9ff;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid #0ea5e9;
+    text-align: left;
+}
+
+.verification-info p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+    color: #1e40af;
+}
+
+.certificate-footer {
+    border-top: 2px solid #e5e7eb;
+    padding-top: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.validity-info h4,
+.company-info h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+.validity-info ul {
+    list-style: none;
+    padding: 0;
+}
+
+.validity-info li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+}
+
+.company-details p {
+    margin: 0.5rem 0;
+    color: #374151;
+}
+
+@media (max-width: 768px) {
+    .certificate-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .certificate-footer {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .score-display {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
