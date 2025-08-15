@@ -173,8 +173,8 @@
     
     <!-- ===== SCRIPT DI INIZIALIZZAZIONE ===== -->
     <script>
-        // Set company_id for navigation
-        window.COMPANY_ID = {{ company_id }};
+        // Set company_id for navigation (with fallback)
+        window.COMPANY_ID = {{ company_id | default(1) }};
         
         // Initialize professional UI
         document.addEventListener('DOMContentLoaded', function() {
