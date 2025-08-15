@@ -123,9 +123,16 @@ class ProfessionalNIS2PDFGenerator:
             
             qr_img = qr.make_image(fill_color="black", back_color="white")
             
-            # Usa tempfile per compatibilità cross-platform
-            qr_path = os.path.join(tempfile.gettempdir(), f"{filename}.png")
-            qr_img.save(qr_path)
+            # Usa BytesIO per evitare problemi di file system
+            qr_buffer = BytesIO()
+            qr_img.save(qr_buffer, format='PNG')
+            qr_buffer.seek(0)
+            
+            # Salva in un percorso sicuro per DigitalOcean
+            qr_path = f"./temp_{filename}.png"
+            with open(qr_path, 'wb') as f:
+                f.write(qr_buffer.getvalue())
+            
             return qr_path
         except Exception as e:
             print(f"Errore generazione QR: {e}")
