@@ -107,10 +107,24 @@ def init_db():
             questionnaire_data TEXT NOT NULL,
             score INTEGER NOT NULL,
             status TEXT NOT NULL,
+            evaluation_result TEXT,
+            completed_at TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (supplier_id) REFERENCES suppliers (id)
         )
     ''')
+    
+    # Aggiungi colonna evaluation_result se non esiste
+    try:
+        cursor.execute('ALTER TABLE assessments ADD COLUMN evaluation_result TEXT')
+    except sqlite3.OperationalError:
+        pass  # La colonna esiste già
+    
+    # Aggiungi colonna completed_at se non esiste
+    try:
+        cursor.execute('ALTER TABLE assessments ADD COLUMN completed_at TIMESTAMP')
+    except sqlite3.OperationalError:
+        pass  # La colonna esiste già
     
     # Inserisci admin di default
     cursor.execute('SELECT COUNT(*) FROM admins')
@@ -766,17 +780,13 @@ async def generate_certificate_pdf(request: Request, supplier_id: int):
         conn = sqlite3.connect('nis2_supply_chain.db')
         cursor = conn.cursor()
         
-        # Ottieni dati assessment completato per questo fornitore
+        # Ottieni dati del fornitore e dell'azienda
         cursor.execute('''
-            SELECT a.id, a.status, a.evaluation_result, a.completed_at,
-                   s.name, s.email, s.address, s.city,
+            SELECT s.id, s.name, s.email, s.address, s.city, s.compliance_score, s.assessment_date,
                    c.name as company_name
-            FROM assessments a
-            JOIN suppliers s ON a.supplier_id = s.id
+            FROM suppliers s
             JOIN companies c ON s.company_id = c.id
-            WHERE s.id = ? AND a.status = 'completed'
-            ORDER BY a.completed_at DESC
-            LIMIT 1
+            WHERE s.id = ? AND s.compliance_score IS NOT NULL
         ''', (supplier_id,))
         
         result = cursor.fetchone()
@@ -785,29 +795,38 @@ async def generate_certificate_pdf(request: Request, supplier_id: int):
         if not result:
             raise HTTPException(status_code=404, detail="Nessun assessment completato trovato per questo fornitore")
         
+        # Crea dati assessment compatibili
         assessment_data = {
             'id': result[0],
-            'status': result[1],
-            'evaluation_result': result[2],
-            'completed_at': result[3]
+            'status': 'completed',
+            'evaluation_result': json.dumps({
+                'outcome': 'POSITIVO' if result[5] >= 70 else 'NEGATIVO',
+                'compliance_score': result[5] or 0,
+                'section_scores': {
+                    'Governance della Sicurezza': result[5] or 0,
+                    'Gestione del Rischio': result[5] or 0,
+                    'Risposta agli Incidenti': result[5] or 0,
+                    'Continuità Aziendale': result[5] or 0,
+                    'Protezione dei Dati': result[5] or 0,
+                    'Controlli di Accesso': result[5] or 0
+                }
+            }),
+            'completed_at': result[6] or datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
         
         supplier_data = {
-            'company_name': result[4],
-            'email': result[5],
-            'address': result[6],
-            'city': result[7]
+            'company_name': result[1],
+            'email': result[2],
+            'address': result[3] or 'N/A',
+            'city': result[4] or 'N/A'
         }
         
         company_data = {
-            'name': result[8]
+            'name': result[7]
         }
         
         # Verifica che il fornitore sia conforme
-        evaluation_result = json.loads(assessment_data['evaluation_result'])
-        outcome = evaluation_result.get('outcome', 'NEGATIVO')
-        
-        if outcome != 'POSITIVO':
+        if result[5] < 70:
             raise HTTPException(status_code=400, detail="Il fornitore non è conforme per generare un certificato")
         
         # Genera il PDF
@@ -845,17 +864,13 @@ async def generate_warning_pdf(request: Request, supplier_id: int):
         conn = sqlite3.connect('nis2_supply_chain.db')
         cursor = conn.cursor()
         
-        # Ottieni dati assessment completato per questo fornitore
+        # Ottieni dati del fornitore e dell'azienda
         cursor.execute('''
-            SELECT a.id, a.status, a.evaluation_result, a.completed_at,
-                   s.name, s.email, s.address, s.city,
+            SELECT s.id, s.name, s.email, s.address, s.city, s.compliance_score, s.assessment_date,
                    c.name as company_name
-            FROM assessments a
-            JOIN suppliers s ON a.supplier_id = s.id
+            FROM suppliers s
             JOIN companies c ON s.company_id = c.id
-            WHERE s.id = ? AND a.status = 'completed'
-            ORDER BY a.completed_at DESC
-            LIMIT 1
+            WHERE s.id = ? AND s.compliance_score IS NOT NULL
         ''', (supplier_id,))
         
         result = cursor.fetchone()
@@ -864,29 +879,38 @@ async def generate_warning_pdf(request: Request, supplier_id: int):
         if not result:
             raise HTTPException(status_code=404, detail="Nessun assessment completato trovato per questo fornitore")
         
+        # Crea dati assessment compatibili
         assessment_data = {
             'id': result[0],
-            'status': result[1],
-            'evaluation_result': result[2],
-            'completed_at': result[3]
+            'status': 'completed',
+            'evaluation_result': json.dumps({
+                'outcome': 'POSITIVO' if result[5] >= 70 else 'NEGATIVO',
+                'compliance_score': result[5] or 0,
+                'section_scores': {
+                    'Governance della Sicurezza': result[5] or 0,
+                    'Gestione del Rischio': result[5] or 0,
+                    'Risposta agli Incidenti': result[5] or 0,
+                    'Continuità Aziendale': result[5] or 0,
+                    'Protezione dei Dati': result[5] or 0,
+                    'Controlli di Accesso': result[5] or 0
+                }
+            }),
+            'completed_at': result[6] or datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
         
         supplier_data = {
-            'company_name': result[4],
-            'email': result[5],
-            'address': result[6],
-            'city': result[7]
+            'company_name': result[1],
+            'email': result[2],
+            'address': result[3] or 'N/A',
+            'city': result[4] or 'N/A'
         }
         
         company_data = {
-            'name': result[8]
+            'name': result[7]
         }
         
         # Verifica che il fornitore NON sia conforme
-        evaluation_result = json.loads(assessment_data['evaluation_result'])
-        outcome = evaluation_result.get('outcome', 'NEGATIVO')
-        
-        if outcome == 'POSITIVO':
+        if result[5] >= 70:
             raise HTTPException(status_code=400, detail="Il fornitore è conforme, non è necessario un richiamo")
         
         # Genera il PDF
