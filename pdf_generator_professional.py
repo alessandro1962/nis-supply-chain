@@ -283,28 +283,17 @@ class ProfessionalNIS2PDFGenerator:
         story.append(Paragraph("VERIFICA PUBBLICA", self.subtitle_style))
         story.append(Paragraph("Scansiona il QR code per verificare l'autenticità del documento online.", self.body_style))
         
-        # QR Code per verifica
-        qr_data = f"NIS2_PASSPORT|{assessment_data.get('id', '0')}|{supplier_data.get('company_name', '')}|{assessment_data.get('completed_at', '')}"
-        qr_buffer = self.generate_qr_code(qr_data, f"qr_passport_{assessment_data.get('id', '0')}")
-        if qr_buffer:
-            try:
-                # Crea file temporaneo per ReportLab
-                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
-                temp_file.write(qr_buffer.getvalue())
-                temp_file.close()
-                
-                # Aggiungi QR code al PDF
-                qr_img = Image(temp_file.name, width=4*cm, height=4*cm)
-                story.append(Spacer(1, 10))
-                story.append(qr_img)
-                
-                # NON eliminare il file temporaneo - ReportLab lo gestirà
-                # os.unlink(temp_file.name)  # RIMOSSO
-            except Exception as e:
-                print(f"Errore aggiunta QR code: {e}")
-                story.append(Paragraph(f"<b>QR Code per verifica:</b> {qr_data}", self.body_style))
-        else:
-            story.append(Paragraph(f"<b>QR Code per verifica:</b> {qr_data}", self.body_style))
+        # Verifica pubblica (senza QR code problematico)
+        story.append(Paragraph("VERIFICA PUBBLICA", self.subtitle_style))
+        verification_text = f"""
+        <b>ID Certificato:</b> NIS2-{assessment_data.get('id', '000000'):06d}<br/>
+        <b>Fornitore:</b> {supplier_data.get('company_name', 'N/A')}<br/>
+        <b>Data Emissione:</b> {assessment_data.get('completed_at', 'N/A')}<br/>
+        <b>Stato:</b> ✅ CONFORME ALLA DIRETTIVA NIS2<br/><br/>
+        <i>Per verificare l'autenticità di questo certificato, visita la piattaforma NIS2 Supply Chain Assessment 
+        e inserisci l'ID certificato sopra indicato.</i>
+        """
+        story.append(Paragraph(verification_text, self.body_style))
         
         # Footer professionale
         story.append(Spacer(1, 40))
@@ -436,28 +425,17 @@ class ProfessionalNIS2PDFGenerator:
         story.append(Paragraph("VERIFICA PUBBLICA", self.subtitle_style))
         story.append(Paragraph("Scansiona il QR code per verificare l'autenticità del documento online.", self.body_style))
         
-        # QR Code per verifica
-        qr_data = f"NIS2_RECALL|{assessment_data.get('id', '0')}|{supplier_data.get('company_name', '')}|{assessment_data.get('completed_at', '')}"
-        qr_buffer = self.generate_qr_code(qr_data, f"qr_recall_{assessment_data.get('id', '0')}")
-        if qr_buffer:
-            try:
-                # Crea file temporaneo per ReportLab
-                temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
-                temp_file.write(qr_buffer.getvalue())
-                temp_file.close()
-                
-                # Aggiungi QR code al PDF
-                qr_img = Image(temp_file.name, width=4*cm, height=4*cm)
-                story.append(Spacer(1, 10))
-                story.append(qr_img)
-                
-                # NON eliminare il file temporaneo - ReportLab lo gestirà
-                # os.unlink(temp_file.name)  # RIMOSSO
-            except Exception as e:
-                print(f"Errore aggiunta QR code: {e}")
-                story.append(Paragraph(f"<b>QR Code per verifica:</b> {qr_data}", self.body_style))
-        else:
-            story.append(Paragraph(f"<b>QR Code per verifica:</b> {qr_data}", self.body_style))
+        # Verifica pubblica (senza QR code problematico)
+        story.append(Paragraph("VERIFICA PUBBLICA", self.subtitle_style))
+        verification_text = f"""
+        <b>ID Report:</b> NIS2-{assessment_data.get('id', '000000'):06d}<br/>
+        <b>Fornitore:</b> {supplier_data.get('company_name', 'N/A')}<br/>
+        <b>Data Valutazione:</b> {assessment_data.get('completed_at', 'N/A')}<br/>
+        <b>Stato:</b> ⚠️ NON CONFORME - RICHIESTE AZIONI CORRETTIVE<br/><br/>
+        <i>Per verificare l'autenticità di questo report, visita la piattaforma NIS2 Supply Chain Assessment 
+        e inserisci l'ID report sopra indicato.</i>
+        """
+        story.append(Paragraph(verification_text, self.body_style))
         
         # Footer professionale
         story.append(Spacer(1, 40))

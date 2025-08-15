@@ -1113,6 +1113,59 @@ async def view_certificate(request: Request, certificate_hash: str):
     
     return templates.TemplateResponse("certificate.html", context)
 
+@app.get("/qr/{assessment_id}")
+async def generate_qr_image(assessment_id: int):
+    """Genera immagine QR per il sito web del fornitore"""
+    try:
+        conn = sqlite3.connect('nis2_supply_chain.db')
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT a.id, a.status, a.evaluation_result, a.completed_at,
+                   s.name, s.email, s.address, s.city,
+                   c.name as company_name
+            FROM assessments a
+            JOIN suppliers s ON a.supplier_id = s.id
+            JOIN companies c ON s.company_id = c.id
+            WHERE a.id = ?
+        """, (assessment_id,))
+        
+        result = cursor.fetchone()
+        if not result:
+            return {"error": "Assessment non trovato"}
+        
+        # Genera QR code con URL della piattaforma
+        qr_data = f"https://nis2-supply-chain.ondigitalocean.app/v/{assessment_id}"
+        
+        import qrcode
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(qr_data)
+        qr.make(fit=True)
+        
+        qr_img = qr.make_image(fill_color="black", back_color="white")
+        
+        # Converti in bytes
+        from io import BytesIO
+        img_buffer = BytesIO()
+        qr_img.save(img_buffer, format='PNG')
+        img_buffer.seek(0)
+        
+        return Response(
+            content=img_buffer.getvalue(),
+            media_type="image/png",
+            headers={"Content-Disposition": f"attachment; filename=nis2_qr_{assessment_id}.png"}
+        )
+        
+    except Exception as e:
+        return {"error": str(e)}
+    finally:
+        conn.close()
+
 @app.get("/new-supplier")
 async def new_supplier_page(request: Request):
     user = await get_current_user(request)
