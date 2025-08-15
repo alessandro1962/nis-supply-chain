@@ -90,11 +90,9 @@ def test_professional_pdf_generation():
         
         # Test QR Code professionale
         print("\n🔍 Test generazione QR Code professionale...")
-        qr_path = generator.generate_qr_code("NIS2_PROFESSIONAL_TEST|1001|TechCorp|2024-01-15", "test_qr_professional")
-        if qr_path and os.path.exists(qr_path):
-            print(f"✅ QR Code professionale generato: {qr_path}")
-            # Pulisci
-            os.remove(qr_path)
+        qr_buffer = generator.generate_qr_code("NIS2_PROFESSIONAL_TEST|1001|TechCorp|2024-01-15", "test_qr_professional")
+        if qr_buffer:
+            print(f"✅ QR Code professionale generato in memoria")
         else:
             print("❌ Errore: QR Code professionale non generato")
         

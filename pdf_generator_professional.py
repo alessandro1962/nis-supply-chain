@@ -128,14 +128,9 @@ class ProfessionalNIS2PDFGenerator:
             qr_img.save(qr_buffer, format='PNG')
             qr_buffer.seek(0)
             
-            # Salva in un percorso assoluto nella directory corrente
-            import os
-            current_dir = os.getcwd()
-            qr_path = os.path.join(current_dir, f"temp_{filename}.png")
-            with open(qr_path, 'wb') as f:
-                f.write(qr_buffer.getvalue())
-            
-            return qr_path
+            # Per DigitalOcean App Platform, usiamo un approccio senza file temporanei
+            # Ritorniamo direttamente il buffer per uso in memoria
+            return qr_buffer
         except Exception as e:
             print(f"Errore generazione QR: {e}")
             return None
