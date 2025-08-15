@@ -660,6 +660,24 @@ body {
     }
 }
 
+/* ===== DESKTOP SIDEBAR ===== */
+@media (min-width: 1025px) {
+    .sidebar {
+        transform: translateX(0) !important;
+        position: fixed;
+        left: 0;
+        top: 0;
+    }
+    
+    .main-content {
+        margin-left: 280px;
+    }
+    
+    .mobile-menu-toggle {
+        display: none !important;
+    }
+}
+
 @media (max-width: 768px) {
     .stats-grid {
         grid-template-columns: 1fr;
