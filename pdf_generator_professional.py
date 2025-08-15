@@ -110,7 +110,7 @@ class ProfessionalNIS2PDFGenerator:
         )
     
     def generate_qr_code(self, data, filename):
-        """Genera un QR code professionale"""
+        """Genera un QR code professionale in memoria"""
         try:
             qr = qrcode.QRCode(
                 version=1,
@@ -123,13 +123,15 @@ class ProfessionalNIS2PDFGenerator:
             
             qr_img = qr.make_image(fill_color="black", back_color="white")
             
-            # Usa BytesIO per evitare problemi di file system
+            # Usa BytesIO per gestione completamente in memoria
             qr_buffer = BytesIO()
             qr_img.save(qr_buffer, format='PNG')
             qr_buffer.seek(0)
             
-            # Salva in un percorso sicuro per DigitalOcean
-            qr_path = f"./temp_{filename}.png"
+            # Salva in un percorso assoluto nella directory corrente
+            import os
+            current_dir = os.getcwd()
+            qr_path = os.path.join(current_dir, f"temp_{filename}.png")
             with open(qr_path, 'wb') as f:
                 f.write(qr_buffer.getvalue())
             
@@ -286,25 +288,9 @@ class ProfessionalNIS2PDFGenerator:
         story.append(Paragraph("VERIFICA PUBBLICA", self.subtitle_style))
         story.append(Paragraph("Scansiona il QR code per verificare l'autenticità del documento online.", self.body_style))
         
-        # Genera QR code
+        # QR Code per verifica (semplificato)
         qr_data = f"NIS2_PASSPORT|{assessment_data.get('id', '0')}|{supplier_data.get('company_name', '')}|{assessment_data.get('completed_at', '')}"
-        qr_filename = f"qr_passport_{assessment_data.get('id', '0')}"
-        qr_path = self.generate_qr_code(qr_data, qr_filename)
-        
-        if qr_path and os.path.exists(qr_path):
-            try:
-                qr_img = Image(qr_path, width=4*cm, height=4*cm)
-                story.append(Spacer(1, 10))
-                story.append(qr_img)
-            except Exception as e:
-                print(f"Errore aggiunta QR code: {e}")
-                story.append(Paragraph(f"<b>QR Code:</b> {qr_data}", self.body_style))
-            
-            # Pulisci il file temporaneo
-            try:
-                os.remove(qr_path)
-            except:
-                pass
+        story.append(Paragraph(f"<b>QR Code per verifica:</b> {qr_data}", self.body_style))
         
         # Footer professionale
         story.append(Spacer(1, 40))
@@ -436,25 +422,9 @@ class ProfessionalNIS2PDFGenerator:
         story.append(Paragraph("VERIFICA PUBBLICA", self.subtitle_style))
         story.append(Paragraph("Scansiona il QR code per verificare l'autenticità del documento online.", self.body_style))
         
-        # Genera QR code
+        # QR Code per verifica (semplificato)
         qr_data = f"NIS2_RECALL|{assessment_data.get('id', '0')}|{supplier_data.get('company_name', '')}|{assessment_data.get('completed_at', '')}"
-        qr_filename = f"qr_recall_{assessment_data.get('id', '0')}"
-        qr_path = self.generate_qr_code(qr_data, qr_filename)
-        
-        if qr_path and os.path.exists(qr_path):
-            try:
-                qr_img = Image(qr_path, width=4*cm, height=4*cm)
-                story.append(Spacer(1, 10))
-                story.append(qr_img)
-            except Exception as e:
-                print(f"Errore aggiunta QR code: {e}")
-                story.append(Paragraph(f"<b>QR Code:</b> {qr_data}", self.body_style))
-            
-            # Pulisci il file temporaneo
-            try:
-                os.remove(qr_path)
-            except:
-                pass
+        story.append(Paragraph(f"<b>QR Code per verifica:</b> {qr_data}", self.body_style))
         
         # Footer professionale
         story.append(Spacer(1, 40))

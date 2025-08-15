@@ -505,7 +505,7 @@ async def company_dashboard(request: Request, company_id: int):
     
     # Ottieni fornitori recenti
     cursor.execute('''
-        SELECT id, name, email, sector, compliance_score, assessment_date
+        SELECT id, name, email, compliance_score, risk_level, assessment_date
         FROM suppliers 
         WHERE company_id = ?
         ORDER BY assessment_date DESC NULLS LAST, created_at DESC
@@ -514,12 +514,12 @@ async def company_dashboard(request: Request, company_id: int):
     
     recent_suppliers = []
     for row in cursor.fetchall():
-        supplier_id, name, email, sector, compliance_score, assessment_date = row
+        supplier_id, name, email, compliance_score, risk_level, assessment_date = row
         recent_suppliers.append({
             'id': supplier_id,
             'name': name,
             'email': email,
-            'sector': sector or 'N/A',
+            'sector': 'N/A',  # Non disponibile nella tabella
             'compliance_score': compliance_score or 0,
             'last_assessment_date': assessment_date
         })
@@ -1177,13 +1177,27 @@ async def assessments_page(request: Request):
     assessments = cursor.fetchall()
     conn.close()
     
+    # Prepara i dati per il template professionale
+    assessment_list = []
+    for row in assessments:
+        supplier_id, name, email, compliance_score, risk_level, assessment_date = row
+        assessment_list.append({
+            'id': supplier_id,
+            'name': name,
+            'email': email,
+            'compliance_score': compliance_score or 0,
+            'risk_level': risk_level or 'N/A',
+            'assessment_date': assessment_date
+        })
+    
     context = {
         "request": request,
-        "assessments": assessments,
-        "user": user
+        "assessments": assessment_list,
+        "user": user,
+        "company_id": company_id
     }
     
-    return templates.TemplateResponse("assessments.html", context)
+    return templates.TemplateResponse("professional_assessments.html", context)
 
 @app.get("/thank-you/{score}")
 async def thank_you_page(request: Request, score: int):

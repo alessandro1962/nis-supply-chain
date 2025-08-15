@@ -161,7 +161,7 @@
                         </td>
                         <td>
                             <div class="text-sm text-secondary">
-                                {{ supplier.last_assessment_date.strftime('%d/%m/%Y') if supplier.last_assessment_date else 'N/A' }}
+                                {{ supplier.last_assessment_date if supplier.last_assessment_date else 'N/A' }}
                             </div>
                         </td>
                         <td>
@@ -187,7 +187,7 @@
         </div>
     </div>
     <div class="card-footer">
-        <a href="/suppliers/{{ company_id }}" class="btn btn-primary">
+        <a href="/suppliers" class="btn btn-primary">
             <i class="fas fa-list"></i>
             Visualizza Tutti i Fornitori
         </a>
@@ -222,7 +222,7 @@
                     <div class="flex-1">
                         <div class="font-semibold text-primary">{{ notification.title }}</div>
                         <div class="text-sm text-secondary">{{ notification.message }}</div>
-                        <div class="text-xs text-gray-400 mt-1">{{ notification.timestamp.strftime('%d/%m/%Y %H:%M') }}</div>
+                        <div class="text-xs text-gray-400 mt-1">{{ notification.timestamp }}</div>
                     </div>
                 </div>
                 {% endfor %}
@@ -241,7 +241,7 @@
         </div>
         <div class="card-body">
             <div class="grid grid-cols-2 gap-4">
-                <a href="/add-supplier/{{ company_id }}" class="btn btn-primary flex-col p-4 text-center">
+                <a href="/new-supplier" class="btn btn-primary flex-col p-4 text-center">
                     <i class="fas fa-plus-circle text-2xl mb-2"></i>
                     <span>Aggiungi Fornitore</span>
                 </a>

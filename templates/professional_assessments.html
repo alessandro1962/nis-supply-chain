@@ -1,0 +1,248 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Valutazioni - NIS2 Supply Chain Assessment{% endblock %}
+
+{% block page_title %}Valutazioni Fornitori{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-separator">/</span>
+<span>Valutazioni</span>
+{% endblock %}
+
+{% block content %}
+<!-- ===== HEADER SEZIONE ===== -->
+<div class="section-header">
+    <div class="section-title">
+        <i class="fas fa-clipboard-check"></i>
+        Valutazioni Completate
+    </div>
+    <div class="section-subtitle">
+        Panoramica di tutte le valutazioni dei fornitori
+    </div>
+</div>
+
+<!-- ===== FILTRI E RICERCA ===== -->
+<div class="filters-bar">
+    <div class="filters-left">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Cerca fornitore..." id="searchInput">
+        </div>
+    </div>
+    <div class="filters-right">
+        <select class="filter-select" id="statusFilter">
+            <option value="">Tutti gli stati</option>
+            <option value="conforme">Conforme</option>
+            <option value="parziale">Parziale</option>
+            <option value="non-conforme">Non Conforme</option>
+        </select>
+        <button class="btn btn-primary" onclick="exportAssessments()">
+            <i class="fas fa-download"></i>
+            Esporta
+        </button>
+    </div>
+</div>
+
+<!-- ===== TABELLA VALUTAZIONI ===== -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-container">
+            <table class="table" id="assessmentsTable">
+                <thead class="table-header">
+                    <tr>
+                        <th>Fornitore</th>
+                        <th>Email</th>
+                        <th>Punteggio</th>
+                        <th>Stato</th>
+                        <th>Livello Rischio</th>
+                        <th>Data Valutazione</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assessment in assessments %}
+                    <tr data-id="{{ assessment.id }}" data-status="{% if assessment.compliance_score >= 70 %}conforme{% elif assessment.compliance_score >= 50 %}parziale{% else %}non-conforme{% endif %}">
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-semibold">
+                                    {{ assessment.name[:2].upper() }}
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-primary">{{ assessment.name }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-secondary">{{ assessment.email }}</div>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="text-lg font-bold text-primary">{{ "%.1f"|format(assessment.compliance_score) }}%</div>
+                                <div class="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full {% if assessment.compliance_score >= 70 %}bg-green-500{% elif assessment.compliance_score >= 50 %}bg-yellow-500{% else %}bg-red-500{% endif %}" 
+                                         style="width: {{ assessment.compliance_score }}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if assessment.compliance_score >= 70 %}
+                                <span class="badge badge-success">
+                                    <i class="fas fa-check-circle mr-1"></i> Conforme
+                                </span>
+                            {% elif assessment.compliance_score >= 50 %}
+                                <span class="badge badge-warning">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i> Parziale
+                                </span>
+                            {% else %}
+                                <span class="badge badge-danger">
+                                    <i class="fas fa-times-circle mr-1"></i> Non Conforme
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge badge-info">{{ assessment.risk_level }}</span>
+                        </td>
+                        <td>
+                            <div class="text-sm text-secondary">
+                                {{ assessment.assessment_date if assessment.assessment_date else 'N/A' }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex gap-2">
+                                <a href="/supplier/{{ assessment.id }}" class="btn btn-primary btn-sm" title="Visualizza Dettagli">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if assessment.compliance_score >= 70 %}
+                                    <a href="/certificate/{{ assessment.id }}" class="btn btn-success btn-sm" title="Genera Certificato PDF" data-action="generate-pdf">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                {% else %}
+                                    <a href="/warning/{{ assessment.id }}" class="btn btn-danger btn-sm" title="Genera Avviso PDF" data-action="generate-pdf">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </a>
+                                {% endif %}
+                                <button class="btn btn-info btn-sm" title="Rivaluta" onclick="reassessSupplier({{ assessment.id }})">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ===== STATISTICHE RAPIDE ===== -->
+<div class="stats-summary">
+    <div class="stat-item">
+        <div class="stat-number">{{ assessments|length }}</div>
+        <div class="stat-label">Valutazioni Totali</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-number">{{ assessments|selectattr('compliance_score', '>=', 70)|list|length }}</div>
+        <div class="stat-label">Conformi</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-number">{{ assessments|selectattr('compliance_score', '<', 70)|selectattr('compliance_score', '>=', 50)|list|length }}</div>
+        <div class="stat-label">Parziali</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-number">{{ assessments|selectattr('compliance_score', '<', 50)|list|length }}</div>
+        <div class="stat-label">Non Conformi</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Funzione di ricerca
+document.getElementById('searchInput').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#assessmentsTable tbody tr');
+    
+    rows.forEach(row => {
+        const supplierName = row.querySelector('td:first-child').textContent.toLowerCase();
+        const supplierEmail = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+        
+        if (supplierName.includes(searchTerm) || supplierEmail.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// Funzione filtro per stato
+document.getElementById('statusFilter').addEventListener('change', function() {
+    const selectedStatus = this.value;
+    const rows = document.querySelectorAll('#assessmentsTable tbody tr');
+    
+    rows.forEach(row => {
+        const status = row.getAttribute('data-status');
+        if (!selectedStatus || status === selectedStatus) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// Funzione per rivalutare un fornitore
+function reassessSupplier(supplierId) {
+    if (confirm('Sei sicuro di voler rivalutare questo fornitore?')) {
+        window.location.href = `/questionnaire?supplier_id=${supplierId}`;
+    }
+}
+
+// Funzione per esportare le valutazioni
+function exportAssessments() {
+    // Implementa l'esportazione in CSV o Excel
+    alert('Funzionalità di esportazione in sviluppo');
+}
+
+// Gestione PDF generation
+document.addEventListener('click', function(e) {
+    if (e.target.closest('[data-action="generate-pdf"]')) {
+        e.preventDefault();
+        const link = e.target.closest('[data-action="generate-pdf"]');
+        const href = link.getAttribute('href');
+        
+        // Mostra loading
+        link.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        link.disabled = true;
+        
+        // Genera PDF
+        fetch(href)
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                }
+                throw new Error('Errore nella generazione del PDF');
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'assessment.pdf';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            })
+            .catch(error => {
+                alert('Errore: ' + error.message);
+            })
+            .finally(() => {
+                // Ripristina il link
+                const icon = link.querySelector('i');
+                if (icon.classList.contains('fa-spinner')) {
+                    icon.className = 'fas fa-file-pdf';
+                }
+                link.disabled = false;
+            });
+    }
+});
+</script>
+{% endblock %}
