@@ -283,7 +283,7 @@ class ProfessionalNIS2PDFGenerator:
         story.append(Paragraph("VERIFICA PUBBLICA", self.subtitle_style))
         story.append(Paragraph("Scansiona il QR code per verificare l'autenticità del documento online.", self.body_style))
         
-        # QR Code per verifica (semplificato)
+        # QR Code per verifica (semplificato per ora)
         qr_data = f"NIS2_PASSPORT|{assessment_data.get('id', '0')}|{supplier_data.get('company_name', '')}|{assessment_data.get('completed_at', '')}"
         story.append(Paragraph(f"<b>QR Code per verifica:</b> {qr_data}", self.body_style))
         
@@ -417,7 +417,7 @@ class ProfessionalNIS2PDFGenerator:
         story.append(Paragraph("VERIFICA PUBBLICA", self.subtitle_style))
         story.append(Paragraph("Scansiona il QR code per verificare l'autenticità del documento online.", self.body_style))
         
-        # QR Code per verifica (semplificato)
+        # QR Code per verifica (semplificato per ora)
         qr_data = f"NIS2_RECALL|{assessment_data.get('id', '0')}|{supplier_data.get('company_name', '')}|{assessment_data.get('completed_at', '')}"
         story.append(Paragraph(f"<b>QR Code per verifica:</b> {qr_data}", self.body_style))
         

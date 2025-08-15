@@ -39,7 +39,7 @@
                 <!-- Dashboard -->
                 <div class="nav-section">
                     <div class="nav-section-title">Dashboard</div>
-                    <a href="/company-dashboard/{{ company_id }}" class="nav-item">
+                    <a href="/company-dashboard/1" class="nav-item">
                         <div class="nav-item-icon">
                             <i class="fas fa-tachometer-alt"></i>
                         </div>
@@ -84,13 +84,13 @@
                 <!-- Report e PDF -->
                 <div class="nav-section">
                     <div class="nav-section-title">Report</div>
-                    <a href="/reports/{{ company_id }}" class="nav-item">
+                    <a href="/reports" class="nav-item">
                         <div class="nav-item-icon">
                             <i class="fas fa-chart-bar"></i>
                         </div>
                         <div class="nav-item-text">Report</div>
                     </a>
-                    <a href="/pdfs/{{ company_id }}" class="nav-item">
+                    <a href="/pdfs" class="nav-item">
                         <div class="nav-item-icon">
                             <i class="fas fa-file-pdf"></i>
                         </div>
@@ -101,13 +101,13 @@
                 <!-- Amministrazione -->
                 <div class="nav-section">
                     <div class="nav-section-title">Amministrazione</div>
-                    <a href="/settings/{{ company_id }}" class="nav-item">
+                    <a href="/settings" class="nav-item">
                         <div class="nav-item-icon">
                             <i class="fas fa-cog"></i>
                         </div>
                         <div class="nav-item-text">Impostazioni</div>
                     </a>
-                    <a href="/users/{{ company_id }}" class="nav-item">
+                    <a href="/users" class="nav-item">
                         <div class="nav-item-icon">
                             <i class="fas fa-users"></i>
                         </div>
@@ -131,7 +131,7 @@
                         <div>
                             <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
                             <nav class="breadcrumb">
-                                <a href="/company-dashboard/{{ company_id }}" class="text-secondary hover:text-primary">Dashboard</a>
+                                <a href="/company-dashboard/1" class="text-secondary hover:text-primary">Dashboard</a>
                                 {% block breadcrumb %}{% endblock %}
                             </nav>
                         </div>
