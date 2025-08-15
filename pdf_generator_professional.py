@@ -181,7 +181,7 @@ class ProfessionalNIS2PDFGenerator:
         story = []
         
         # Header con logo e titolo
-        story.append(Paragraph("🏆 PASSAPORTO DIGITALE NIS2", self.main_title_style))
+        story.append(Paragraph("PASSAPORTO DIGITALE NIS2", self.main_title_style))
         story.append(Spacer(1, 10))
         story.append(Paragraph("Certificato di Conformità alla Direttiva NIS2", self.subtitle_style))
         story.append(Spacer(1, 30))
@@ -201,12 +201,12 @@ class ProfessionalNIS2PDFGenerator:
         story.append(Paragraph("INFORMAZIONI FORNITORE", self.subtitle_style))
         
         supplier_info = [
-            ["🏢 Nome Azienda", supplier_data.get('company_name', 'N/A')],
-            ["📧 Email", supplier_data.get('email', 'N/A')],
-            ["🏭 Settore", supplier_data.get('sector', 'N/A')],
-            ["🌍 Paese", supplier_data.get('country', 'N/A')],
-            ["📅 Data Valutazione", assessment_data.get('completed_at', 'N/A')],
-            ["🆔 ID Assessment", f"NIS2-{assessment_data.get('id', '000000'):06d}"]
+            ["Nome Azienda", supplier_data.get('company_name', 'N/A')],
+            ["Email", supplier_data.get('email', 'N/A')],
+            ["Settore", supplier_data.get('sector', 'N/A')],
+            ["Paese", supplier_data.get('country', 'N/A')],
+            ["Data Valutazione", assessment_data.get('completed_at', 'N/A')],
+            ["ID Assessment", f"NIS2-{assessment_data.get('id', '000000'):06d}"]
         ]
         
         supplier_table = Table(supplier_info, colWidths=[4*cm, 10*cm])
@@ -243,7 +243,7 @@ class ProfessionalNIS2PDFGenerator:
                     
                     section_data = [["Sezione", "Punteggio", "Stato"]]
                     for section, score in eval_result['section_scores'].items():
-                        status = "✅ Conforme" if score >= 70 else "⚠️ Parzialmente Conforme" if score >= 50 else "❌ Non Conforme"
+                        status = "Conforme" if score >= 70 else "Parzialmente Conforme" if score >= 50 else "Non Conforme"
                         section_data.append([section, f"{score:.1f}%", status])
                     
                     section_table = Table(section_data, colWidths=[8*cm, 3*cm, 3*cm])
@@ -274,22 +274,18 @@ class ProfessionalNIS2PDFGenerator:
         validity_text = """
         <b>Durata:</b> 12 mesi dalla data di emissione<br/>
         <b>Rinnovo:</b> Richiesto assessment annuale per mantenere la conformità<br/>
-        <b>Verifica:</b> Possibile in qualsiasi momento tramite QR code o ID certificato
+        <b>Verifica:</b> Possibile in qualsiasi momento tramite ID certificato
         """
         story.append(Paragraph(validity_text, self.body_style))
         
-        # QR Code per verifica
+        # Verifica pubblica
         story.append(Spacer(1, 25))
-        story.append(Paragraph("VERIFICA PUBBLICA", self.subtitle_style))
-        story.append(Paragraph("Scansiona il QR code per verificare l'autenticità del documento online.", self.body_style))
-        
-        # Verifica pubblica (senza QR code problematico)
         story.append(Paragraph("VERIFICA PUBBLICA", self.subtitle_style))
         verification_text = f"""
         <b>ID Certificato:</b> NIS2-{assessment_data.get('id', '000000'):06d}<br/>
         <b>Fornitore:</b> {supplier_data.get('company_name', 'N/A')}<br/>
         <b>Data Emissione:</b> {assessment_data.get('completed_at', 'N/A')}<br/>
-        <b>Stato:</b> ✅ CONFORME ALLA DIRETTIVA NIS2<br/><br/>
+        <b>Stato:</b> CONFORME ALLA DIRETTIVA NIS2<br/><br/>
         <i>Per verificare l'autenticità di questo certificato, visita la piattaforma NIS2 Supply Chain Assessment 
         e inserisci l'ID certificato sopra indicato.</i>
         """
@@ -319,7 +315,7 @@ class ProfessionalNIS2PDFGenerator:
         story = []
         
         # Header con logo e titolo
-        story.append(Paragraph("⚠️ REPORT DI RICHIAMO NIS2", self.main_title_style))
+        story.append(Paragraph("REPORT DI RICHIAMO NIS2", self.main_title_style))
         story.append(Spacer(1, 10))
         story.append(Paragraph("Notifica di Non Conformità alla Direttiva NIS2", self.subtitle_style))
         story.append(Spacer(1, 30))
@@ -341,12 +337,12 @@ class ProfessionalNIS2PDFGenerator:
         story.append(Paragraph("INFORMAZIONI FORNITORE", self.subtitle_style))
         
         supplier_info = [
-            ["🏢 Nome Azienda", supplier_data.get('company_name', 'N/A')],
-            ["📧 Email", supplier_data.get('email', 'N/A')],
-            ["🏭 Settore", supplier_data.get('sector', 'N/A')],
-            ["🌍 Paese", supplier_data.get('country', 'N/A')],
-            ["📅 Data Valutazione", assessment_data.get('completed_at', 'N/A')],
-            ["🆔 ID Assessment", f"NIS2-{assessment_data.get('id', '000000'):06d}"]
+            ["Nome Azienda", supplier_data.get('company_name', 'N/A')],
+            ["Email", supplier_data.get('email', 'N/A')],
+            ["Settore", supplier_data.get('sector', 'N/A')],
+            ["Paese", supplier_data.get('country', 'N/A')],
+            ["Data Valutazione", assessment_data.get('completed_at', 'N/A')],
+            ["ID Assessment", f"NIS2-{assessment_data.get('id', '000000'):06d}"]
         ]
         
         supplier_table = Table(supplier_info, colWidths=[4*cm, 10*cm])
@@ -384,7 +380,7 @@ class ProfessionalNIS2PDFGenerator:
                     section_data = [["Sezione", "Punteggio", "Stato", "Priorità"]]
                     for section, score in eval_result['section_scores'].items():
                         if score < 70:
-                            status = "❌ Non Conforme"
+                            status = "Non Conforme"
                             priority = "ALTA" if score < 30 else "MEDIA" if score < 50 else "BASSA"
                             section_data.append([section, f"{score:.1f}%", status, priority])
                     
@@ -420,18 +416,14 @@ class ProfessionalNIS2PDFGenerator:
         """
         story.append(Paragraph(actions_text, self.body_style))
         
-        # QR Code per verifica
+        # Verifica pubblica
         story.append(Spacer(1, 25))
-        story.append(Paragraph("VERIFICA PUBBLICA", self.subtitle_style))
-        story.append(Paragraph("Scansiona il QR code per verificare l'autenticità del documento online.", self.body_style))
-        
-        # Verifica pubblica (senza QR code problematico)
         story.append(Paragraph("VERIFICA PUBBLICA", self.subtitle_style))
         verification_text = f"""
         <b>ID Report:</b> NIS2-{assessment_data.get('id', '000000'):06d}<br/>
         <b>Fornitore:</b> {supplier_data.get('company_name', 'N/A')}<br/>
         <b>Data Valutazione:</b> {assessment_data.get('completed_at', 'N/A')}<br/>
-        <b>Stato:</b> ⚠️ NON CONFORME - RICHIESTE AZIONI CORRETTIVE<br/><br/>
+        <b>Stato:</b> NON CONFORME - RICHIESTE AZIONI CORRETTIVE<br/><br/>
         <i>Per verificare l'autenticità di questo report, visita la piattaforma NIS2 Supply Chain Assessment 
         e inserisci l'ID report sopra indicato.</i>
         """
