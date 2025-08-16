@@ -1,0 +1,258 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Compliance Assessment - {{ supplier.name }}{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="header-content">
+            <h1 class="page-title">Compliance Assessment</h1>
+            <p class="page-subtitle">Valutazione dettagliata per {{ supplier.name }}</p>
+        </div>
+        <div class="header-actions">
+            <a href="/compliance" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Torna al Compliance
+            </a>
+        </div>
+    </div>
+
+    <div class="content-body">
+        <!-- Informazioni Fornitore -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-building"></i>
+                    Informazioni Fornitore
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Nome Azienda:</label>
+                        <span>{{ supplier.name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Email:</label>
+                        <span>{{ supplier.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>ID Fornitore:</label>
+                        <span>#{{ supplier.id }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assessment Compliance -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-clipboard-check"></i>
+                    Assessment Compliance NIS2
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/compliance/assessment">
+                    <input type="hidden" name="supplier_id" value="{{ supplier.id }}">
+                    
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Categoria</th>
+                                    <th>Codice</th>
+                                    <th>Requisito</th>
+                                    <th>Stato</th>
+                                    <th>Evidenze</th>
+                                    <th>Note</th>
+                                    <th>Prossima Review</th>
+                                    <th>Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for assessment in assessments %}
+                                <tr>
+                                    <td>
+                                        <span class="badge badge-category">{{ assessment[0] }}</span>
+                                    </td>
+                                    <td>
+                                        <code>{{ assessment[1] }}</code>
+                                    </td>
+                                    <td>
+                                        <div class="requirement-info">
+                                            <strong>{{ assessment[2] }}</strong>
+                                            <small>{{ assessment[3] }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <select name="compliance_status_{{ assessment[8] }}" class="form-select">
+                                            <option value="">Non valutato</option>
+                                            <option value="COMPLIANT" {% if assessment[6] == 'COMPLIANT' %}selected{% endif %}>Conforme</option>
+                                            <option value="PARTIALLY_COMPLIANT" {% if assessment[6] == 'PARTIALLY_COMPLIANT' %}selected{% endif %}>Parzialmente Conforme</option>
+                                            <option value="NON_COMPLIANT" {% if assessment[6] == 'NON_COMPLIANT' %}selected{% endif %}>Non Conforme</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <textarea name="evidence_{{ assessment[8] }}" class="form-control" rows="2" placeholder="Evidenze di compliance...">{{ assessment[7] or '' }}</textarea>
+                                    </td>
+                                    <td>
+                                        <textarea name="notes_{{ assessment[8] }}" class="form-control" rows="2" placeholder="Note aggiuntive...">{{ assessment[8] or '' }}</textarea>
+                                    </td>
+                                    <td>
+                                        <input type="date" name="next_review_{{ assessment[8] }}" class="form-control" value="{{ assessment[9] or '' }}">
+                                    </td>
+                                    <td>
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-save"></i>
+                                            Salva
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Gap Analysis -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Gap Analysis
+                </h3>
+                <div class="card-actions">
+                    <button class="btn btn-primary" onclick="openGapModal()">
+                        <i class="fas fa-plus"></i>
+                        Nuovo Gap
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if gaps %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Requisito</th>
+                                <th>Descrizione Gap</th>
+                                <th>Impatto</th>
+                                <th>Piano Remediation</th>
+                                <th>Costo Stimato</th>
+                                <th>Timeline</th>
+                                <th>Stato</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for gap in gaps %}
+                            <tr>
+                                <td>
+                                    <div>
+                                        <strong>{{ gap[0] }}</strong><br>
+                                        <small>{{ gap[1] }}</small>
+                                    </div>
+                                </td>
+                                <td>{{ gap[2] }}</td>
+                                <td>
+                                    <span class="badge badge-{{ gap[3].lower() }}">{{ gap[3] }}</span>
+                                </td>
+                                <td>{{ gap[4] or 'Non specificato' }}</td>
+                                <td>€{{ gap[5] or 0 }}</td>
+                                <td>{{ gap[6] }} giorni</td>
+                                <td>
+                                    <span class="badge badge-{{ gap[7].lower() }}">{{ gap[7] }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-check-circle"></i>
+                    <h4>Nessun gap identificato</h4>
+                    <p>Il fornitore risulta conforme a tutti i requisiti valutati.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal per Nuovo Gap -->
+<div id="gapModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Nuovo Gap di Compliance</h3>
+            <span class="close" onclick="closeGapModal()">&times;</span>
+        </div>
+        <form method="POST" action="/compliance/gap">
+            <input type="hidden" name="supplier_id" value="{{ supplier.id }}">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Requisito:</label>
+                    <select name="requirement_id" class="form-control" required>
+                        <option value="">Seleziona un requisito</option>
+                        {% for assessment in assessments %}
+                        <option value="{{ assessment[8] }}">{{ assessment[1] }} - {{ assessment[2] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Descrizione Gap:</label>
+                    <textarea name="gap_description" class="form-control" rows="3" required placeholder="Descrivi il gap di compliance..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Livello di Impatto:</label>
+                    <select name="impact_level" class="form-control" required>
+                        <option value="">Seleziona livello</option>
+                        <option value="CRITICAL">Critico</option>
+                        <option value="HIGH">Alto</option>
+                        <option value="MEDIUM">Medio</option>
+                        <option value="LOW">Basso</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Piano di Remediation:</label>
+                    <textarea name="remediation_plan" class="form-control" rows="3" placeholder="Descrivi il piano di remediation..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Costo Stimato (€):</label>
+                        <input type="number" name="estimated_cost" class="form-control" min="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Timeline (giorni):</label>
+                        <input type="number" name="timeline_days" class="form-control" min="1" value="30">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeGapModal()">Annulla</button>
+                <button type="submit" class="btn btn-primary">Crea Gap</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openGapModal() {
+    document.getElementById('gapModal').style.display = 'block';
+}
+
+function closeGapModal() {
+    document.getElementById('gapModal').style.display = 'none';
+}
+
+// Chiudi modal cliccando fuori
+window.onclick = function(event) {
+    var modal = document.getElementById('gapModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}
