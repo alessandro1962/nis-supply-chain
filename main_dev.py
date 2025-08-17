@@ -301,9 +301,16 @@ async def admin_login(email: str = Form(...), password: str = Form(...)):
 
 @app.get("/admin-dashboard")
 async def admin_dashboard(request: Request):
-    user = await get_current_user(request)
+    # Prova prima il nuovo sistema unificato
+    from unified_login import get_current_admin
+    user = get_current_admin(request)
+    
+    # Se non funziona, prova il vecchio sistema
+    if not user:
+        user = await get_current_user(request)
+    
     if not user or user.get("role") != "admin":
-        return RedirectResponse(url="/admin-login")
+        return RedirectResponse(url="/unified-login")
     
     try:
         # Inizializza il database se non esiste
@@ -355,9 +362,16 @@ async def admin_dashboard(request: Request):
 
 @app.get("/admin/companies")
 async def admin_companies_page(request: Request):
-    user = await get_current_user(request)
+    # Prova prima il nuovo sistema unificato
+    from unified_login import get_current_admin
+    user = get_current_admin(request)
+    
+    # Se non funziona, prova il vecchio sistema
+    if not user:
+        user = await get_current_user(request)
+    
     if not user or user.get("role") != "admin":
-        return RedirectResponse(url="/admin-login")
+        return RedirectResponse(url="/unified-login")
     
     conn = sqlite3.connect('nis2_supply_chain.db')
     cursor = conn.cursor()
@@ -385,7 +399,14 @@ async def create_company(request: Request, name: str = Form(...), admin_email: s
                         city: str = Form(None), postal_code: str = Form(None), country: str = Form("Italia"),
                         phone: str = Form(None), piva: str = Form(None), cf: str = Form(None),
                         website: str = Form(None), description: str = Form(None)):
-    user = await get_current_user(request)
+    # Prova prima il nuovo sistema unificato
+    from unified_login import get_current_admin
+    user = get_current_admin(request)
+    
+    # Se non funziona, prova il vecchio sistema
+    if not user:
+        user = await get_current_user(request)
+    
     if not user or user.get("role") != "admin":
         raise HTTPException(status_code=401, detail="Non autorizzato")
     

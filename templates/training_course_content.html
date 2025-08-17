@@ -318,6 +318,20 @@
         margin-bottom: 1rem;
         opacity: 0.5;
     }
+    
+    .form-help {
+        margin-top: 0.5rem;
+        padding: 0.75rem;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        color: #64748b;
+    }
+    
+    .form-help small {
+        line-height: 1.5;
+    }
 </style>
 {% endblock %}
 
@@ -342,10 +356,22 @@
             <h2 class="text-2xl font-bold text-gray-800 mb-2">Gestione Contenuti</h2>
             <p class="text-gray-600">{{ course.title }} - {{ course.category }}</p>
         </div>
-        <button class="btn-add-content" onclick="openAddContentModal()">
-            <i class="fas fa-plus"></i>
-            Aggiungi Contenuto
-        </button>
+        <div class="flex gap-2">
+            <button class="btn-add-content" onclick="openAddContentModal()">
+                <i class="fas fa-plus"></i>
+                Aggiungi Contenuto
+            </button>
+                         <div class="flex gap-2">
+                 <button class="btn-example-content" onclick="createExampleContent()" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                     <i class="fas fa-magic"></i>
+                     Esempio YouTube
+                 </button>
+                 <button class="btn-example-vimeo" onclick="createVimeoExample()" style="background: linear-gradient(135deg, #1ab7ea 0%, #0d8bb8 100%); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                     <i class="fab fa-vimeo-v"></i>
+                     Esempio Vimeo
+                 </button>
+             </div>
+        </div>
     </div>
     
     <!-- Lista Contenuti -->
@@ -439,9 +465,65 @@
                 </div>
             </div>
             
+            <!-- Campo Video URL (visibile solo per tipo VIDEO) -->
+            <div class="form-group" id="videoUrlGroup" style="display: none;">
+                <label for="videoUrl">Link Video *</label>
+                <input type="url" id="videoUrl" name="video_url" placeholder="https://youtube.com/watch?v=ABC123 o https://vimeo.com/123456789">
+                <div class="form-help">
+                    <small>
+                        <strong>📹 Come aggiungere un video:</strong><br>
+                        <strong>YouTube:</strong><br>
+                        1. Carica il video su <a href="https://youtube.com" target="_blank">YouTube.com</a><br>
+                        2. Copia il link del video (es: https://youtube.com/watch?v=ABC123)<br>
+                        3. Incolla il link qui sopra<br>
+                        4. Aggiungi la trascrizione nel campo "Contenuto" qui sotto<br><br>
+                        <strong>Vimeo:</strong><br>
+                        1. Carica il video su <a href="https://vimeo.com" target="_blank">Vimeo.com</a><br>
+                        2. Copia il link del video (es: https://vimeo.com/123456789)<br>
+                        3. Incolla il link qui sopra<br>
+                        4. Aggiungi la trascrizione nel campo "Contenuto" qui sotto
+                    </small>
+                </div>
+            </div>
+            
             <div class="form-group">
-                <label for="contentText">Contenuto *</label>
-                <textarea id="contentText" name="content" required placeholder="Inserisci il contenuto del corso..."></textarea>
+                <label for="contentText">Contenuto del Corso *</label>
+                <textarea id="contentText" name="content" required placeholder="Inserisci qui il contenuto effettivo del corso...
+
+Per VIDEO:
+• Link YouTube: https://youtube.com/watch?v=ABC123
+• Link Vimeo: https://vimeo.com/123456789
+• Trascrizione completa del video
+• Punti chiave e note aggiuntive
+
+Per LEZIONI:
+• Testo della lezione con titoli e paragrafi
+• Concetti chiave e esempi pratici
+• Esercizi e attività
+
+Per MODULI:
+• Descrizione degli argomenti
+• Obiettivi di apprendimento
+• Struttura del modulo
+
+Per DOCUMENTI:
+• Testo del documento
+• Link al file PDF (se esterno)
+
+Puoi usare HTML per formattare:
+- <h3>Titolo</h3> per i titoli
+- <p>Paragrafo</p> per i paragrafi  
+- <ul><li>Lista</li></ul> per le liste
+- <strong>Grassetto</strong> per enfatizzare" rows="15"></textarea>
+                <div class="form-help">
+                    <small>
+                        <strong>💡 Suggerimenti:</strong><br>
+                        • <strong>Video:</strong> Inserisci link YouTube/Vimeo + trascrizione completa<br>
+                        • <strong>Lezioni:</strong> Struttura con titoli, paragrafi e esempi<br>
+                        • <strong>Moduli:</strong> Descrivi obiettivi e contenuti<br>
+                        • <strong>Documenti:</strong> Testo o link al file PDF
+                    </small>
+                </div>
             </div>
             
             <div class="form-actions">
@@ -461,13 +543,29 @@
     let currentContentId = null;
     const courseId = {{ course.id }};
     
-    function openAddContentModal() {
-        currentContentId = null;
-        document.getElementById('modalTitle').textContent = 'Nuovo Contenuto';
-        document.getElementById('contentForm').reset();
-        document.getElementById('contentForm').action = `/training/api/courses/${courseId}/content`;
-        document.getElementById('contentModal').style.display = 'block';
-    }
+         function openAddContentModal() {
+         currentContentId = null;
+         document.getElementById('modalTitle').textContent = 'Nuovo Contenuto';
+         document.getElementById('contentForm').reset();
+         document.getElementById('contentForm').action = `/training/api/courses/${courseId}/content`;
+         document.getElementById('contentModal').style.display = 'block';
+         
+         // Gestisci la visualizzazione del campo video
+         handleContentTypeChange();
+     }
+     
+     function handleContentTypeChange() {
+         const contentType = document.getElementById('contentType').value;
+         const videoUrlGroup = document.getElementById('videoUrlGroup');
+         
+         if (contentType === 'VIDEO') {
+             videoUrlGroup.style.display = 'block';
+             document.getElementById('videoUrl').required = true;
+         } else {
+             videoUrlGroup.style.display = 'none';
+             document.getElementById('videoUrl').required = false;
+         }
+     }
     
     function editContent(contentId) {
         currentContentId = contentId;
@@ -518,8 +616,11 @@
         }
     }
     
-    // Gestione form
-    document.getElementById('contentForm').addEventListener('submit', function(e) {
+         // Event listener per cambio tipo contenuto
+     document.getElementById('contentType').addEventListener('change', handleContentTypeChange);
+     
+     // Gestione form
+     document.getElementById('contentForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
         const formData = new FormData(this);
@@ -541,6 +642,100 @@
         .catch(error => {
             alert('Errore: ' + error);
         });
-    });
-</script>
+         });
+     
+     function detectVideoPlatform(url) {
+         if (url.includes('youtube.com') || url.includes('youtu.be')) {
+             return 'youtube';
+         } else if (url.includes('vimeo.com')) {
+             return 'vimeo';
+         }
+         return 'unknown';
+     }
+     
+     function createExampleContent() {
+         // Apri il modal
+         openAddContentModal();
+         
+         // Popola con dati di esempio
+         document.getElementById('contentTitle').value = 'Introduzione alla Cybersecurity NIS2';
+         document.getElementById('contentType').value = 'VIDEO';
+         document.getElementById('contentOrder').value = '1';
+         document.getElementById('contentDuration').value = '15';
+         document.getElementById('videoUrl').value = 'https://youtube.com/watch?v=ABC123';
+         document.getElementById('contentText').value = `<h3>🎥 Video: Introduzione alla Cybersecurity NIS2</h3>
+
+<p><strong>Video:</strong> <a href="https://youtube.com/watch?v=ABC123" target="_blank">Guarda il video su YouTube</a></p>
+
+<h4>📝 Trascrizione del Video:</h4>
+<p>Benvenuti al corso di Cybersecurity NIS2. In questa lezione introduttiva parleremo dei concetti fondamentali della sicurezza informatica nel contesto della direttiva NIS2.</p>
+
+<h4>🎯 Obiettivi della Lezione:</h4>
+<ul>
+<li>Comprendere i principi base della cybersecurity</li>
+<li>Conoscere le minacce più comuni nel settore NIS2</li>
+<li>Identificare le best practices per la protezione</li>
+</ul>
+
+<h4>📋 Punti Chiave:</h4>
+<p><strong>1. Sicurezza Informatica:</strong> Insieme di tecnologie, processi e pratiche progettati per proteggere sistemi, reti e dati da attacchi digitali.</p>
+
+<p><strong>2. Direttiva NIS2:</strong> Normativa europea che stabilisce requisiti di sicurezza per operatori di servizi essenziali e fornitori di servizi digitali.</p>
+
+<p><strong>3. Minacce Principali:</strong></p>
+<ul>
+<li>Malware e ransomware</li>
+<li>Phishing e social engineering</li>
+<li>Attacchi DDoS</li>
+<li>Violazioni dei dati</li>
+</ul>
+
+<h4>💡 Esempio Pratico:</h4>
+<p>Immagina di essere responsabile della sicurezza IT di un'azienda energetica. Un attacco ransomware potrebbe paralizzare l'intera rete, causando blackout e danni economici ingenti. La compliance NIS2 ti aiuta a implementare le misure di protezione necessarie.</p>`;
+         
+         // Gestisci la visualizzazione del campo video
+         handleContentTypeChange();
+     }
+     
+     function createVimeoExample() {
+         // Apri il modal
+         openAddContentModal();
+         
+         // Popola con dati di esempio Vimeo
+         document.getElementById('contentTitle').value = 'Gestione del Rischio Cybersecurity';
+         document.getElementById('contentType').value = 'VIDEO';
+         document.getElementById('contentOrder').value = '2';
+         document.getElementById('contentDuration').value = '20';
+         document.getElementById('videoUrl').value = 'https://vimeo.com/123456789';
+         document.getElementById('contentText').value = `<h3>🎥 Video: Gestione del Rischio Cybersecurity</h3>
+
+<p><strong>Video:</strong> <a href="https://vimeo.com/123456789" target="_blank">Guarda il video su Vimeo</a></p>
+
+<h4>📝 Trascrizione del Video:</h4>
+<p>In questa lezione approfondiremo la gestione del rischio cybersecurity, un aspetto fondamentale per la compliance NIS2.</p>
+
+<h4>🎯 Obiettivi della Lezione:</h4>
+<ul>
+<li>Comprendere il processo di valutazione del rischio</li>
+<li>Identificare le minacce e vulnerabilità</li>
+<li>Implementare misure di mitigazione</li>
+<li>Monitorare e rivedere i rischi</li>
+</ul>
+
+<h4>📋 Processo di Gestione del Rischio:</h4>
+<p><strong>1. Identificazione del Rischio:</strong> Analisi sistematica per identificare potenziali minacce e vulnerabilità.</p>
+
+<p><strong>2. Valutazione del Rischio:</strong> Determinazione della probabilità e dell'impatto di ciascun rischio.</p>
+
+<p><strong>3. Trattamento del Rischio:</strong> Implementazione di strategie per ridurre, trasferire o accettare i rischi.</p>
+
+<p><strong>4. Monitoraggio:</strong> Controllo continuo dell'efficacia delle misure implementate.</p>
+
+<h4>💡 Esempio Pratico:</h4>
+<p>Considera un'azienda che gestisce dati sensibili dei clienti. Un rischio identificato potrebbe essere un attacco di phishing che porta a una violazione dei dati. La valutazione potrebbe determinare una probabilità media e un impatto alto, richiedendo misure di mitigazione come formazione del personale e sistemi di rilevamento avanzati.</p>`;
+         
+         // Gestisci la visualizzazione del campo video
+         handleContentTypeChange();
+     }
+ </script>
 {% endblock %}

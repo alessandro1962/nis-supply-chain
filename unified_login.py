@@ -60,9 +60,9 @@ async def handle_admin_login(request: Request, email: str, password: str):
     
     try:
         cursor.execute("""
-            SELECT id, name, email, role 
+            SELECT id, username, email, password_hash 
             FROM admins 
-            WHERE email = ? AND password = ?
+            WHERE email = ? AND password_hash = ?
         """, (email, password))
         
         admin = cursor.fetchone()
@@ -72,7 +72,7 @@ async def handle_admin_login(request: Request, email: str, password: str):
                 "sub": admin[2],
                 "role": "admin",
                 "admin_id": admin[0],
-                "admin_name": admin[1],
+                "admin_name": admin[1],  # username
                 "exp": datetime.utcnow() + timedelta(hours=24)
             }
             

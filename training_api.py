@@ -307,15 +307,26 @@ async def employee_training_page(request: Request, employee_id: int):
 @training_router.get("/course/{enrollment_id}")
 async def course_view_page(request: Request, enrollment_id: int):
     """Pagina per visualizzare un corso in corso"""
-    # Prova prima l'autenticazione azienda
-    user = await get_current_user(request)
-    employee = None
+    # Prova prima l'autenticazione admin dal sistema unificato
+    from unified_login import get_current_admin
+    admin_user = get_current_admin(request)
     
-    if not user:
-        # Se non è autenticato come azienda, prova come dipendente
-        employee = await get_current_employee(request)
-        if not employee:
-            return RedirectResponse(url="/company-login")
+    # Prova l'autenticazione azienda
+    user = await get_current_user(request)
+    
+    # Prova l'autenticazione dipendente
+    employee = await get_current_employee(request)
+    
+    # Determina quale tipo di utente è
+    current_user = None
+    if admin_user:
+        current_user = admin_user
+    elif user:
+        current_user = user
+    elif employee:
+        current_user = employee
+    else:
+        return RedirectResponse(url="/unified-login")
     
     try:
         # Ottieni dettagli iscrizione
@@ -324,7 +335,10 @@ async def course_view_page(request: Request, enrollment_id: int):
         
         # Determina il company_id
         company_id = None
-        if user:
+        if admin_user:
+            # Admin può vedere tutto, usa company_id 1 di default
+            company_id = 1
+        elif user:
             company_id = user.get("company_id", 1)
         elif employee:
             company_id = employee.get("company_id", 1)
@@ -363,30 +377,37 @@ async def course_view_page(request: Request, enrollment_id: int):
         # Ottieni quiz del corso
         quiz = training.get_course_quiz(course['id'])
         
-        # Calcola progresso (simulato per ora)
-        progress = 50  # Percentuale di completamento
-        completed_modules = 2
-        total_modules = 4
+        # Ottieni contenuti del corso
+        course_contents = training.get_course_content(course['id'])
+        
+        # Calcola progresso reale
+        total_modules = len(course_contents) if course_contents else 0
+        completed_modules = 0
+        
+        # Per ora, considera completati i primi 2 moduli (in futuro si userà il progress_data)
+        if total_modules > 0:
+            completed_modules = min(2, total_modules)
+        
+        progress = int((completed_modules / total_modules) * 100) if total_modules > 0 else 0
         
         conn.close()
         
-        # Determina quale utente passare al template
-        current_user = user if user else employee
+        # Scegli il template in base al tipo di utente
+        template_name = "training_employee_course_view.html" if employee else "training_course_view.html"
         
-        return templates.TemplateResponse("training_course_view.html", {
+        return templates.TemplateResponse(template_name, {
             "request": request,
             "user": current_user,
+            "employee": employee,  # Aggiungi employee per il template dipendente
             "enrollment": enrollment,
             "course": course,
             "quiz": quiz,
+            "course_contents": course_contents,
             "progress": progress,
             "completed_modules": completed_modules,
             "total_modules": total_modules
         })
     except Exception as e:
-        # Determina quale utente passare al template
-        current_user = user if user else employee
-        
         return templates.TemplateResponse("training_course_view.html", {
             "request": request,
             "user": current_user,
@@ -698,7 +719,14 @@ async def training_notifications_page(request: Request):
 @training_router.get("/course-management")
 async def course_management_page(request: Request):
     """Pagina gestione corsi di formazione - SOLO ADMIN"""
-    user = await get_current_user(request)
+    # Prova prima l'autenticazione admin dal sistema unificato
+    from unified_login import get_current_admin
+    user = get_current_admin(request)
+    
+    # Se non funziona, prova l'autenticazione del training module
+    if not user:
+        user = await get_current_user(request)
+    
     if not user:
         return RedirectResponse(url="/unified-login")
     
@@ -730,7 +758,14 @@ async def course_management_page(request: Request):
 @training_router.get("/course/{course_id}/content")
 async def course_content_management_page(request: Request, course_id: int):
     """Pagina gestione contenuti di un corso - SOLO ADMIN"""
-    user = await get_current_user(request)
+    # Prova prima l'autenticazione admin dal sistema unificato
+    from unified_login import get_current_admin
+    user = get_current_admin(request)
+    
+    # Se non funziona, prova l'autenticazione del training module
+    if not user:
+        user = await get_current_user(request)
+    
     if not user:
         return RedirectResponse(url="/unified-login")
     
@@ -766,7 +801,14 @@ async def course_content_management_page(request: Request, course_id: int):
 @training_router.get("/course/{course_id}/quiz")
 async def course_quiz_management_page(request: Request, course_id: int):
     """Pagina gestione quiz di un corso - SOLO ADMIN"""
-    user = await get_current_user(request)
+    # Prova prima l'autenticazione admin dal sistema unificato
+    from unified_login import get_current_admin
+    user = get_current_admin(request)
+    
+    # Se non funziona, prova l'autenticazione del training module
+    if not user:
+        user = await get_current_user(request)
+    
     if not user:
         return RedirectResponse(url="/unified-login")
     
@@ -813,7 +855,14 @@ async def add_course_api(
     content_url: str = Form(None)
 ):
     """API per aggiungere un nuovo corso - SOLO ADMIN"""
-    user = await get_current_user(request)
+    # Prova prima l'autenticazione admin dal sistema unificato
+    from unified_login import get_current_admin
+    user = get_current_admin(request)
+    
+    # Se non funziona, prova l'autenticazione del training module
+    if not user:
+        user = await get_current_user(request)
+    
     if not user:
         raise HTTPException(status_code=401, detail="Non autorizzato")
     

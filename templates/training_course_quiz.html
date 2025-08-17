@@ -420,10 +420,16 @@
             <p class="text-gray-600">{{ course.title }} - {{ course.category }}</p>
         </div>
         {% if not quiz %}
-        <button class="btn-add-quiz" onclick="openCreateQuizModal()">
-            <i class="fas fa-plus"></i>
-            Crea Quiz
-        </button>
+        <div class="flex gap-2">
+            <button class="btn-add-quiz" onclick="openCreateQuizModal()">
+                <i class="fas fa-plus"></i>
+                Crea Quiz
+            </button>
+            <button class="btn-example-quiz" onclick="createExampleQuiz()" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-magic"></i>
+                Quiz Esempio
+            </button>
+        </div>
         {% endif %}
     </div>
     
@@ -443,10 +449,16 @@
     <div class="questions-section">
         <div class="questions-header">
             <h3 class="text-lg font-semibold text-gray-800">Domande del Quiz</h3>
-            <button class="btn-add-question" onclick="openAddQuestionModal()">
-                <i class="fas fa-plus"></i>
-                Aggiungi Domanda
-            </button>
+            <div class="flex gap-2">
+                <button class="btn-add-question" onclick="openAddQuestionModal()">
+                    <i class="fas fa-plus"></i>
+                    Aggiungi Domanda
+                </button>
+                <button class="btn-example-questions" onclick="createExampleQuestions()" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 0.25rem;">
+                    <i class="fas fa-magic"></i>
+                    Domande Esempio
+                </button>
+            </div>
         </div>
         
         <div class="question-list">
@@ -620,7 +632,7 @@
 <script>
     let currentQuestionId = null;
     const courseId = {{ course.id }};
-    const quizId = {{ quiz.id if quiz else 'null' }};
+    const quizId = {{ quiz.id if quiz else 0 }};
     
     function openCreateQuizModal() {
         document.getElementById('modalTitle').textContent = 'Crea Quiz';
@@ -758,5 +770,110 @@
             alert('Errore: ' + error);
         });
     });
+    
+    function createExampleQuiz() {
+        // Prima crea il quiz
+        const quizData = new FormData();
+        quizData.append('title', 'Quiz Cybersecurity NIS2');
+        quizData.append('description', 'Test di valutazione sui concetti fondamentali della cybersecurity secondo la direttiva NIS2');
+        quizData.append('passing_score', '70');
+        quizData.append('time_limit_minutes', '30');
+        
+        fetch(`/training/api/courses/${courseId}/quiz`, {
+            method: 'POST',
+            body: quizData,
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Ricarica la pagina per mostrare il quiz creato
+                location.reload();
+            } else {
+                alert('Errore nella creazione del quiz: ' + data.detail);
+            }
+        })
+        .catch(error => {
+            alert('Errore: ' + error);
+        });
+    }
+    
+    function createExampleQuestions() {
+        const questions = [
+            {
+                question_text: 'Cosa significa NIS2?',
+                question_type: 'MULTIPLE_CHOICE',
+                options: ['Network Information Security 2', 'Network and Information Systems 2', 'National Information Security 2', 'Network Infrastructure Security 2'],
+                correct_answer: 'Network and Information Systems 2',
+                points: 10,
+                explanation: 'NIS2 sta per "Network and Information Systems 2", la seconda direttiva europea sulla sicurezza delle reti e dei sistemi informativi.'
+            },
+            {
+                question_text: 'Quale delle seguenti è una minaccia di cybersecurity?',
+                question_type: 'MULTIPLE_CHOICE',
+                options: ['Backup automatico', 'Firewall', 'Ransomware', 'Antivirus'],
+                correct_answer: 'Ransomware',
+                points: 10,
+                explanation: 'Il ransomware è un tipo di malware che cripta i file dell\'utente e richiede un riscatto per decriptarli.'
+            },
+            {
+                question_text: 'La direttiva NIS2 si applica solo alle grandi aziende.',
+                question_type: 'TRUE_FALSE',
+                correct_answer: 'FALSE',
+                points: 10,
+                explanation: 'La direttiva NIS2 si applica sia a operatori di servizi essenziali che a fornitori di servizi digitali, indipendentemente dalle dimensioni.'
+            },
+            {
+                question_text: 'Quale misura di sicurezza è più importante per proteggere i dati?',
+                question_type: 'MULTIPLE_CHOICE',
+                options: ['Password complesse', 'Backup regolari', 'Aggiornamenti di sicurezza', 'Tutte le precedenti'],
+                correct_answer: 'Tutte le precedenti',
+                points: 15,
+                explanation: 'La sicurezza è un approccio multilivello. Password complesse, backup regolari e aggiornamenti sono tutti essenziali.'
+            },
+            {
+                question_text: 'Descrivi brevemente i tre pilastri della cybersecurity.',
+                question_type: 'TEXT',
+                correct_answer: 'Confidentiality, Integrity, Availability (CIA)',
+                points: 20,
+                explanation: 'I tre pilastri sono: Confidenzialità (i dati sono accessibili solo agli autorizzati), Integrità (i dati non sono alterati), Disponibilità (i dati sono accessibili quando necessario).'
+            }
+        ];
+        
+        // Aggiungi le domande una per una
+        questions.forEach((question, index) => {
+            setTimeout(() => {
+                const formData = new FormData();
+                formData.append('question_text', question.question_text);
+                formData.append('question_type', question.question_type);
+                if (question.options) {
+                    formData.append('options', JSON.stringify(question.options));
+                }
+                formData.append('correct_answer', question.correct_answer);
+                formData.append('points', question.points);
+                formData.append('explanation', question.explanation);
+                
+                fetch(`/training/api/quiz/${quizId}/questions`, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log(`Domanda ${index + 1} creata`);
+                        if (index === questions.length - 1) {
+                            location.reload();
+                        }
+                    } else {
+                        console.error('Errore nella creazione della domanda:', data.detail);
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore:', error);
+                });
+            }, index * 500); // Ritardo di 500ms tra ogni domanda
+        });
+    }
 </script>
 {% endblock %}

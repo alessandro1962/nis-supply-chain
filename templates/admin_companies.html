@@ -255,7 +255,7 @@
         <h1>🏢 Pannello di Amministrazione NIS2</h1>
         <div class="user-info">
             <span>Admin</span>
-            <a href="/admin-logout" class="logout-btn">Logout</a>
+            <a href="/logout" class="logout-btn">Logout</a>
         </div>
     </div>
     
@@ -263,6 +263,7 @@
         <div class="nav-menu">
             <a href="/admin-dashboard" class="nav-btn">Dashboard</a>
             <a href="/admin/companies" class="nav-btn active">Gestione Aziende</a>
+            <a href="/training/course-management" class="nav-btn">Gestione Corsi</a>
         </div>
         
         {% if request.query_params.get('success') == 'created' %}
