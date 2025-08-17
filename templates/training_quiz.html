@@ -1,0 +1,797 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Quiz e Certificazioni - Training NIS2{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Quiz e Certificazioni</h1>
+                <p class="text-gray-600 mt-2">Gestisci quiz e certificazioni per i corsi di training</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="openCreateQuizModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center">
+                    <i class="fas fa-plus mr-2"></i>
+                    Nuovo Quiz
+                </button>
+                <button onclick="viewCertifications()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center">
+                    <i class="fas fa-certificate mr-2"></i>
+                    Certificazioni
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiche Quiz -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-question-circle text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Quiz Totali</p>
+                    <p id="totalQuizzes" class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Tentativi Completati</p>
+                    <p id="totalAttempts" class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-trophy text-yellow-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Certificazioni Emesse</p>
+                    <p id="totalCertifications" class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-purple-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Tasso Successo</p>
+                    <p id="successRate" class="text-2xl font-bold text-gray-900">0%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sezione Quiz Attivi -->
+    <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Quiz Disponibili</h2>
+        <div id="activeQuizzes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- I quiz verranno caricati qui -->
+        </div>
+    </div>
+
+    <!-- Sezione Quiz in Corso -->
+    <div id="quizInProgress" class="bg-white rounded-lg shadow-sm border p-6 mb-8 hidden">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Quiz in Corso</h2>
+        <div id="currentQuizContent">
+            <!-- Contenuto del quiz verrà caricato qui -->
+        </div>
+    </div>
+
+    <!-- Sezione Risultati -->
+    <div id="quizResults" class="bg-white rounded-lg shadow-sm border p-6 mb-8 hidden">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Risultati Quiz</h2>
+        <div id="resultsContent">
+            <!-- Risultati del quiz verranno caricati qui -->
+        </div>
+    </div>
+
+    <!-- Tabella Tentativi Recenti -->
+    <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Tentativi Recenti</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Dipendente
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Quiz
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Punteggio
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Stato
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Data
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Azioni
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="attemptsTableBody" class="bg-white divide-y divide-gray-200">
+                    <!-- I tentativi verranno caricati qui -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Crea Quiz -->
+<div id="createQuizModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-medium text-gray-900">Crea Nuovo Quiz</h3>
+                <button onclick="closeCreateQuizModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="quizForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Corso *</label>
+                        <select id="quizCourse" name="course_id" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Seleziona corso</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Titolo Quiz *</label>
+                        <input type="text" id="quizTitle" name="title" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Descrizione</label>
+                    <textarea id="quizDescription" name="description" rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Punteggio Minimo (%) *</label>
+                        <input type="number" id="quizMinScore" name="min_score" min="0" max="100" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tempo Limite (min) *</label>
+                        <input type="number" id="quizTimeLimit" name="time_limit" min="5" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Numero Tentativi</label>
+                        <input type="number" id="quizMaxAttempts" name="max_attempts" min="1" value="3"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h4 class="font-medium text-gray-900 mb-4">Domande</h4>
+                    <div id="questionsContainer">
+                        <!-- Le domande verranno aggiunte qui -->
+                    </div>
+                    <button type="button" onclick="addQuestion()" 
+                            class="mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm">
+                        <i class="fas fa-plus mr-2"></i>Aggiungi Domanda
+                    </button>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeCreateQuizModal()" 
+                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        Annulla
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        Salva Quiz
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Certificazioni -->
+<div id="certificationsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-6xl shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-medium text-gray-900">Certificazioni Emesse</h3>
+                <button onclick="closeCertificationsModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="certificationsContent">
+                <!-- Le certificazioni verranno caricate qui -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentQuiz = null;
+let currentQuestionIndex = 0;
+let quizAnswers = {};
+let quizTimer = null;
+let timeRemaining = 0;
+
+// Carica i dati all'avvio
+document.addEventListener('DOMContentLoaded', function() {
+    loadQuizStats();
+    loadActiveQuizzes();
+    loadRecentAttempts();
+    loadCoursesForQuiz();
+});
+
+async function loadQuizStats() {
+    try {
+        // Simula statistiche (in un'implementazione reale verrebbero dal backend)
+        document.getElementById('totalQuizzes').textContent = '5';
+        document.getElementById('totalAttempts').textContent = '12';
+        document.getElementById('totalCertifications').textContent = '8';
+        document.getElementById('successRate').textContent = '75%';
+    } catch (error) {
+        console.error('Errore nel caricamento statistiche quiz:', error);
+    }
+}
+
+async function loadActiveQuizzes() {
+    try {
+        const response = await fetch('/training/api/courses');
+        const courses = await response.json();
+        
+        const container = document.getElementById('activeQuizzes');
+        container.innerHTML = '';
+        
+        courses.forEach(course => {
+            const quizCard = document.createElement('div');
+            quizCard.className = 'bg-gray-50 rounded-lg p-4 border border-gray-200';
+            
+            quizCard.innerHTML = `
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-semibold text-gray-900">${course.name}</h3>
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        Quiz Disponibile
+                    </span>
+                </div>
+                <p class="text-sm text-gray-600 mb-3">${course.description || 'Nessuna descrizione'}</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-500">Durata: 30 min</span>
+                    <button onclick="startQuiz(${course.id})" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm">
+                        Inizia Quiz
+                    </button>
+                </div>
+            `;
+            
+            container.appendChild(quizCard);
+        });
+        
+    } catch (error) {
+        console.error('Errore nel caricamento quiz attivi:', error);
+    }
+}
+
+async function loadRecentAttempts() {
+    try {
+        // Simula dati tentativi (in un'implementazione reale verrebbero dal backend)
+        const attempts = [
+            { employee: 'Anna Bianchi', quiz: 'Fondamenti NIS2', score: 85, status: 'Completato', date: '2024-01-15' },
+            { employee: 'Luca Verdi', quiz: 'Cybersecurity Avanzata', score: 92, status: 'Completato', date: '2024-01-14' },
+            { employee: 'Mario Rossi', quiz: 'Fondamenti NIS2', score: 78, status: 'Completato', date: '2024-01-13' }
+        ];
+        
+        const tbody = document.getElementById('attemptsTableBody');
+        tbody.innerHTML = '';
+        
+        attempts.forEach(attempt => {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50';
+            
+            row.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">${attempt.employee}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${attempt.quiz}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        ${attempt.score}%
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                        ${attempt.status}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${attempt.date}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button onclick="viewAttemptDetails(${attempt.id})" class="text-blue-600 hover:text-blue-900">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+        
+    } catch (error) {
+        console.error('Errore nel caricamento tentativi:', error);
+    }
+}
+
+async function loadCoursesForQuiz() {
+    try {
+        const response = await fetch('/training/api/courses');
+        const courses = await response.json();
+        
+        const select = document.getElementById('quizCourse');
+        select.innerHTML = '<option value="">Seleziona corso</option>';
+        
+        courses.forEach(course => {
+            const option = document.createElement('option');
+            option.value = course.id;
+            option.textContent = course.name;
+            select.appendChild(option);
+        });
+        
+    } catch (error) {
+        console.error('Errore nel caricamento corsi per quiz:', error);
+    }
+}
+
+async function startQuiz(courseId) {
+    try {
+        const response = await fetch(`/training/api/quiz/${courseId}`);
+        const quiz = await response.json();
+        
+        if (quiz && quiz.questions) {
+            currentQuiz = quiz;
+            currentQuestionIndex = 0;
+            quizAnswers = {};
+            timeRemaining = quiz.time_limit * 60; // Converti in secondi
+            
+            displayQuiz();
+            startTimer();
+            
+            document.getElementById('quizInProgress').classList.remove('hidden');
+            document.getElementById('activeQuizzes').parentElement.classList.add('hidden');
+            
+        } else {
+            showNotification('Nessun quiz disponibile per questo corso', 'warning');
+        }
+        
+    } catch (error) {
+        console.error('Errore nell\'avvio quiz:', error);
+        showNotification('Errore nell\'avvio del quiz', 'error');
+    }
+}
+
+function displayQuiz() {
+    const container = document.getElementById('currentQuizContent');
+    const question = currentQuiz.questions[currentQuestionIndex];
+    
+    container.innerHTML = `
+        <div class="mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Domanda ${currentQuestionIndex + 1} di ${currentQuiz.questions.length}</h3>
+                <div class="text-sm text-gray-500">
+                    Tempo rimanente: <span id="timer" class="font-bold text-red-600">${formatTime(timeRemaining)}</span>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                <p class="text-lg text-gray-900 mb-4">${question.question}</p>
+                
+                <div class="space-y-3">
+                    ${question.options.map((option, index) => `
+                        <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="question_${currentQuestionIndex}" value="${index}" 
+                                   class="mr-3 text-blue-600 focus:ring-blue-500"
+                                   ${quizAnswers[currentQuestionIndex] === index ? 'checked' : ''}>
+                            <span class="text-gray-900">${option}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
+            
+            <div class="flex justify-between">
+                <button onclick="previousQuestion()" 
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 ${currentQuestionIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                        ${currentQuestionIndex === 0 ? 'disabled' : ''}>
+                    <i class="fas fa-arrow-left mr-2"></i>Precedente
+                </button>
+                
+                <div class="flex space-x-2">
+                    ${currentQuestionIndex < currentQuiz.questions.length - 1 ? 
+                        `<button onclick="nextQuestion()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Successiva<i class="fas fa-arrow-right ml-2"></i>
+                        </button>` :
+                        `<button onclick="submitQuiz()" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                            <i class="fas fa-check mr-2"></i>Completa Quiz
+                        </button>`
+                    }
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function startTimer() {
+    quizTimer = setInterval(() => {
+        timeRemaining--;
+        const timerElement = document.getElementById('timer');
+        if (timerElement) {
+            timerElement.textContent = formatTime(timeRemaining);
+        }
+        
+        if (timeRemaining <= 0) {
+            clearInterval(quizTimer);
+            submitQuiz();
+        }
+    }, 1000);
+}
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+function saveAnswer() {
+    const selectedAnswer = document.querySelector(`input[name="question_${currentQuestionIndex}"]:checked`);
+    if (selectedAnswer) {
+        quizAnswers[currentQuestionIndex] = parseInt(selectedAnswer.value);
+    }
+}
+
+function nextQuestion() {
+    saveAnswer();
+    if (currentQuestionIndex < currentQuiz.questions.length - 1) {
+        currentQuestionIndex++;
+        displayQuiz();
+    }
+}
+
+function previousQuestion() {
+    saveAnswer();
+    if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        displayQuiz();
+    }
+}
+
+async function submitQuiz() {
+    saveAnswer();
+    clearInterval(quizTimer);
+    
+    // Calcola il punteggio
+    let correctAnswers = 0;
+    currentQuiz.questions.forEach((question, index) => {
+        if (quizAnswers[index] === question.correct_answer) {
+            correctAnswers++;
+        }
+    });
+    
+    const score = Math.round((correctAnswers / currentQuiz.questions.length) * 100);
+    const passed = score >= currentQuiz.min_score;
+    
+    // Mostra risultati
+    displayResults(score, passed, correctAnswers, currentQuiz.questions.length);
+    
+    // Invia risultati al backend
+    try {
+        const response = await fetch('/training/api/quiz/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                quiz_id: currentQuiz.id,
+                employee_id: 1, // In un'implementazione reale verrebbe dal login
+                score: score,
+                answers: quizAnswers,
+                time_taken: (currentQuiz.time_limit * 60) - timeRemaining
+            })
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            if (result.certification_issued) {
+                showNotification('Certificazione emessa con successo!', 'success');
+            }
+        }
+    } catch (error) {
+        console.error('Errore nell\'invio risultati:', error);
+    }
+}
+
+function displayResults(score, passed, correctAnswers, totalQuestions) {
+    document.getElementById('quizInProgress').classList.add('hidden');
+    document.getElementById('quizResults').classList.remove('hidden');
+    
+    const container = document.getElementById('resultsContent');
+    container.innerHTML = `
+        <div class="text-center mb-6">
+            <div class="w-24 h-24 mx-auto mb-4 rounded-full flex items-center justify-center ${passed ? 'bg-green-100' : 'bg-red-100'}">
+                <i class="fas ${passed ? 'fa-trophy' : 'fa-times'} text-3xl ${passed ? 'text-green-600' : 'text-red-600'}"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">
+                ${passed ? 'Congratulazioni!' : 'Quiz non superato'}
+            </h3>
+            <p class="text-gray-600 mb-4">
+                ${passed ? 'Hai superato il quiz e ottenuto la certificazione!' : 'Riprova per ottenere la certificazione.'}
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                <p class="text-sm text-gray-500">Punteggio</p>
+                <p class="text-2xl font-bold ${passed ? 'text-green-600' : 'text-red-600'}">${score}%</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                <p class="text-sm text-gray-500">Risposte Corrette</p>
+                <p class="text-2xl font-bold text-gray-900">${correctAnswers}/${totalQuestions}</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                <p class="text-sm text-gray-500">Punteggio Minimo</p>
+                <p class="text-2xl font-bold text-gray-900">${currentQuiz.min_score}%</p>
+            </div>
+        </div>
+        
+        <div class="flex justify-center space-x-4">
+            <button onclick="retakeQuiz()" 
+                    class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                <i class="fas fa-redo mr-2"></i>Riprova Quiz
+            </button>
+            <button onclick="backToQuizzes()" 
+                    class="px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i>Torna ai Quiz
+            </button>
+        </div>
+    `;
+}
+
+function retakeQuiz() {
+    document.getElementById('quizResults').classList.add('hidden');
+    currentQuestionIndex = 0;
+    quizAnswers = {};
+    timeRemaining = currentQuiz.time_limit * 60;
+    displayQuiz();
+    startTimer();
+    document.getElementById('quizInProgress').classList.remove('hidden');
+}
+
+function backToQuizzes() {
+    document.getElementById('quizResults').classList.add('hidden');
+    document.getElementById('quizInProgress').classList.add('hidden');
+    document.getElementById('activeQuizzes').parentElement.classList.remove('hidden');
+    currentQuiz = null;
+}
+
+function openCreateQuizModal() {
+    document.getElementById('createQuizModal').classList.remove('hidden');
+    addQuestion(); // Aggiungi la prima domanda
+}
+
+function closeCreateQuizModal() {
+    document.getElementById('createQuizModal').classList.add('hidden');
+    document.getElementById('questionsContainer').innerHTML = '';
+}
+
+function addQuestion() {
+    const container = document.getElementById('questionsContainer');
+    const questionIndex = container.children.length;
+    
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'border border-gray-200 rounded-lg p-4 mb-4';
+    questionDiv.innerHTML = `
+        <div class="flex justify-between items-center mb-3">
+            <h5 class="font-medium text-gray-900">Domanda ${questionIndex + 1}</h5>
+            <button type="button" onclick="removeQuestion(this)" class="text-red-600 hover:text-red-800">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Domanda *</label>
+            <textarea name="questions[${questionIndex}][question]" required rows="3"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Opzione A *</label>
+                <input type="text" name="questions[${questionIndex}][options][0]" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Opzione B *</label>
+                <input type="text" name="questions[${questionIndex}][options][1]" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Opzione C *</label>
+                <input type="text" name="questions[${questionIndex}][options][2]" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Opzione D *</label>
+                <input type="text" name="questions[${questionIndex}][options][3]" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+        <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Risposta Corretta *</label>
+            <select name="questions[${questionIndex}][correct_answer]" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">Seleziona risposta corretta</option>
+                <option value="0">A</option>
+                <option value="1">B</option>
+                <option value="2">C</option>
+                <option value="3">D</option>
+            </select>
+        </div>
+    `;
+    
+    container.appendChild(questionDiv);
+}
+
+function removeQuestion(button) {
+    button.closest('div').remove();
+    // Rinumera le domande
+    const questions = document.querySelectorAll('#questionsContainer > div');
+    questions.forEach((question, index) => {
+        question.querySelector('h5').textContent = `Domanda ${index + 1}`;
+    });
+}
+
+function viewCertifications() {
+    document.getElementById('certificationsModal').classList.remove('hidden');
+    loadCertifications();
+}
+
+function closeCertificationsModal() {
+    document.getElementById('certificationsModal').classList.add('hidden');
+}
+
+async function loadCertifications() {
+    try {
+        // Simula caricamento certificazioni
+        const container = document.getElementById('certificationsContent');
+        container.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-semibold text-gray-900">Anna Bianchi</h4>
+                        <span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">Valida</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">Fondamenti NIS2</p>
+                    <p class="text-xs text-gray-500">Emessa: 15/01/2024</p>
+                    <p class="text-xs text-gray-500">Scade: 15/01/2025</p>
+                    <button class="mt-3 w-full bg-blue-600 text-white px-3 py-2 rounded-md text-sm">
+                        <i class="fas fa-download mr-2"></i>Scarica PDF
+                    </button>
+                </div>
+                
+                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-semibold text-gray-900">Luca Verdi</h4>
+                        <span class="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">Valida</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">Cybersecurity Avanzata</p>
+                    <p class="text-xs text-gray-500">Emessa: 14/01/2024</p>
+                    <p class="text-xs text-gray-500">Scade: 14/01/2025</p>
+                    <button class="mt-3 w-full bg-blue-600 text-white px-3 py-2 rounded-md text-sm">
+                        <i class="fas fa-download mr-2"></i>Scarica PDF
+                    </button>
+                </div>
+                
+                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-semibold text-gray-900">Mario Rossi</h4>
+                        <span class="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full">In Scadenza</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">Fondamenti NIS2</p>
+                    <p class="text-xs text-gray-500">Emessa: 13/01/2024</p>
+                    <p class="text-xs text-gray-500">Scade: 13/01/2025</p>
+                    <button class="mt-3 w-full bg-blue-600 text-white px-3 py-2 rounded-md text-sm">
+                        <i class="fas fa-download mr-2"></i>Scarica PDF
+                    </button>
+                </div>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('Errore nel caricamento certificazioni:', error);
+    }
+}
+
+function viewAttemptDetails(attemptId) {
+    // Implementa visualizzazione dettagli tentativo
+    showNotification('Funzionalità in sviluppo', 'info');
+}
+
+// Gestione form quiz
+document.getElementById('quizForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const quizData = Object.fromEntries(formData.entries());
+    
+    // Processa le domande
+    const questions = [];
+    const questionElements = document.querySelectorAll('#questionsContainer > div');
+    
+    questionElements.forEach((element, index) => {
+        const question = {
+            question: element.querySelector(`textarea[name="questions[${index}][question]"]`).value,
+            options: [
+                element.querySelector(`input[name="questions[${index}][options][0]"]`).value,
+                element.querySelector(`input[name="questions[${index}][options][1]"]`).value,
+                element.querySelector(`input[name="questions[${index}][options][2]"]`).value,
+                element.querySelector(`input[name="questions[${index}][options][3]"]`).value
+            ],
+            correct_answer: parseInt(element.querySelector(`select[name="questions[${index}][correct_answer]"]`).value)
+        };
+        questions.push(question);
+    });
+    
+    quizData.questions = questions;
+    
+    try {
+        const response = await fetch('/training/api/quiz', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(quizData)
+        });
+        
+        if (response.ok) {
+            showNotification('Quiz creato con successo', 'success');
+            closeCreateQuizModal();
+            loadActiveQuizzes();
+        } else {
+            throw new Error('Errore nella creazione');
+        }
+    } catch (error) {
+        console.error('Errore nella creazione quiz:', error);
+        showNotification('Errore nella creazione del quiz', 'error');
+    }
+});
+
+function showNotification(message, type) {
+    // Implementa notifica (puoi usare toast o alert)
+    alert(message);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,657 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Report e Statistiche - Training NIS2{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Report e Statistiche</h1>
+                <p class="text-gray-600 mt-2">Analisi dettagliate e report del training NIS2</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="exportReport()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center">
+                    <i class="fas fa-download mr-2"></i>
+                    Esporta Report
+                </button>
+                <button onclick="generatePDF()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg flex items-center">
+                    <i class="fas fa-file-pdf mr-2"></i>
+                    Genera PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtri Periodo -->
+    <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Periodo</label>
+                <select id="periodFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="30">Ultimi 30 giorni</option>
+                    <option value="90">Ultimi 3 mesi</option>
+                    <option value="180">Ultimi 6 mesi</option>
+                    <option value="365">Ultimo anno</option>
+                    <option value="custom">Periodo personalizzato</option>
+                </select>
+            </div>
+            <div id="customDateRange" class="hidden">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Data Inizio</label>
+                <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div id="customDateRangeEnd" class="hidden">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Data Fine</label>
+                <input type="date" id="endDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="flex items-end">
+                <button onclick="updateReports()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                    <i class="fas fa-sync-alt mr-2"></i>Aggiorna
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Principali -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Dipendenti Attivi</p>
+                    <p id="activeEmployees" class="text-2xl font-bold text-gray-900">0</p>
+                    <p id="activeEmployeesChange" class="text-xs text-green-600">+12% vs mese scorso</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-graduation-cap text-green-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Corsi Completati</p>
+                    <p id="completedCourses" class="text-2xl font-bold text-gray-900">0</p>
+                    <p id="completedCoursesChange" class="text-xs text-green-600">+8% vs mese scorso</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-certificate text-yellow-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Certificazioni Valide</p>
+                    <p id="validCertifications" class="text-2xl font-bold text-gray-900">0</p>
+                    <p id="validCertificationsChange" class="text-xs text-red-600">-3% vs mese scorso</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-purple-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Tasso Completamento</p>
+                    <p id="completionRate" class="text-2xl font-bold text-gray-900">0%</p>
+                    <p id="completionRateChange" class="text-xs text-green-600">+5% vs mese scorso</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grafici Principali -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Grafico Completamento Corsi -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Completamento Corsi per Categoria</h3>
+            <canvas id="courseCompletionChart" width="400" height="200"></canvas>
+        </div>
+        
+        <!-- Grafico Trend Temporale -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Trend Completamento Mensile</h3>
+            <canvas id="monthlyTrendChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Grafici Secondari -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <!-- Distribuzione Ruoli -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Distribuzione per Ruolo</h3>
+            <canvas id="roleDistributionChart" width="300" height="200"></canvas>
+        </div>
+        
+        <!-- Performance Quiz -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Performance Quiz</h3>
+            <canvas id="quizPerformanceChart" width="300" height="200"></canvas>
+        </div>
+        
+        <!-- Certificazioni per Stato -->
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Stato Certificazioni</h3>
+            <canvas id="certificationStatusChart" width="300" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- Tabelle Dettagliate -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Top Performers -->
+        <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Top Performers</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Dipendente
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Corsi Completati
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Punteggio Medio
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="topPerformersTable" class="bg-white divide-y divide-gray-200">
+                        <!-- I top performers verranno caricati qui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Corsi più Popolari -->
+        <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Corsi più Popolari</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Corso
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Iscritti
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Tasso Completamento
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="popularCoursesTable" class="bg-white divide-y divide-gray-200">
+                        <!-- I corsi popolari verranno caricati qui -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Dettagliati -->
+    <div class="bg-white rounded-lg shadow-sm border p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Report Dettagliati</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h4 class="font-medium text-gray-900 mb-2">Certificazioni in Scadenza</h4>
+                <div id="expiringCertifications" class="space-y-2">
+                    <!-- Certificazioni in scadenza verranno caricate qui -->
+                </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h4 class="font-medium text-gray-900 mb-2">Dipendenti Inattivi</h4>
+                <div id="inactiveEmployees" class="space-y-2">
+                    <!-- Dipendenti inattivi verranno caricati qui -->
+                </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h4 class="font-medium text-gray-900 mb-2">Corsi con Bassa Partecipazione</h4>
+                <div id="lowParticipationCourses" class="space-y-2">
+                    <!-- Corsi con bassa partecipazione verranno caricati qui -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Avanzate -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Analytics Avanzate</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h4 class="font-medium text-gray-900 mb-3">Correlazione Ruolo-Completamento</h4>
+                <canvas id="roleCompletionCorrelation" width="400" height="200"></canvas>
+            </div>
+            
+            <div>
+                <h4 class="font-medium text-gray-900 mb-3">Distribuzione Punteggi Quiz</h4>
+                <canvas id="quizScoreDistribution" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let charts = {};
+
+// Carica i report all'avvio
+document.addEventListener('DOMContentLoaded', function() {
+    updateReports();
+    setupEventListeners();
+});
+
+function setupEventListeners() {
+    document.getElementById('periodFilter').addEventListener('change', function() {
+        const customRange = document.getElementById('customDateRange');
+        const customRangeEnd = document.getElementById('customDateRangeEnd');
+        
+        if (this.value === 'custom') {
+            customRange.classList.remove('hidden');
+            customRangeEnd.classList.remove('hidden');
+        } else {
+            customRange.classList.add('hidden');
+            customRangeEnd.classList.add('hidden');
+        }
+    });
+}
+
+async function updateReports() {
+    try {
+        await Promise.all([
+            loadKPIs(),
+            loadCharts(),
+            loadTables(),
+            loadDetailedReports()
+        ]);
+    } catch (error) {
+        console.error('Errore nell\'aggiornamento report:', error);
+        showNotification('Errore nel caricamento dei report', 'error');
+    }
+}
+
+async function loadKPIs() {
+    try {
+        const response = await fetch('/training/api/stats/1');
+        const stats = await response.json();
+        
+        // Aggiorna KPI
+        document.getElementById('activeEmployees').textContent = stats.total_employees || 0;
+        document.getElementById('completedCourses').textContent = stats.total_completed_courses || 0;
+        document.getElementById('validCertifications').textContent = stats.active_certifications || 0;
+        document.getElementById('completionRate').textContent = `${Math.round(stats.completion_rate || 0)}%`;
+        
+        // Simula cambiamenti percentuali
+        document.getElementById('activeEmployeesChange').textContent = '+12% vs mese scorso';
+        document.getElementById('completedCoursesChange').textContent = '+8% vs mese scorso';
+        document.getElementById('validCertificationsChange').textContent = '-3% vs mese scorso';
+        document.getElementById('completionRateChange').textContent = '+5% vs mese scorso';
+        
+    } catch (error) {
+        console.error('Errore nel caricamento KPI:', error);
+    }
+}
+
+async function loadCharts() {
+    // Grafico Completamento Corsi per Categoria
+    const courseCompletionCtx = document.getElementById('courseCompletionChart').getContext('2d');
+    if (charts.courseCompletion) charts.courseCompletion.destroy();
+    
+    charts.courseCompletion = new Chart(courseCompletionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Compliance', 'Cybersecurity', 'Risk Management', 'Business Continuity', 'Supply Chain'],
+            datasets: [{
+                data: [65, 45, 30, 25, 20],
+                backgroundColor: [
+                    '#3B82F6',
+                    '#10B981',
+                    '#F59E0B',
+                    '#EF4444',
+                    '#8B5CF6'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Grafico Trend Temporale
+    const monthlyTrendCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+    if (charts.monthlyTrend) charts.monthlyTrend.destroy();
+    
+    charts.monthlyTrend = new Chart(monthlyTrendCtx, {
+        type: 'line',
+        data: {
+            labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu'],
+            datasets: [{
+                label: 'Completamenti',
+                data: [12, 19, 15, 25, 22, 30],
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Grafico Distribuzione Ruoli
+    const roleDistributionCtx = document.getElementById('roleDistributionChart').getContext('2d');
+    if (charts.roleDistribution) charts.roleDistribution.destroy();
+    
+    charts.roleDistribution = new Chart(roleDistributionCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Security Officer', 'Compliance Manager', 'IT Manager', 'System Admin', 'Network Engineer'],
+            datasets: [{
+                data: [25, 20, 30, 15, 10],
+                backgroundColor: [
+                    '#3B82F6',
+                    '#10B981',
+                    '#F59E0B',
+                    '#EF4444',
+                    '#8B5CF6'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12
+                    }
+                }
+            }
+        }
+    });
+
+    // Grafico Performance Quiz
+    const quizPerformanceCtx = document.getElementById('quizPerformanceChart').getContext('2d');
+    if (charts.quizPerformance) charts.quizPerformance.destroy();
+    
+    charts.quizPerformance = new Chart(quizPerformanceCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Fondamenti NIS2', 'Cybersecurity', 'Risk Management', 'Business Continuity'],
+            datasets: [{
+                label: 'Punteggio Medio',
+                data: [85, 78, 92, 88],
+                backgroundColor: '#3B82F6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+
+    // Grafico Stato Certificazioni
+    const certificationStatusCtx = document.getElementById('certificationStatusChart').getContext('2d');
+    if (charts.certificationStatus) charts.certificationStatus.destroy();
+    
+    charts.certificationStatus = new Chart(certificationStatusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Valide', 'In Scadenza', 'Scadute'],
+            datasets: [{
+                data: [70, 20, 10],
+                backgroundColor: ['#10B981', '#F59E0B', '#EF4444']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Grafico Correlazione Ruolo-Completamento
+    const roleCompletionCtx = document.getElementById('roleCompletionCorrelation').getContext('2d');
+    if (charts.roleCompletionCorrelation) charts.roleCompletionCorrelation.destroy();
+    
+    charts.roleCompletionCorrelation = new Chart(roleCompletionCtx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Security Officer',
+                data: [{x: 85, y: 90}, {x: 78, y: 85}, {x: 92, y: 95}],
+                backgroundColor: '#3B82F6'
+            }, {
+                label: 'Compliance Manager',
+                data: [{x: 88, y: 92}, {x: 82, y: 88}, {x: 90, y: 94}],
+                backgroundColor: '#10B981'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Punteggio Quiz'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Tasso Completamento'
+                    }
+                }
+            }
+        }
+    });
+
+    // Grafico Distribuzione Punteggi Quiz
+    const quizScoreCtx = document.getElementById('quizScoreDistribution').getContext('2d');
+    if (charts.quizScoreDistribution) charts.quizScoreDistribution.destroy();
+    
+    charts.quizScoreDistribution = new Chart(quizScoreCtx, {
+        type: 'bar',
+        data: {
+            labels: ['0-20%', '21-40%', '41-60%', '61-80%', '81-100%'],
+            datasets: [{
+                label: 'Numero Dipendenti',
+                data: [2, 5, 8, 15, 25],
+                backgroundColor: '#3B82F6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+async function loadTables() {
+    // Top Performers
+    const topPerformers = [
+        { name: 'Anna Bianchi', courses: 5, avgScore: 92 },
+        { name: 'Luca Verdi', courses: 4, avgScore: 88 },
+        { name: 'Mario Rossi', courses: 3, avgScore: 85 },
+        { name: 'Giulia Neri', courses: 4, avgScore: 83 },
+        { name: 'Paolo Bianchi', courses: 3, avgScore: 80 }
+    ];
+    
+    const topPerformersTable = document.getElementById('topPerformersTable');
+    topPerformersTable.innerHTML = '';
+    
+    topPerformers.forEach(performer => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">${performer.name}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${performer.courses}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                    ${performer.avgScore}%
+                </span>
+            </td>
+        `;
+        topPerformersTable.appendChild(row);
+    });
+
+    // Corsi Popolari
+    const popularCourses = [
+        { name: 'Fondamenti NIS2', enrolled: 45, completion: 85 },
+        { name: 'Cybersecurity Avanzata', enrolled: 38, completion: 78 },
+        { name: 'Risk Management', enrolled: 32, completion: 92 },
+        { name: 'Business Continuity', enrolled: 28, completion: 88 },
+        { name: 'Supply Chain Security', enrolled: 25, completion: 75 }
+    ];
+    
+    const popularCoursesTable = document.getElementById('popularCoursesTable');
+    popularCoursesTable.innerHTML = '';
+    
+    popularCourses.forEach(course => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">${course.name}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${course.enrolled}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                    ${course.completion}%
+                </span>
+            </td>
+        `;
+        popularCoursesTable.appendChild(row);
+    });
+}
+
+async function loadDetailedReports() {
+    // Certificazioni in Scadenza
+    const expiringCertifications = [
+        { name: 'Mario Rossi', course: 'Fondamenti NIS2', expires: '2024-02-15' },
+        { name: 'Giulia Neri', course: 'Cybersecurity Avanzata', expires: '2024-02-20' },
+        { name: 'Paolo Bianchi', course: 'Risk Management', expires: '2024-02-25' }
+    ];
+    
+    const expiringContainer = document.getElementById('expiringCertifications');
+    expiringContainer.innerHTML = '';
+    
+    expiringCertifications.forEach(cert => {
+        const div = document.createElement('div');
+        div.className = 'text-sm';
+        div.innerHTML = `
+            <div class="font-medium text-gray-900">${cert.name}</div>
+            <div class="text-gray-600">${cert.course}</div>
+            <div class="text-red-600">Scade: ${cert.expires}</div>
+        `;
+        expiringContainer.appendChild(div);
+    });
+
+    // Dipendenti Inattivi
+    const inactiveEmployees = [
+        { name: 'Roberto Verdi', lastActivity: '2024-01-10' },
+        { name: 'Sofia Rossi', lastActivity: '2024-01-08' },
+        { name: 'Marco Bianchi', lastActivity: '2024-01-05' }
+    ];
+    
+    const inactiveContainer = document.getElementById('inactiveEmployees');
+    inactiveContainer.innerHTML = '';
+    
+    inactiveEmployees.forEach(emp => {
+        const div = document.createElement('div');
+        div.className = 'text-sm';
+        div.innerHTML = `
+            <div class="font-medium text-gray-900">${emp.name}</div>
+            <div class="text-gray-600">Ultimo accesso: ${emp.lastActivity}</div>
+        `;
+        inactiveContainer.appendChild(div);
+    });
+
+    // Corsi con Bassa Partecipazione
+    const lowParticipationCourses = [
+        { name: 'Supply Chain Security', enrolled: 5, target: 20 },
+        { name: 'Business Continuity', enrolled: 8, target: 25 },
+        { name: 'Risk Management', enrolled: 12, target: 30 }
+    ];
+    
+    const lowParticipationContainer = document.getElementById('lowParticipationCourses');
+    lowParticipationContainer.innerHTML = '';
+    
+    lowParticipationCourses.forEach(course => {
+        const div = document.createElement('div');
+        div.className = 'text-sm';
+        div.innerHTML = `
+            <div class="font-medium text-gray-900">${course.name}</div>
+            <div class="text-gray-600">${course.enrolled}/${course.target} iscritti</div>
+        `;
+        lowParticipationContainer.appendChild(div);
+    });
+}
+
+function exportReport() {
+    // Implementa esportazione report
+    showNotification('Funzionalità di esportazione in sviluppo', 'info');
+}
+
+function generatePDF() {
+    // Implementa generazione PDF
+    showNotification('Funzionalità di generazione PDF in sviluppo', 'info');
+}
+
+function showNotification(message, type) {
+    // Implementa notifica (puoi usare toast o alert)
+    alert(message);
+}
+</script>
+{% endblock %}

@@ -1,0 +1,361 @@
+{% extends "professional_base.html" %}
+
+{% block title %}{{ course.title }} - Training NIS2{% endblock %}
+
+{% block page_title %}{{ course.title }}{% endblock %}
+
+{% block breadcrumb %}
+<span class="text-secondary">/ Training NIS2</span>
+<span class="text-secondary">/ Corsi</span>
+<span class="text-secondary">/ {{ course.title }}</span>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .course-header {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--border-radius-lg);
+        margin-bottom: 2rem;
+    }
+    
+    .course-meta {
+        display: flex;
+        gap: 2rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .progress-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+    }
+    
+    .progress-bar {
+        width: 100%;
+        height: 12px;
+        background: #e2e8f0;
+        border-radius: 6px;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: var(--gradient-success);
+        transition: width 0.3s ease;
+    }
+    
+    .content-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+    }
+    
+    .content-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--border-radius);
+        margin-bottom: 0.5rem;
+        transition: var(--transition-fast);
+    }
+    
+    .content-item:hover {
+        background: #f8fafc;
+        border-color: var(--primary-blue);
+    }
+    
+    .content-item.completed {
+        background: #dcfce7;
+        border-color: #22c55e;
+    }
+    
+    .content-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.125rem;
+    }
+    
+    .content-info {
+        flex: 1;
+    }
+    
+    .content-title {
+        font-weight: 600;
+        color: var(--primary-blue);
+        margin-bottom: 0.25rem;
+    }
+    
+    .content-duration {
+        font-size: 0.875rem;
+        color: var(--secondary-gray);
+    }
+    
+    .content-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-completed {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .quiz-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition-fast);
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        font-size: 0.875rem;
+    }
+    
+    .btn-primary {
+        background: var(--gradient-primary);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .btn-success {
+        background: var(--gradient-success);
+        color: white;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .btn-secondary {
+        background: var(--gradient-secondary);
+        color: var(--primary-blue);
+    }
+    
+    .btn-secondary:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle"></i>
+    Errore: {{ error }}
+</div>
+{% endif %}
+
+<!-- Header del Corso -->
+<div class="course-header">
+    <h1>{{ course.title }}</h1>
+    <p>{{ course.description }}</p>
+    
+    <div class="course-meta">
+        <div class="meta-item">
+            <i class="fas fa-clock"></i>
+            <span>{{ course.duration_minutes }} minuti</span>
+        </div>
+        <div class="meta-item">
+            <i class="fas fa-signal"></i>
+            <span>{{ course.difficulty_level }}</span>
+        </div>
+        <div class="meta-item">
+            <i class="fas fa-tag"></i>
+            <span>{{ course.category }}</span>
+        </div>
+        <div class="meta-item">
+            <i class="fas fa-calendar"></i>
+            <span>Iscritto il {{ enrollment.enrollment_date }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Sezione Progresso -->
+<div class="progress-section">
+    <h3><i class="fas fa-chart-line"></i> Progresso Corso</h3>
+    
+    <div class="progress-bar">
+        <div class="progress-fill" style="width: {{ progress }}%"></div>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span>{{ progress }}% completato</span>
+        <span>{{ completed_modules }}/{{ total_modules }} moduli completati</span>
+    </div>
+    
+    {% if progress == 100 %}
+    <div style="margin-top: 1rem; padding: 1rem; background: #dcfce7; border-radius: var(--border-radius);">
+        <i class="fas fa-trophy"></i>
+        <strong>Congratulazioni! Hai completato il corso!</strong>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Sezione Contenuti -->
+<div class="content-section">
+    <h3><i class="fas fa-book"></i> Contenuti del Corso</h3>
+    
+    <div class="content-item completed">
+        <div class="content-icon">
+            <i class="fas fa-play"></i>
+        </div>
+        <div class="content-info">
+            <div class="content-title">Introduzione al NIS2</div>
+            <div class="content-duration">15 minuti</div>
+        </div>
+        <span class="content-status status-completed">Completato</span>
+    </div>
+    
+    <div class="content-item completed">
+        <div class="content-icon">
+            <i class="fas fa-file-pdf"></i>
+        </div>
+        <div class="content-info">
+            <div class="content-title">Requisiti di Sicurezza</div>
+            <div class="content-duration">30 minuti</div>
+        </div>
+        <span class="content-status status-completed">Completato</span>
+    </div>
+    
+    <div class="content-item">
+        <div class="content-icon">
+            <i class="fas fa-video"></i>
+        </div>
+        <div class="content-info">
+            <div class="content-title">Gestione degli Incidenti</div>
+            <div class="content-duration">45 minuti</div>
+        </div>
+        <span class="content-status status-pending">In attesa</span>
+    </div>
+    
+    <div class="content-item">
+        <div class="content-icon">
+            <i class="fas fa-tasks"></i>
+        </div>
+        <div class="content-info">
+            <div class="content-title">Valutazione della Compliance</div>
+            <div class="content-duration">30 minuti</div>
+        </div>
+        <span class="content-status status-pending">In attesa</span>
+    </div>
+</div>
+
+<!-- Sezione Quiz -->
+<div class="quiz-section">
+    <h3><i class="fas fa-question-circle"></i> Quiz di Valutazione</h3>
+    
+    {% if quiz %}
+    <p>Test finale per verificare la comprensione del corso.</p>
+    
+    <div style="margin: 1rem 0;">
+        <strong>Punteggio minimo:</strong> {{ quiz.passing_score }}%<br>
+        <strong>Tempo limite:</strong> {{ quiz.time_limit_minutes }} minuti<br>
+        <strong>Domande:</strong> {{ quiz.questions|length }}
+    </div>
+    
+    {% if progress == 100 %}
+        {% if enrollment.score %}
+        <div style="margin: 1rem 0; padding: 1rem; background: #dcfce7; border-radius: var(--border-radius);">
+            <i class="fas fa-check-circle"></i>
+            <strong>Quiz completato!</strong> Punteggio: {{ enrollment.score }}%
+        </div>
+        {% else %}
+        <a href="/training/quiz/{{ enrollment.enrollment_id }}" class="btn btn-primary">
+            <i class="fas fa-play"></i>
+            Inizia Quiz
+        </a>
+        {% endif %}
+    {% else %}
+    <div style="margin: 1rem 0; padding: 1rem; background: #fef3c7; border-radius: var(--border-radius);">
+        <i class="fas fa-info-circle"></i>
+        Completa tutti i contenuti del corso per accedere al quiz.
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <p>Nessun quiz disponibile per questo corso.</p>
+    {% endif %}
+</div>
+
+<!-- Azioni -->
+<div style="display: flex; gap: 1rem; justify-content: center;">
+    <a href="/training/courses" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i>
+        Torna ai Corsi
+    </a>
+    
+    {% if progress < 100 %}
+    <button class="btn btn-primary" onclick="continueCourse()">
+        <i class="fas fa-play"></i>
+        Continua Corso
+    </button>
+    {% endif %}
+    
+    {% if progress == 100 and enrollment.score and enrollment.score >= quiz.passing_score %}
+    <button class="btn btn-success" onclick="downloadCertificate()">
+        <i class="fas fa-certificate"></i>
+        Scarica Certificato
+    </button>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function continueCourse() {
+        // Implementa la logica per continuare il corso
+        alert('Funzionalità in sviluppo: Continuazione corso');
+    }
+    
+    function downloadCertificate() {
+        // Implementa il download del certificato
+        alert('Funzionalità in sviluppo: Download certificato');
+    }
+</script>
+{% endblock %}

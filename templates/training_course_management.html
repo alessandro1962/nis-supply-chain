@@ -1,0 +1,608 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Gestione Corsi - Training NIS2{% endblock %}
+
+{% block page_title %}Gestione Corsi di Formazione{% endblock %}
+
+{% block breadcrumb %}
+<span class="text-secondary">/ Training NIS2</span>
+<span class="text-secondary">/ Gestione Corsi</span>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .course-management-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .btn-add-course {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-add-course:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .course-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: all 0.2s ease;
+        border: 1px solid #e5e7eb;
+    }
+    
+    .course-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .course-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .course-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1e3a8a;
+        margin-bottom: 0.5rem;
+    }
+    
+    .course-category {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: #dbeafe;
+        color: #1e40af;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-bottom: 0.75rem;
+    }
+    
+    .course-description {
+        color: #6b7280;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+    
+    .course-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+    
+    .course-duration {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .course-difficulty {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .difficulty-beginner {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .difficulty-intermediate {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .difficulty-advanced {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .course-actions {
+        padding: 1rem 1.5rem;
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-edit {
+        background: #f3f4f6;
+        color: #374151;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .btn-edit:hover {
+        background: #e5e7eb;
+    }
+    
+    .btn-delete {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-delete:hover {
+        background: #fecaca;
+    }
+    
+    .course-stats {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 1.5rem;
+        background: #f9fafb;
+        border-top: 1px solid #f3f4f6;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+    
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 2rem;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1e3a8a;
+    }
+    
+    .close {
+        color: #6b7280;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        background: none;
+        border: none;
+    }
+    
+    .close:hover {
+        color: #374151;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition: border-color 0.2s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #1e3a8a;
+        box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #374151;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-cancel:hover {
+        background: #e5e7eb;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+    }
+    
+    .alert {
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .alert-success {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+    }
+    
+    .alert-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    {% if success_message %}
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle mr-2"></i>
+        {{ success_message }}
+    </div>
+    {% endif %}
+    
+    {% if error_message %}
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle mr-2"></i>
+        {{ error_message }}
+    </div>
+    {% endif %}
+    
+    <div class="course-management-header">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Gestione Corsi di Formazione</h2>
+            <p class="text-gray-600">Crea e gestisci i corsi di formazione NIS2 per i tuoi dipendenti</p>
+        </div>
+        <button class="btn-add-course" onclick="openAddCourseModal()">
+            <i class="fas fa-plus"></i>
+            Nuovo Corso
+        </button>
+    </div>
+    
+    <!-- Griglia Corsi -->
+    <div class="courses-grid">
+        {% for course in courses %}
+        <div class="course-card">
+            <div class="course-header">
+                <div class="course-title">{{ course.title }}</div>
+                <div class="course-category">{{ course.category }}</div>
+                <div class="course-description">{{ course.description[:150] }}{% if course.description|length > 150 %}...{% endif %}</div>
+                <div class="course-meta">
+                    <div class="course-duration">
+                        <i class="fas fa-clock"></i>
+                        {{ course.duration_minutes }} min
+                    </div>
+                    <div class="course-difficulty difficulty-{{ course.difficulty_level.lower() }}">
+                        {{ course.difficulty_level }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="course-stats">
+                <div class="stat-item">
+                    <i class="fas fa-users"></i>
+                    {{ course.enrolled_students }} iscritti
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-check-circle"></i>
+                    {{ course.completed_count|default(0) }} completati
+                </div>
+            </div>
+            
+            <div class="course-actions">
+                <button class="btn-edit" onclick="editCourse({{ course.id }})">
+                    <i class="fas fa-edit"></i>
+                    Modifica
+                </button>
+                <a href="/training/course/{{ course.id }}/content" class="btn-edit">
+                    <i class="fas fa-file-alt"></i>
+                    Contenuti
+                </a>
+                <a href="/training/course/{{ course.id }}/quiz" class="btn-edit">
+                    <i class="fas fa-question-circle"></i>
+                    Quiz
+                </a>
+                <button class="btn-delete" onclick="deleteCourse({{ course.id }})">
+                    <i class="fas fa-trash"></i>
+                    Elimina
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if not courses %}
+    <div class="text-center py-12">
+        <div class="text-gray-400 mb-4">
+            <i class="fas fa-graduation-cap text-6xl"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Nessun corso creato</h3>
+        <p class="text-gray-500 mb-4">Inizia creando il tuo primo corso di formazione NIS2</p>
+        <button class="btn-add-course" onclick="openAddCourseModal()">
+            <i class="fas fa-plus"></i>
+            Crea Primo Corso
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal Aggiungi/Modifica Corso -->
+<div id="courseModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">Nuovo Corso</h3>
+            <button class="close" onclick="closeCourseModal()">&times;</button>
+        </div>
+        
+        <form id="courseForm" method="POST">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="courseTitle">Titolo Corso *</label>
+                    <input type="text" id="courseTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="courseCategory">Categoria *</label>
+                    <select id="courseCategory" name="category" required>
+                        <option value="">Seleziona categoria</option>
+                        <option value="Cybersecurity">Cybersecurity</option>
+                        <option value="Compliance">Compliance</option>
+                        <option value="Business Continuity">Business Continuity</option>
+                        <option value="Risk Management">Risk Management</option>
+                        <option value="Incident Response">Incident Response</option>
+                        <option value="Data Protection">Data Protection</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="courseDescription">Descrizione *</label>
+                <textarea id="courseDescription" name="description" required placeholder="Descrivi il contenuto del corso..."></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="courseDuration">Durata (minuti) *</label>
+                    <input type="number" id="courseDuration" name="duration_minutes" min="15" max="480" required>
+                </div>
+                <div class="form-group">
+                    <label for="courseDifficulty">Livello di Difficoltà *</label>
+                    <select id="courseDifficulty" name="difficulty_level" required>
+                        <option value="">Seleziona livello</option>
+                        <option value="BEGINNER">Principiante</option>
+                        <option value="INTERMEDIATE">Intermedio</option>
+                        <option value="ADVANCED">Avanzato</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="courseRequirements">Requisiti NIS2 Coperti</label>
+                <textarea id="courseRequirements" name="nis2_requirements" placeholder="Lista dei requisiti NIS2 coperti dal corso (uno per riga)"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="courseContentUrl">URL Contenuto (opzionale)</label>
+                <input type="url" id="courseContentUrl" name="content_url" placeholder="https://example.com/course-content">
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" onclick="closeCourseModal()">Annulla</button>
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save mr-1"></i>
+                    Salva Corso
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentCourseId = null;
+    
+    function openAddCourseModal() {
+        currentCourseId = null;
+        document.getElementById('modalTitle').textContent = 'Nuovo Corso';
+        document.getElementById('courseForm').reset();
+        document.getElementById('courseForm').action = '/training/api/courses';
+        document.getElementById('courseModal').style.display = 'block';
+    }
+    
+    function editCourse(courseId) {
+        currentCourseId = courseId;
+        document.getElementById('modalTitle').textContent = 'Modifica Corso';
+        document.getElementById('courseForm').action = `/training/api/courses/${courseId}`;
+        
+        // Carica i dati del corso
+        fetch(`/training/api/courses/${courseId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const course = data.course;
+                    document.getElementById('courseTitle').value = course.title;
+                    document.getElementById('courseCategory').value = course.category;
+                    document.getElementById('courseDescription').value = course.description;
+                    document.getElementById('courseDuration').value = course.duration_minutes;
+                    document.getElementById('courseDifficulty').value = course.difficulty_level;
+                    document.getElementById('courseRequirements').value = course.nis2_requirements ? course.nis2_requirements.join('\n') : '';
+                    document.getElementById('courseContentUrl').value = course.content_url || '';
+                }
+            })
+            .catch(error => {
+                alert('Errore nel caricamento del corso: ' + error);
+            });
+        
+        document.getElementById('courseModal').style.display = 'block';
+    }
+    
+    function closeCourseModal() {
+        document.getElementById('courseModal').style.display = 'none';
+        currentCourseId = null;
+    }
+    
+    function deleteCourse(courseId) {
+        if (confirm('Sei sicuro di voler eliminare questo corso? Questa azione non può essere annullata.')) {
+            fetch(`/training/api/courses/${courseId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Errore: ' + data.detail);
+                }
+            })
+            .catch(error => {
+                alert('Errore: ' + error);
+            });
+        }
+    }
+    
+    // Chiudi modal cliccando fuori
+    window.onclick = function(event) {
+        const modal = document.getElementById('courseModal');
+        if (event.target == modal) {
+            closeCourseModal();
+        }
+    }
+    
+    // Gestione form
+    document.getElementById('courseForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        // Converti requisiti NIS2 in array
+        const requirements = formData.get('nis2_requirements');
+        if (requirements) {
+            formData.set('nis2_requirements', JSON.stringify(requirements.split('\n').filter(r => r.trim())));
+        }
+        
+        const method = currentCourseId ? 'PUT' : 'POST';
+        
+        fetch(this.action, {
+            method: method,
+            body: formData,
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Errore: ' + data.detail);
+            }
+        })
+        .catch(error => {
+            alert('Errore: ' + error);
+        });
+    });
+</script>
+{% endblock %}

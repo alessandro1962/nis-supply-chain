@@ -1,0 +1,193 @@
+{% extends "professional_base.html" %}
+
+{% block title %}I Miei Corsi - Training NIS2{% endblock %}
+
+{% block page_title %}I Miei Corsi{% endblock %}
+
+{% block breadcrumb %}
+<span class="text-secondary">/ Training NIS2</span>
+<span class="text-secondary">/ I Miei Corsi</span>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">I Miei Corsi di Formazione</h2>
+        <p class="text-gray-600">Gestisci i tuoi corsi iscritti e monitora i tuoi progressi</p>
+    </div>
+
+    {% if error %}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <i class="fas fa-exclamation-triangle mr-2"></i>
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Statistiche rapide -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="flex items-center">
+                <div class="p-2 bg-blue-100 rounded-lg">
+                    <i class="fas fa-book text-blue-600"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-gray-500">Corsi Iscritti</p>
+                    <p class="text-lg font-semibold text-gray-800">{{ enrollments|length }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="flex items-center">
+                <div class="p-2 bg-green-100 rounded-lg">
+                    <i class="fas fa-check-circle text-green-600"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-gray-500">Completati</p>
+                    <p class="text-lg font-semibold text-gray-800">{{ enrollments|selectattr('status', 'equalto', 'COMPLETED')|list|length }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="flex items-center">
+                <div class="p-2 bg-yellow-100 rounded-lg">
+                    <i class="fas fa-clock text-yellow-600"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-gray-500">In Corso</p>
+                    <p class="text-lg font-semibold text-gray-800">{{ enrollments|selectattr('status', 'equalto', 'IN_PROGRESS')|list|length }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow p-4">
+            <div class="flex items-center">
+                <div class="p-2 bg-purple-100 rounded-lg">
+                    <i class="fas fa-certificate text-purple-600"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-gray-500">Certificazioni</p>
+                    <p class="text-lg font-semibold text-gray-800">{{ certifications|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista corsi -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800">Corsi Iscritti</h3>
+        </div>
+        
+        {% if enrollments %}
+        <div class="divide-y divide-gray-200">
+            {% for enrollment in enrollments %}
+            <div class="p-6 hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center mb-2">
+                            <h4 class="text-lg font-semibold text-gray-800">{{ enrollment.course_title }}</h4>
+                            <span class="ml-3 px-2 py-1 text-xs font-medium rounded-full
+                                {% if enrollment.status == 'COMPLETED' %}
+                                    bg-green-100 text-green-800
+                                {% elif enrollment.status == 'IN_PROGRESS' %}
+                                    bg-yellow-100 text-yellow-800
+                                {% else %}
+                                    bg-blue-100 text-blue-800
+                                {% endif %}">
+                                {{ enrollment.status }}
+                            </span>
+                        </div>
+                        
+                        <p class="text-gray-600 mb-2">{{ enrollment.course_description }}</p>
+                        
+                        <div class="flex items-center text-sm text-gray-500 space-x-4">
+                            <span><i class="fas fa-calendar mr-1"></i> Iscritto: {{ enrollment.enrollment_date[:10] }}</span>
+                            <span><i class="fas fa-clock mr-1"></i> {{ enrollment.course_duration }} min</span>
+                            <span><i class="fas fa-tag mr-1"></i> {{ enrollment.course_category }}</span>
+                            {% if enrollment.score %}
+                            <span><i class="fas fa-star mr-1"></i> Voto: {{ enrollment.score }}/100</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="ml-4">
+                        <a href="/training/course/{{ enrollment.enrollment_id }}" 
+                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-play mr-2"></i>
+                            {% if enrollment.status == 'COMPLETED' %}
+                                Rivedi Corso
+                            {% elif enrollment.status == 'IN_PROGRESS' %}
+                                Continua Corso
+                            {% else %}
+                                Inizia Corso
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="p-8 text-center">
+            <div class="text-gray-400 mb-4">
+                <i class="fas fa-book-open text-6xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Nessun corso iscritto</h3>
+            <p class="text-gray-500 mb-4">Non hai ancora corsi di formazione assegnati.</p>
+            <a href="/training/courses" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-plus mr-2"></i>
+                Sfoglia Corsi Disponibili
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Certificazioni -->
+    {% if certifications %}
+    <div class="mt-8 bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800">Le Mie Certificazioni</h3>
+        </div>
+        
+        <div class="divide-y divide-gray-200">
+            {% for cert in certifications %}
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center mb-2">
+                            <h4 class="text-lg font-semibold text-gray-800">{{ cert.course_title }}</h4>
+                            <span class="ml-3 px-2 py-1 text-xs font-medium rounded-full
+                                {% if cert.status == 'ACTIVE' %}
+                                    bg-green-100 text-green-800
+                                {% else %}
+                                    bg-red-100 text-red-800
+                                {% endif %}">
+                                {{ cert.status }}
+                            </span>
+                        </div>
+                        
+                        <div class="flex items-center text-sm text-gray-500 space-x-4">
+                            <span><i class="fas fa-certificate mr-1"></i> {{ cert.certificate_number }}</span>
+                            <span><i class="fas fa-calendar mr-1"></i> Ottenuta: {{ cert.certification_date[:10] }}</span>
+                            {% if cert.expiry_date %}
+                            <span><i class="fas fa-clock mr-1"></i> Scade: {{ cert.expiry_date[:10] }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="ml-4">
+                        <button class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
+                            <i class="fas fa-download mr-2"></i>
+                            Scarica Certificato
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

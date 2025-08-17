@@ -1,0 +1,722 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Gestione Dipendenti - Training NIS2{% endblock %}
+
+{% block page_title %}Gestione Dipendenti{% endblock %}
+
+{% block breadcrumb %}
+<span class="text-secondary">/ Training NIS2</span>
+<span class="text-secondary">/ Dipendenti</span>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .employees-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .employees-filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .filter-group label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--primary-blue);
+    }
+    
+    .filter-group input,
+    .filter-group select {
+        padding: 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        min-width: 150px;
+    }
+    
+    .employees-table {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+    }
+    
+    .table-header {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+    }
+    
+    .table-content {
+        overflow-x: auto;
+    }
+    
+    .employees-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .employees-table th {
+        background: #f8fafc;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--primary-blue);
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .employees-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: middle;
+    }
+    
+    .employees-table tr:hover {
+        background: #f8fafc;
+    }
+    
+    .employee-avatar {
+        width: 40px;
+        height: 40px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+    
+    .employee-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .employee-details h4 {
+        font-weight: 600;
+        color: var(--primary-blue);
+        margin-bottom: 0.25rem;
+    }
+    
+    .employee-details p {
+        font-size: 0.875rem;
+        color: var(--secondary-gray);
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+    
+    .status-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 2rem;
+        border-radius: var(--border-radius-lg);
+        width: 90%;
+        max-width: 600px;
+        box-shadow: var(--shadow-xl);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .modal-header h2 {
+        color: var(--primary-blue);
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+    .close {
+        color: var(--secondary-gray);
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .close:hover {
+        color: var(--accent-red);
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--primary-blue);
+        font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition-fast);
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+    
+    .btn-primary {
+        background: var(--gradient-primary);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .btn-secondary {
+        background: var(--gradient-secondary);
+        color: var(--primary-blue);
+    }
+    
+    .btn-secondary:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+    
+    .btn-danger {
+        background: var(--gradient-danger);
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .btn-success {
+        background: var(--gradient-success);
+        color: white;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle"></i>
+    Errore: {{ error }}
+</div>
+{% endif %}
+
+<!-- Header con Azioni -->
+<div class="employees-header">
+    <div>
+        <h2>Gestione Dipendenti</h2>
+        <p class="text-secondary">Gestisci i dipendenti e le loro competenze</p>
+    </div>
+    <button onclick="openAddEmployeeModal()" class="btn btn-primary">
+        <i class="fas fa-plus mr-2"></i>
+        Aggiungi Dipendente
+    </button>
+</div>
+
+<!-- Filtri -->
+<div class="employees-filters">
+    <div class="filter-group">
+        <label for="searchName">Cerca per Nome</label>
+        <input type="text" id="searchName" placeholder="Nome dipendente...">
+    </div>
+    <div class="filter-group">
+        <label for="filterRole">Ruolo</label>
+        <select id="filterRole">
+            <option value="">Tutti i ruoli</option>
+            <option value="Manager">Manager</option>
+            <option value="Developer">Developer</option>
+            <option value="Analyst">Analyst</option>
+            <option value="Designer">Designer</option>
+            <option value="Tester">Tester</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="filterDepartment">Dipartimento</label>
+        <select id="filterDepartment">
+            <option value="">Tutti i dipartimenti</option>
+            <option value="IT">IT</option>
+            <option value="HR">HR</option>
+            <option value="Finance">Finance</option>
+            <option value="Marketing">Marketing</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="filterStatus">Stato</label>
+        <select id="filterStatus">
+            <option value="">Tutti gli stati</option>
+            <option value="active">Attivo</option>
+            <option value="inactive">Inattivo</option>
+        </select>
+    </div>
+</div>
+
+<!-- Tabella Dipendenti -->
+<div class="employees-table">
+    <div class="table-header">
+        <i class="fas fa-users mr-2"></i>
+        Dipendenti ({{ employees|length }})
+    </div>
+    <div class="table-content">
+        <table>
+            <thead>
+                <tr>
+                    <th>Dipendente</th>
+                    <th>Ruolo</th>
+                    <th>Dipartimento</th>
+                    <th>Data Assunzione</th>
+                    <th>Corsi Completati</th>
+                    <th>Stato</th>
+                    <th>Azioni</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                <tr>
+                    <td>
+                        <div class="employee-info">
+                            <div class="employee-avatar">
+                                {{ employee.name.split()[0][0] }}{{ employee.name.split()[-1][0] if employee.name.split()|length > 1 else '' }}
+                            </div>
+                            <div class="employee-details">
+                                <h4>{{ employee.name }}</h4>
+                                <p>{{ employee.email }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ employee.role }}</td>
+                    <td>{{ employee.department or 'N/A' }}</td>
+                    <td>{{ employee.hire_date or 'N/A' }}</td>
+                    <td>
+                        <span class="badge badge-primary">{{ employee.completed_courses or 0 }}</span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-active">Attivo</span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button onclick="viewEmployee({{ employee.id }})" class="btn btn-secondary btn-sm btn-icon" title="Visualizza">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button onclick="editEmployee({{ employee.id }})" class="btn btn-primary btn-sm btn-icon" title="Modifica">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteEmployee({{ employee.id }})" class="btn btn-danger btn-sm btn-icon" title="Elimina">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== MODAL AGGIUNGI DIPENDENTE ===== -->
+<div id="addEmployeeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Aggiungi Nuovo Dipendente</h2>
+            <span class="close" onclick="closeAddEmployeeModal()">&times;</span>
+        </div>
+        <form id="addEmployeeForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="employeeName">Nome Completo</label>
+                    <input type="text" id="employeeName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeEmail">Email</label>
+                    <input type="email" id="employeeEmail" name="email" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="employeePassword">Password</label>
+                    <input type="password" id="employeePassword" name="password" required placeholder="Password per l'accesso">
+                </div>
+                <div class="form-group">
+                    <label for="employeeConfirmPassword">Conferma Password</label>
+                    <input type="password" id="employeeConfirmPassword" name="confirm_password" required placeholder="Conferma password">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="employeeRole">Ruolo</label>
+                    <select id="employeeRole" name="role" required>
+                        <option value="">Seleziona ruolo</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Developer">Developer</option>
+                        <option value="Analyst">Analyst</option>
+                        <option value="Designer">Designer</option>
+                        <option value="Tester">Tester</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="employeeDepartment">Dipartimento</label>
+                    <select id="employeeDepartment" name="department">
+                        <option value="">Seleziona dipartimento</option>
+                        <option value="IT">IT</option>
+                        <option value="HR">HR</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Marketing">Marketing</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="employeeHireDate">Data di Assunzione</label>
+                <input type="date" id="employeeHireDate" name="hire_date">
+            </div>
+            <div class="form-group">
+                <label for="employeeNotes">Note</label>
+                <textarea id="employeeNotes" name="notes" rows="3" placeholder="Note aggiuntive..."></textarea>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeAddEmployeeModal()">Annulla</button>
+                <button type="submit" class="btn btn-primary">Aggiungi Dipendente</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== MODAL MODIFICA DIPENDENTE ===== -->
+<div id="editEmployeeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Modifica Dipendente</h2>
+            <span class="close" onclick="closeEditEmployeeModal()">&times;</span>
+        </div>
+        <form id="editEmployeeForm">
+            <input type="hidden" id="editEmployeeId" name="id">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="editEmployeeName">Nome Completo</label>
+                    <input type="text" id="editEmployeeName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="editEmployeeEmail">Email</label>
+                    <input type="email" id="editEmployeeEmail" name="email" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="editEmployeePassword">Nuova Password (opzionale)</label>
+                    <input type="password" id="editEmployeePassword" name="password" placeholder="Lascia vuoto per non modificare">
+                </div>
+                <div class="form-group">
+                    <label for="editEmployeeConfirmPassword">Conferma Password</label>
+                    <input type="password" id="editEmployeeConfirmPassword" name="confirm_password" placeholder="Conferma nuova password">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="editEmployeeRole">Ruolo</label>
+                    <select id="editEmployeeRole" name="role" required>
+                        <option value="">Seleziona ruolo</option>
+                        <option value="Manager">Manager</option>
+                        <option value="Developer">Developer</option>
+                        <option value="Analyst">Analyst</option>
+                        <option value="Designer">Designer</option>
+                        <option value="Tester">Tester</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editEmployeeDepartment">Dipartimento</label>
+                    <select id="editEmployeeDepartment" name="department">
+                        <option value="">Seleziona dipartimento</option>
+                        <option value="IT">IT</option>
+                        <option value="HR">HR</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Marketing">Marketing</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="editEmployeeHireDate">Data di Assunzione</label>
+                <input type="date" id="editEmployeeHireDate" name="hire_date">
+            </div>
+            <div class="form-group">
+                <label for="editEmployeeNotes">Note</label>
+                <textarea id="editEmployeeNotes" name="notes" rows="3" placeholder="Note aggiuntive..."></textarea>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeEditEmployeeModal()">Annulla</button>
+                <button type="submit" class="btn btn-primary">Salva Modifiche</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Funzioni modal
+    function openAddEmployeeModal() {
+        document.getElementById('addEmployeeModal').style.display = 'block';
+    }
+    
+    function closeAddEmployeeModal() {
+        document.getElementById('addEmployeeModal').style.display = 'none';
+        document.getElementById('addEmployeeForm').reset();
+    }
+    
+    function openEditEmployeeModal() {
+        document.getElementById('editEmployeeModal').style.display = 'block';
+    }
+    
+    function closeEditEmployeeModal() {
+        document.getElementById('editEmployeeModal').style.display = 'none';
+        document.getElementById('editEmployeeForm').reset();
+    }
+    
+    // Funzioni dipendenti
+    function viewEmployee(employeeId) {
+        window.location.href = `/training/employee/${employeeId}`;
+    }
+    
+    function editEmployee(employeeId) {
+        // Ottieni i dati del dipendente dal server
+        fetch(`/training/api/employee/${employeeId}`, {
+            method: 'GET',
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const employee = data.employee;
+                document.getElementById('editEmployeeId').value = employee.id;
+                document.getElementById('editEmployeeName').value = employee.name;
+                document.getElementById('editEmployeeEmail').value = employee.email;
+                document.getElementById('editEmployeeRole').value = employee.role;
+                document.getElementById('editEmployeeDepartment').value = employee.department || '';
+                document.getElementById('editEmployeeHireDate').value = employee.hire_date || '';
+                document.getElementById('editEmployeeNotes').value = employee.notes || '';
+                openEditEmployeeModal();
+            } else {
+                alert('Errore nel caricamento dei dati del dipendente: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Errore nel caricamento dei dati del dipendente: ' + error);
+        });
+    }
+    
+    function deleteEmployee(employeeId) {
+        if (confirm('Sei sicuro di voler eliminare questo dipendente?')) {
+            // Implementa la logica di eliminazione
+            alert('Funzione di eliminazione in sviluppo...');
+        }
+    }
+    
+
+    
+    // Validazione password
+    function validatePassword(password, confirmPassword) {
+        if (password !== confirmPassword) {
+            alert('Le password non coincidono!');
+            return false;
+        }
+        if (password.length < 6) {
+            alert('La password deve essere di almeno 6 caratteri!');
+            return false;
+        }
+        return true;
+    }
+    
+    // Gestione form
+    document.getElementById('addEmployeeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const password = document.getElementById('employeePassword').value;
+        const confirmPassword = document.getElementById('employeeConfirmPassword').value;
+        
+        if (!validatePassword(password, confirmPassword)) {
+            return;
+        }
+        
+        const formData = new FormData(this);
+        
+        fetch('/training/api/employees', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Dipendente aggiunto con successo!');
+                closeAddEmployeeModal();
+                location.reload();
+            } else {
+                alert('Errore: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Errore: ' + error);
+        });
+    });
+    
+    document.getElementById('editEmployeeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const password = document.getElementById('editEmployeePassword').value;
+        const confirmPassword = document.getElementById('editEmployeeConfirmPassword').value;
+        
+        if (password && !validatePassword(password, confirmPassword)) {
+            return;
+        }
+        
+        const formData = new FormData(this);
+        const employeeId = document.getElementById('editEmployeeId').value;
+        
+        fetch(`/training/api/employees/${employeeId}`, {
+            method: 'PUT',
+            body: formData,
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Dipendente aggiornato con successo!');
+                closeEditEmployeeModal();
+                location.reload();
+            } else {
+                alert('Errore: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Errore: ' + error);
+        });
+    });
+    
+    // Filtri
+    document.getElementById('searchName').addEventListener('input', function() {
+        filterEmployees();
+    });
+    
+    document.getElementById('filterRole').addEventListener('change', function() {
+        filterEmployees();
+    });
+    
+    document.getElementById('filterDepartment').addEventListener('change', function() {
+        filterEmployees();
+    });
+    
+    document.getElementById('filterStatus').addEventListener('change', function() {
+        filterEmployees();
+    });
+    
+    function filterEmployees() {
+        // Implementa la logica di filtro
+        console.log('Filtro dipendenti...');
+    }
+    
+    // Chiudi modal cliccando fuori
+    window.onclick = function(event) {
+        const addModal = document.getElementById('addEmployeeModal');
+        const editModal = document.getElementById('editEmployeeModal');
+        if (event.target === addModal) {
+            closeAddEmployeeModal();
+        }
+        if (event.target === editModal) {
+            closeEditEmployeeModal();
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,581 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Training Dashboard - NIS2 Platform{% endblock %}
+
+{% block page_title %}Training Dashboard{% endblock %}
+
+{% block breadcrumb %}
+<span class="text-secondary">/ Training NIS2</span>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .training-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        border-left: 4px solid var(--primary-blue);
+    }
+    
+    .stat-card h3 {
+        color: var(--secondary-gray);
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-card .stat-change {
+        font-size: 0.875rem;
+        color: var(--accent-green);
+    }
+    
+    .training-sections {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .section-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        transition: var(--transition-normal);
+    }
+    
+    .section-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .section-card h3 {
+        color: var(--primary-blue);
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .section-card .section-icon {
+        width: 32px;
+        height: 32px;
+        background: var(--gradient-primary);
+        border-radius: var(--border-radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.875rem;
+    }
+    
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .quick-action {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: var(--gradient-secondary);
+        border-radius: var(--border-radius);
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition-fast);
+        border: none;
+        cursor: pointer;
+    }
+    
+    .quick-action:hover {
+        background: var(--primary-blue);
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    .completion-chart {
+        background: white;
+        padding: 1.5rem;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+    }
+    
+    .completion-chart h3 {
+        color: var(--primary-blue);
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    
+    .chart-container {
+        height: 300px;
+        position: relative;
+    }
+    
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 2rem;
+        border-radius: var(--border-radius-lg);
+        width: 90%;
+        max-width: 500px;
+        box-shadow: var(--shadow-xl);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .modal-header h2 {
+        color: var(--primary-blue);
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+    .close {
+        color: var(--secondary-gray);
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .close:hover {
+        color: var(--accent-red);
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--primary-blue);
+        font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    }
+    
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition-fast);
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+    
+    .btn-primary {
+        background: var(--gradient-primary);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .btn-secondary {
+        background: var(--gradient-secondary);
+        color: var(--primary-blue);
+    }
+    
+    .btn-secondary:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle"></i>
+    Errore: {{ error }}
+</div>
+{% endif %}
+
+<!-- Statistiche Training -->
+<div class="training-stats">
+    <div class="stat-card">
+        <h3>Dipendenti Totali</h3>
+        <div class="stat-value">{{ stats.total_employees | default(0) }}</div>
+        <div class="stat-change">+12% questo mese</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Corsi Completati</h3>
+        <div class="stat-value">{{ stats.completed_courses | default(0) }}</div>
+        <div class="stat-change">+8% questa settimana</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Certificazioni Attive</h3>
+        <div class="stat-value">{{ stats.active_certifications | default(0) }}</div>
+        <div class="stat-change">+15% questo mese</div>
+    </div>
+    
+    <div class="stat-card">
+        <h3>Tasso di Completamento</h3>
+        <div class="stat-value">{{ stats.completion_rate | default(0) }}%</div>
+        <div class="stat-change">+5% questa settimana</div>
+    </div>
+</div>
+
+<!-- Grafico Completamento -->
+<div class="completion-chart">
+    <h3>Andamento Completamento Corsi</h3>
+    <div class="chart-container">
+        <canvas id="completionChart"></canvas>
+    </div>
+</div>
+
+<!-- Sezioni Principali -->
+<div class="training-sections">
+    <!-- Gestione Dipendenti -->
+    <div class="section-card">
+        <h3>
+            <div class="section-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            Gestione Dipendenti
+        </h3>
+        <p>Gestisci i dipendenti, visualizza i loro progressi e assegna nuovi corsi.</p>
+        
+        <div class="quick-actions">
+            <a href="/training/employees" class="quick-action">
+                <i class="fas fa-list"></i>
+                Visualizza Tutti
+            </a>
+            <button onclick="openAddEmployeeModal()" class="quick-action">
+                <i class="fas fa-plus"></i>
+                Aggiungi Dipendente
+            </button>
+        </div>
+    </div>
+    
+    <!-- Corsi Disponibili -->
+    <div class="section-card">
+        <h3>
+            <div class="section-icon">
+                <i class="fas fa-book"></i>
+            </div>
+            Corsi Disponibili
+        </h3>
+        <p>Esplora i corsi disponibili e gestisci le iscrizioni dei dipendenti.</p>
+        
+        <div class="quick-actions">
+            <a href="/training/courses" class="quick-action">
+                <i class="fas fa-list"></i>
+                Visualizza Corsi
+            </a>
+            <button onclick="openEnrollModal()" class="quick-action">
+                <i class="fas fa-user-plus"></i>
+                Iscriviti a Corso
+            </button>
+        </div>
+    </div>
+    
+    <!-- Quiz e Certificazioni -->
+    <div class="section-card">
+        <h3>
+            <div class="section-icon">
+                <i class="fas fa-certificate"></i>
+            </div>
+            Quiz e Certificazioni
+        </h3>
+        <p>Gestisci i quiz, visualizza i risultati e assegna certificazioni.</p>
+        
+        <div class="quick-actions">
+            <a href="/training/quiz/1" class="quick-action">
+                <i class="fas fa-question-circle"></i>
+                Sostieni Quiz
+            </a>
+            <a href="/training/notifications" class="quick-action">
+                <i class="fas fa-bell"></i>
+                Notifiche
+            </a>
+        </div>
+    </div>
+    
+    <!-- Report e Statistiche -->
+    <div class="section-card">
+        <h3>
+            <div class="section-icon">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            Report e Statistiche
+        </h3>
+        <p>Analizza le performance, genera report dettagliati e monitora i progressi.</p>
+        
+        <div class="quick-actions">
+            <a href="/training/reports" class="quick-action">
+                <i class="fas fa-chart-line"></i>
+                Visualizza Report
+            </a>
+            <button onclick="generateReport()" class="quick-action">
+                <i class="fas fa-download"></i>
+                Scarica Report
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL AGGIUNGI DIPENDENTE ===== -->
+<div id="addEmployeeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Aggiungi Nuovo Dipendente</h2>
+            <span class="close" onclick="closeAddEmployeeModal()">&times;</span>
+        </div>
+        <form id="addEmployeeForm">
+            <div class="form-group">
+                <label for="employeeName">Nome Completo</label>
+                <input type="text" id="employeeName" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="employeeEmail">Email</label>
+                <input type="email" id="employeeEmail" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="employeeRole">Ruolo</label>
+                <select id="employeeRole" name="role" required>
+                    <option value="">Seleziona ruolo</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Developer">Developer</option>
+                    <option value="Analyst">Analyst</option>
+                    <option value="Designer">Designer</option>
+                    <option value="Tester">Tester</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="employeeDepartment">Dipartimento</label>
+                <input type="text" id="employeeDepartment" name="department">
+            </div>
+            <div class="form-group">
+                <label for="employeeHireDate">Data di Assunzione</label>
+                <input type="date" id="employeeHireDate" name="hire_date">
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeAddEmployeeModal()">Annulla</button>
+                <button type="submit" class="btn btn-primary">Aggiungi Dipendente</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== MODAL ISCRIZIONE CORSO ===== -->
+<div id="enrollModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Iscriviti a un Corso</h2>
+            <span class="close" onclick="closeEnrollModal()">&times;</span>
+        </div>
+        <form id="enrollForm">
+            <div class="form-group">
+                <label for="enrollEmployee">Dipendente</label>
+                <select id="enrollEmployee" name="employee_id" required>
+                    <option value="">Seleziona dipendente</option>
+                    {% for employee in employees %}
+                    <option value="{{ employee.id }}">{{ employee.name }} - {{ employee.role }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="enrollCourse">Corso</label>
+                <select id="enrollCourse" name="course_id" required>
+                    <option value="">Seleziona corso</option>
+                    {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeEnrollModal()">Annulla</button>
+                <button type="submit" class="btn btn-primary">Iscriviti</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Inizializzazione grafico
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('completionChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu'],
+                datasets: [{
+                    label: 'Corsi Completati',
+                    data: [12, 19, 15, 25, 22, 30],
+                    borderColor: '#1e3a8a',
+                    backgroundColor: 'rgba(30, 58, 138, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    });
+    
+    // Funzioni modal
+    function openAddEmployeeModal() {
+        document.getElementById('addEmployeeModal').style.display = 'block';
+    }
+    
+    function closeAddEmployeeModal() {
+        document.getElementById('addEmployeeModal').style.display = 'none';
+    }
+    
+    function openEnrollModal() {
+        document.getElementById('enrollModal').style.display = 'block';
+    }
+    
+    function closeEnrollModal() {
+        document.getElementById('enrollModal').style.display = 'none';
+    }
+    
+    // Gestione form
+    document.getElementById('addEmployeeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        fetch('/training/api/employees', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Dipendente aggiunto con successo!');
+                closeAddEmployeeModal();
+                location.reload();
+            } else {
+                alert('Errore: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Errore: ' + error);
+        });
+    });
+    
+    document.getElementById('enrollForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        fetch('/training/api/enroll', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Iscrizione effettuata con successo!');
+                closeEnrollModal();
+                location.reload();
+            } else {
+                alert('Errore: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Errore: ' + error);
+        });
+    });
+    
+    // Chiudi modal cliccando fuori
+    window.onclick = function(event) {
+        const addModal = document.getElementById('addEmployeeModal');
+        const enrollModal = document.getElementById('enrollModal');
+        if (event.target === addModal) {
+            closeAddEmployeeModal();
+        }
+        if (event.target === enrollModal) {
+            closeEnrollModal();
+        }
+    }
+    
+    // Funzione generazione report
+    function generateReport() {
+        alert('Funzione di generazione report in sviluppo...');
+    }
+</script>
+{% endblock %}

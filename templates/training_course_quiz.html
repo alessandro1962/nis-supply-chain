@@ -1,0 +1,762 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Gestione Quiz - {{ course.title }}{% endblock %}
+
+{% block page_title %}Gestione Quiz Corso{% endblock %}
+
+{% block breadcrumb %}
+<span class="text-secondary">/ Training NIS2</span>
+<span class="text-secondary">/ <a href="/training/course-management">Gestione Corsi</a></span>
+<span class="text-secondary">/ {{ course.title }}</span>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .quiz-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .btn-add-quiz {
+        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-add-quiz:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .quiz-info {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .quiz-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1e3a8a;
+        margin-bottom: 0.5rem;
+    }
+    
+    .quiz-meta {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+    
+    .quiz-description {
+        color: #6b7280;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+    
+    .questions-section {
+        margin-top: 2rem;
+    }
+    
+    .questions-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-add-question {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .btn-add-question:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+    }
+    
+    .question-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .question-item {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+    }
+    
+    .question-header {
+        padding: 1rem 1.5rem;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .question-text {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #374151;
+        flex: 1;
+    }
+    
+    .question-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+    
+    .question-type-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .question-type-multiple_choice {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .question-type-true_false {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .question-type-text {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .question-body {
+        padding: 1rem 1.5rem;
+    }
+    
+    .question-options {
+        margin-bottom: 1rem;
+    }
+    
+    .option-item {
+        padding: 0.5rem;
+        margin-bottom: 0.25rem;
+        background: #f9fafb;
+        border-radius: 4px;
+        font-size: 0.875rem;
+    }
+    
+    .correct-answer {
+        background: #dcfce7;
+        border-left: 3px solid #059669;
+    }
+    
+    .question-explanation {
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background: #f0f9ff;
+        border-left: 3px solid #0ea5e9;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        color: #0c4a6e;
+    }
+    
+    .question-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .btn-edit-question {
+        background: #f3f4f6;
+        color: #374151;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .btn-edit-question:hover {
+        background: #e5e7eb;
+    }
+    
+    .btn-delete-question {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-delete-question:hover {
+        background: #fecaca;
+    }
+    
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 2rem;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1e3a8a;
+    }
+    
+    .close {
+        color: #6b7280;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        background: none;
+        border: none;
+    }
+    
+    .close:hover {
+        color: #374151;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition: border-color 0.2s;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #dc2626;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #374151;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-cancel:hover {
+        background: #e5e7eb;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+    
+    .alert {
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .alert-success {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+    }
+    
+    .alert-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #6b7280;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    {% if success_message %}
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle mr-2"></i>
+        {{ success_message }}
+    </div>
+    {% endif %}
+    
+    {% if error_message %}
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle mr-2"></i>
+        {{ error_message }}
+    </div>
+    {% endif %}
+    
+    <div class="quiz-header">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Gestione Quiz</h2>
+            <p class="text-gray-600">{{ course.title }} - {{ course.category }}</p>
+        </div>
+        {% if not quiz %}
+        <button class="btn-add-quiz" onclick="openCreateQuizModal()">
+            <i class="fas fa-plus"></i>
+            Crea Quiz
+        </button>
+        {% endif %}
+    </div>
+    
+    {% if quiz %}
+    <!-- Informazioni Quiz -->
+    <div class="quiz-info">
+        <div class="quiz-title">{{ quiz.title }}</div>
+        <div class="quiz-meta">
+            <span><i class="fas fa-percentage"></i> Punteggio minimo: {{ quiz.passing_score }}%</span>
+            <span><i class="fas fa-clock"></i> Tempo limite: {{ quiz.time_limit_minutes }} min</span>
+            <span><i class="fas fa-question-circle"></i> {{ quiz.questions|length }} domande</span>
+        </div>
+        <div class="quiz-description">{{ quiz.description }}</div>
+    </div>
+    
+    <!-- Sezione Domande -->
+    <div class="questions-section">
+        <div class="questions-header">
+            <h3 class="text-lg font-semibold text-gray-800">Domande del Quiz</h3>
+            <button class="btn-add-question" onclick="openAddQuestionModal()">
+                <i class="fas fa-plus"></i>
+                Aggiungi Domanda
+            </button>
+        </div>
+        
+        <div class="question-list">
+            {% for question in quiz.questions %}
+            <div class="question-item">
+                <div class="question-header">
+                    <div class="question-text">{{ question.question_text }}</div>
+                    <div class="question-meta">
+                        <span class="question-type-badge question-type-{{ question.question_type.lower() }}">
+                            {{ question.question_type.replace('_', ' ').title() }}
+                        </span>
+                        <span><i class="fas fa-star"></i> {{ question.points }} punti</span>
+                    </div>
+                </div>
+                <div class="question-body">
+                    {% if question.options %}
+                    <div class="question-options">
+                        {% for option in question.options %}
+                        <div class="option-item {% if option == question.correct_answer %}correct-answer{% endif %}">
+                            {{ option }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if question.explanation %}
+                    <div class="question-explanation">
+                        <strong>Spiegazione:</strong> {{ question.explanation }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="question-actions">
+                        <button class="btn-edit-question" onclick="editQuestion({{ question.id }})">
+                            <i class="fas fa-edit"></i>
+                            Modifica
+                        </button>
+                        <button class="btn-delete-question" onclick="deleteQuestion({{ question.id }})">
+                            <i class="fas fa-trash"></i>
+                            Elimina
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if not quiz.questions %}
+        <div class="empty-state">
+            <i class="fas fa-question-circle"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Nessuna domanda creata</h3>
+            <p class="text-gray-500 mb-4">Inizia aggiungendo la prima domanda al quiz</p>
+            <button class="btn-add-question" onclick="openAddQuestionModal()">
+                <i class="fas fa-plus"></i>
+                Aggiungi Prima Domanda
+            </button>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-question-circle"></i>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Nessun quiz creato</h3>
+        <p class="text-gray-500 mb-4">Crea un quiz per questo corso per valutare la comprensione degli studenti</p>
+        <button class="btn-add-quiz" onclick="openCreateQuizModal()">
+            <i class="fas fa-plus"></i>
+            Crea Primo Quiz
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal Crea Quiz -->
+<div id="quizModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">Crea Quiz</h3>
+            <button class="close" onclick="closeQuizModal()">&times;</button>
+        </div>
+        
+        <form id="quizForm" method="POST">
+            <div class="form-group">
+                <label for="quizTitle">Titolo Quiz *</label>
+                <input type="text" id="quizTitle" name="title" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="quizDescription">Descrizione</label>
+                <textarea id="quizDescription" name="description" placeholder="Descrivi il quiz..."></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="quizPassingScore">Punteggio Minimo (%) *</label>
+                    <input type="number" id="quizPassingScore" name="passing_score" min="1" max="100" value="70" required>
+                </div>
+                <div class="form-group">
+                    <label for="quizTimeLimit">Tempo Limite (minuti) *</label>
+                    <input type="number" id="quizTimeLimit" name="time_limit_minutes" min="1" value="30" required>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" onclick="closeQuizModal()">Annulla</button>
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save mr-1"></i>
+                    Crea Quiz
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Aggiungi/Modifica Domanda -->
+<div id="questionModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="questionModalTitle">Nuova Domanda</h3>
+            <button class="close" onclick="closeQuestionModal()">&times;</button>
+        </div>
+        
+        <form id="questionForm" method="POST">
+            <div class="form-group">
+                <label for="questionText">Domanda *</label>
+                <textarea id="questionText" name="question_text" required placeholder="Inserisci la domanda..."></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="questionType">Tipo Domanda *</label>
+                    <select id="questionType" name="question_type" required onchange="toggleOptionsField()">
+                        <option value="">Seleziona tipo</option>
+                        <option value="MULTIPLE_CHOICE">Scelta Multipla</option>
+                        <option value="TRUE_FALSE">Vero/Falso</option>
+                        <option value="TEXT">Testo Libero</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="questionPoints">Punti *</label>
+                    <input type="number" id="questionPoints" name="points" min="1" value="1" required>
+                </div>
+            </div>
+            
+            <div class="form-group" id="optionsGroup" style="display: none;">
+                <label for="questionOptions">Opzioni (una per riga) *</label>
+                <textarea id="questionOptions" name="options" placeholder="Opzione 1&#10;Opzione 2&#10;Opzione 3&#10;Opzione 4"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="questionCorrectAnswer">Risposta Corretta *</label>
+                <input type="text" id="questionCorrectAnswer" name="correct_answer" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="questionExplanation">Spiegazione</label>
+                <textarea id="questionExplanation" name="explanation" placeholder="Spiegazione della risposta corretta..."></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" onclick="closeQuestionModal()">Annulla</button>
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save mr-1"></i>
+                    Salva Domanda
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentQuestionId = null;
+    const courseId = {{ course.id }};
+    const quizId = {{ quiz.id if quiz else 'null' }};
+    
+    function openCreateQuizModal() {
+        document.getElementById('modalTitle').textContent = 'Crea Quiz';
+        document.getElementById('quizForm').reset();
+        document.getElementById('quizForm').action = `/training/api/courses/${courseId}/quiz`;
+        document.getElementById('quizModal').style.display = 'block';
+    }
+    
+    function closeQuizModal() {
+        document.getElementById('quizModal').style.display = 'none';
+    }
+    
+    function openAddQuestionModal() {
+        currentQuestionId = null;
+        document.getElementById('questionModalTitle').textContent = 'Nuova Domanda';
+        document.getElementById('questionForm').reset();
+        document.getElementById('questionForm').action = `/training/api/quiz/${quizId}/questions`;
+        document.getElementById('questionModal').style.display = 'block';
+    }
+    
+    function editQuestion(questionId) {
+        currentQuestionId = questionId;
+        document.getElementById('questionModalTitle').textContent = 'Modifica Domanda';
+        document.getElementById('questionForm').action = `/training/api/quiz/questions/${questionId}`;
+        
+        // Per ora, carica dati di esempio (in produzione dovresti fare una chiamata API)
+        document.getElementById('questionText').value = 'Domanda di esempio?';
+        document.getElementById('questionType').value = 'MULTIPLE_CHOICE';
+        document.getElementById('questionPoints').value = '1';
+        document.getElementById('questionOptions').value = 'Opzione 1\nOpzione 2\nOpzione 3\nOpzione 4';
+        document.getElementById('questionCorrectAnswer').value = 'Opzione 1';
+        document.getElementById('questionExplanation').value = 'Spiegazione della risposta corretta...';
+        
+        toggleOptionsField();
+        document.getElementById('questionModal').style.display = 'block';
+    }
+    
+    function closeQuestionModal() {
+        document.getElementById('questionModal').style.display = 'none';
+        currentQuestionId = null;
+    }
+    
+    function deleteQuestion(questionId) {
+        if (confirm('Sei sicuro di voler eliminare questa domanda? Questa azione non può essere annullata.')) {
+            fetch(`/training/api/quiz/questions/${questionId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Errore: ' + data.detail);
+                }
+            })
+            .catch(error => {
+                alert('Errore: ' + error);
+            });
+        }
+    }
+    
+    function toggleOptionsField() {
+        const questionType = document.getElementById('questionType').value;
+        const optionsGroup = document.getElementById('optionsGroup');
+        const optionsField = document.getElementById('questionOptions');
+        
+        if (questionType === 'MULTIPLE_CHOICE') {
+            optionsGroup.style.display = 'block';
+            optionsField.required = true;
+        } else {
+            optionsGroup.style.display = 'none';
+            optionsField.required = false;
+        }
+    }
+    
+    // Chiudi modal cliccando fuori
+    window.onclick = function(event) {
+        const quizModal = document.getElementById('quizModal');
+        const questionModal = document.getElementById('questionModal');
+        
+        if (event.target == quizModal) {
+            closeQuizModal();
+        }
+        if (event.target == questionModal) {
+            closeQuestionModal();
+        }
+    }
+    
+    // Gestione form quiz
+    document.getElementById('quizForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Errore: ' + data.detail);
+            }
+        })
+        .catch(error => {
+            alert('Errore: ' + error);
+        });
+    });
+    
+    // Gestione form domanda
+    document.getElementById('questionForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const method = currentQuestionId ? 'PUT' : 'POST';
+        
+        fetch(this.action, {
+            method: method,
+            body: formData,
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Errore: ' + data.detail);
+            }
+        })
+        .catch(error => {
+            alert('Errore: ' + error);
+        });
+    });
+</script>
+{% endblock %}

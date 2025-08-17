@@ -1,0 +1,148 @@
+{% extends "login_base.html" %}
+
+{% block title %}Login Dipendente - Training NIS2{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        max-width: 400px;
+        width: 100%;
+        padding: 2.5rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .login-header h2 {
+        color: #1e3a8a;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .login-header p {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #1e3a8a;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        transition: border-color 0.2s;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: #1e3a8a;
+        box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    }
+    
+    .btn-login {
+        width: 100%;
+        padding: 0.75rem;
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .alert {
+        padding: 0.75rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .alert-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+    
+    .login-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .login-footer a {
+        color: #1e3a8a;
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+    
+    .login-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-header">
+        <h2>Accesso Dipendente</h2>
+        <p>Accedi al tuo account per accedere ai corsi di formazione</p>
+    </div>
+    
+    {% if error %}
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle mr-1"></i>
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    <form method="POST" action="/training/employee-login">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required placeholder="La tua email aziendale">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="La tua password">
+        </div>
+        
+        <button type="submit" class="btn-login">
+            <i class="fas fa-sign-in-alt mr-1"></i>
+            Accedi
+        </button>
+    </form>
+    
+    <div class="login-footer">
+        <p>Hai dimenticato la password? <a href="#">Contatta l'amministratore</a></p>
+        <p>Sei un amministratore? <a href="/company-login">Accedi qui</a></p>
+    </div>
+</div>
+{% endblock %}

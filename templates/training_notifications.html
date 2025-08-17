@@ -1,0 +1,713 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Notifiche - Training NIS2{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Gestione Notifiche</h1>
+                <p class="text-gray-600 mt-2">Gestisci notifiche e promemoria per il training NIS2</p>
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="openCreateNotificationModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center">
+                    <i class="fas fa-plus mr-2"></i>
+                    Nuova Notifica
+                </button>
+                <button onclick="markAllAsRead()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center">
+                    <i class="fas fa-check-double mr-2"></i>
+                    Segna Tutte Come Lette
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiche Notifiche -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-bell text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Notifiche Totali</p>
+                    <p id="totalNotifications" class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Non Lette</p>
+                    <p id="unreadNotifications" class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-clock text-yellow-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">In Scadenza</p>
+                    <p id="expiringNotifications" class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm border p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-green-600"></i>
+                    </div>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Completate</p>
+                    <p id="completedNotifications" class="text-2xl font-bold text-gray-900">0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtri -->
+    <div class="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+                <select id="typeFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Tutti i tipi</option>
+                    <option value="certification_expiry">Scadenza Certificazione</option>
+                    <option value="course_reminder">Promemoria Corso</option>
+                    <option value="quiz_due">Quiz in Scadenza</option>
+                    <option value="system_alert">Avviso Sistema</option>
+                    <option value="completion_reminder">Promemoria Completamento</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Priorità</label>
+                <select id="priorityFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Tutte le priorità</option>
+                    <option value="high">Alta</option>
+                    <option value="medium">Media</option>
+                    <option value="low">Bassa</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Stato</label>
+                <select id="statusFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Tutti gli stati</option>
+                    <option value="unread">Non Lette</option>
+                    <option value="read">Lette</option>
+                    <option value="completed">Completate</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Destinatario</label>
+                <select id="recipientFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Tutti</option>
+                    <option value="all">Tutti i dipendenti</option>
+                    <option value="specific">Dipendenti specifici</option>
+                    <option value="role">Per ruolo</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button onclick="loadNotifications()" class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md">
+                    <i class="fas fa-search mr-2"></i>Filtra
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista Notifiche -->
+    <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900">Notifiche</h3>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-500">Mostra:</span>
+                    <select id="viewFilter" class="text-sm border border-gray-300 rounded px-2 py-1">
+                        <option value="all">Tutte</option>
+                        <option value="unread">Non lette</option>
+                        <option value="today">Oggi</option>
+                        <option value="week">Questa settimana</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div id="notificationsList" class="divide-y divide-gray-200">
+            <!-- Le notifiche verranno caricate qui -->
+        </div>
+        
+        <!-- Paginazione -->
+        <div class="px-6 py-4 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-700">
+                    Mostrando <span id="showingStart">1</span> a <span id="showingEnd">10</span> di <span id="totalNotificationsCount">0</span> notifiche
+                </div>
+                <div class="flex space-x-2">
+                    <button id="prevPage" onclick="changePage(-1)" class="px-3 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50">
+                        Precedente
+                    </button>
+                    <button id="nextPage" onclick="changePage(1)" class="px-3 py-2 border border-gray-300 rounded-md text-sm disabled:opacity-50">
+                        Successivo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Crea Notifica -->
+<div id="createNotificationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-medium text-gray-900">Crea Nuova Notifica</h3>
+                <button onclick="closeCreateNotificationModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="notificationForm">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo Notifica *</label>
+                        <select id="notificationType" name="type" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Seleziona tipo</option>
+                            <option value="certification_expiry">Scadenza Certificazione</option>
+                            <option value="course_reminder">Promemoria Corso</option>
+                            <option value="quiz_due">Quiz in Scadenza</option>
+                            <option value="system_alert">Avviso Sistema</option>
+                            <option value="completion_reminder">Promemoria Completamento</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Priorità *</label>
+                        <select id="notificationPriority" name="priority" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Seleziona priorità</option>
+                            <option value="high">Alta</option>
+                            <option value="medium">Media</option>
+                            <option value="low">Bassa</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Titolo *</label>
+                    <input type="text" id="notificationTitle" name="title" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Messaggio *</label>
+                    <textarea id="notificationMessage" name="message" rows="4" required
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Destinatari</label>
+                        <select id="notificationRecipients" name="recipients"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="all">Tutti i dipendenti</option>
+                            <option value="specific">Dipendenti specifici</option>
+                            <option value="role">Per ruolo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Data Scadenza</label>
+                        <input type="datetime-local" id="notificationExpiry" name="expiry_date"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Azioni Richieste</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="actions[]" value="email" class="mr-2">
+                            <span class="text-sm">Invia email</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="actions[]" value="sms" class="mr-2">
+                            <span class="text-sm">Invia SMS</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="actions[]" value="dashboard" class="mr-2">
+                            <span class="text-sm">Mostra in dashboard</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="actions[]" value="reminder" class="mr-2">
+                            <span class="text-sm">Promemoria ricorrente</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeCreateNotificationModal()" 
+                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        Annulla
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        Crea Notifica
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Dettagli Notifica -->
+<div id="notificationDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Dettagli Notifica</h3>
+                <button onclick="closeNotificationDetailsModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="notificationDetailsContent">
+                <!-- I dettagli della notifica verranno caricati qui -->
+            </div>
+            
+            <div class="mt-6 flex justify-end space-x-3">
+                <button onclick="closeNotificationDetailsModal()" 
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    Chiudi
+                </button>
+                <button onclick="markAsRead()" 
+                        class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                    Segna Come Letta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentPage = 1;
+let totalPages = 1;
+let notificationsPerPage = 10;
+let currentNotificationId = null;
+
+// Carica le notifiche all'avvio
+document.addEventListener('DOMContentLoaded', function() {
+    loadNotificationStats();
+    loadNotifications();
+    setupEventListeners();
+});
+
+function setupEventListeners() {
+    document.getElementById('viewFilter').addEventListener('change', function() {
+        currentPage = 1;
+        loadNotifications();
+    });
+}
+
+async function loadNotificationStats() {
+    try {
+        // Simula statistiche (in un'implementazione reale verrebbero dal backend)
+        document.getElementById('totalNotifications').textContent = '24';
+        document.getElementById('unreadNotifications').textContent = '8';
+        document.getElementById('expiringNotifications').textContent = '3';
+        document.getElementById('completedNotifications').textContent = '16';
+    } catch (error) {
+        console.error('Errore nel caricamento statistiche notifiche:', error);
+    }
+}
+
+async function loadNotifications() {
+    try {
+        const typeFilter = document.getElementById('typeFilter').value;
+        const priorityFilter = document.getElementById('priorityFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const recipientFilter = document.getElementById('recipientFilter').value;
+        const viewFilter = document.getElementById('viewFilter').value;
+        
+        // Simula dati notifiche (in un'implementazione reale verrebbero dal backend)
+        const notifications = [
+            {
+                id: 1,
+                type: 'certification_expiry',
+                priority: 'high',
+                title: 'Certificazione in scadenza',
+                message: 'La certificazione di Mario Rossi scade tra 7 giorni',
+                status: 'unread',
+                created_at: '2024-01-15 10:30:00',
+                expiry_date: '2024-01-22 10:30:00',
+                recipient: 'Mario Rossi'
+            },
+            {
+                id: 2,
+                type: 'course_reminder',
+                priority: 'medium',
+                title: 'Promemoria corso Cybersecurity',
+                message: 'Ricorda di completare il corso di Cybersecurity Avanzata',
+                status: 'read',
+                created_at: '2024-01-14 14:20:00',
+                expiry_date: '2024-01-21 14:20:00',
+                recipient: 'Anna Bianchi'
+            },
+            {
+                id: 3,
+                type: 'quiz_due',
+                priority: 'high',
+                title: 'Quiz Fondamenti NIS2 in scadenza',
+                message: 'Il quiz del corso Fondamenti NIS2 deve essere completato entro domani',
+                status: 'unread',
+                created_at: '2024-01-15 09:15:00',
+                expiry_date: '2024-01-16 09:15:00',
+                recipient: 'Luca Verdi'
+            }
+        ];
+        
+        // Filtra le notifiche
+        let filteredNotifications = notifications.filter(notification => {
+            const matchesType = !typeFilter || notification.type === typeFilter;
+            const matchesPriority = !priorityFilter || notification.priority === priorityFilter;
+            const matchesStatus = !statusFilter || notification.status === statusFilter;
+            
+            return matchesType && matchesPriority && matchesStatus;
+        });
+        
+        // Calcola paginazione
+        totalPages = Math.ceil(filteredNotifications.length / notificationsPerPage);
+        const startIndex = (currentPage - 1) * notificationsPerPage;
+        const endIndex = startIndex + notificationsPerPage;
+        const paginatedNotifications = filteredNotifications.slice(startIndex, endIndex);
+        
+        // Aggiorna la lista
+        displayNotifications(paginatedNotifications);
+        
+        // Aggiorna info paginazione
+        document.getElementById('showingStart').textContent = startIndex + 1;
+        document.getElementById('showingEnd').textContent = Math.min(endIndex, filteredNotifications.length);
+        document.getElementById('totalNotificationsCount').textContent = filteredNotifications.length;
+        
+        // Aggiorna bottoni paginazione
+        document.getElementById('prevPage').disabled = currentPage === 1;
+        document.getElementById('nextPage').disabled = currentPage === totalPages;
+        
+    } catch (error) {
+        console.error('Errore nel caricamento notifiche:', error);
+        showNotification('Errore nel caricamento delle notifiche', 'error');
+    }
+}
+
+function displayNotifications(notifications) {
+    const container = document.getElementById('notificationsList');
+    container.innerHTML = '';
+    
+    notifications.forEach(notification => {
+        const notificationDiv = document.createElement('div');
+        notificationDiv.className = `p-6 hover:bg-gray-50 ${notification.status === 'unread' ? 'bg-blue-50' : ''}`;
+        
+        const priorityColors = {
+            'high': 'bg-red-100 text-red-800',
+            'medium': 'bg-yellow-100 text-yellow-800',
+            'low': 'bg-green-100 text-green-800'
+        };
+        
+        const typeIcons = {
+            'certification_expiry': 'fas fa-certificate',
+            'course_reminder': 'fas fa-graduation-cap',
+            'quiz_due': 'fas fa-question-circle',
+            'system_alert': 'fas fa-exclamation-triangle',
+            'completion_reminder': 'fas fa-clock'
+        };
+        
+        notificationDiv.innerHTML = `
+            <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="${typeIcons[notification.type]} text-blue-600"></i>
+                    </div>
+                </div>
+                
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <h4 class="text-sm font-medium text-gray-900">${notification.title}</h4>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${priorityColors[notification.priority]}">
+                                ${notification.priority.toUpperCase()}
+                            </span>
+                            ${notification.status === 'unread' ? 
+                                '<span class="inline-flex w-2 h-2 bg-blue-600 rounded-full"></span>' : ''
+                            }
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-500">${formatDate(notification.created_at)}</span>
+                            <div class="flex space-x-1">
+                                <button onclick="viewNotificationDetails(${notification.id})" 
+                                        class="text-blue-600 hover:text-blue-900">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="markNotificationAsRead(${notification.id})" 
+                                        class="text-green-600 hover:text-green-900">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button onclick="deleteNotification(${notification.id})" 
+                                        class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm text-gray-600 mt-1">${notification.message}</p>
+                    
+                    <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                        <span>Destinatario: ${notification.recipient}</span>
+                        ${notification.expiry_date ? 
+                            `<span>Scade: ${formatDate(notification.expiry_date)}</span>` : ''
+                        }
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(notificationDiv);
+    });
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('it-IT', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function changePage(delta) {
+    const newPage = currentPage + delta;
+    if (newPage >= 1 && newPage <= totalPages) {
+        currentPage = newPage;
+        loadNotifications();
+    }
+}
+
+function openCreateNotificationModal() {
+    document.getElementById('createNotificationModal').classList.remove('hidden');
+}
+
+function closeCreateNotificationModal() {
+    document.getElementById('createNotificationModal').classList.add('hidden');
+    document.getElementById('notificationForm').reset();
+}
+
+async function viewNotificationDetails(notificationId) {
+    try {
+        // Simula caricamento dettagli notifica
+        const notification = {
+            id: notificationId,
+            type: 'certification_expiry',
+            priority: 'high',
+            title: 'Certificazione in scadenza',
+            message: 'La certificazione di Mario Rossi per il corso Fondamenti NIS2 scade tra 7 giorni. È necessario rinnovare la certificazione per mantenere la compliance.',
+            status: 'unread',
+            created_at: '2024-01-15 10:30:00',
+            expiry_date: '2024-01-22 10:30:00',
+            recipient: 'Mario Rossi',
+            actions: ['email', 'dashboard']
+        };
+        
+        currentNotificationId = notificationId;
+        
+        const container = document.getElementById('notificationDetailsContent');
+        container.innerHTML = `
+            <div class="space-y-4">
+                <div>
+                    <h4 class="font-medium text-gray-900">${notification.title}</h4>
+                    <p class="text-sm text-gray-600 mt-1">${notification.message}</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="font-medium text-gray-700">Tipo:</span>
+                        <span class="ml-2 text-gray-600">${getTypeDisplayName(notification.type)}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Priorità:</span>
+                        <span class="ml-2 text-gray-600">${notification.priority.toUpperCase()}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Destinatario:</span>
+                        <span class="ml-2 text-gray-600">${notification.recipient}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Stato:</span>
+                        <span class="ml-2 text-gray-600">${notification.status === 'unread' ? 'Non letta' : 'Letta'}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Creata:</span>
+                        <span class="ml-2 text-gray-600">${formatDate(notification.created_at)}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium text-gray-700">Scade:</span>
+                        <span class="ml-2 text-gray-600">${formatDate(notification.expiry_date)}</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <span class="font-medium text-gray-700">Azioni:</span>
+                    <div class="mt-1 flex flex-wrap gap-2">
+                        ${notification.actions.map(action => 
+                            `<span class="inline-flex px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">${action}</span>`
+                        ).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('notificationDetailsModal').classList.remove('hidden');
+        
+    } catch (error) {
+        console.error('Errore nel caricamento dettagli notifica:', error);
+        showNotification('Errore nel caricamento dei dettagli', 'error');
+    }
+}
+
+function closeNotificationDetailsModal() {
+    document.getElementById('notificationDetailsModal').classList.add('hidden');
+}
+
+function getTypeDisplayName(type) {
+    const types = {
+        'certification_expiry': 'Scadenza Certificazione',
+        'course_reminder': 'Promemoria Corso',
+        'quiz_due': 'Quiz in Scadenza',
+        'system_alert': 'Avviso Sistema',
+        'completion_reminder': 'Promemoria Completamento'
+    };
+    return types[type] || type;
+}
+
+async function markNotificationAsRead(notificationId) {
+    try {
+        // Simula aggiornamento stato
+        showNotification('Notifica segnata come letta', 'success');
+        loadNotifications();
+        loadNotificationStats();
+    } catch (error) {
+        console.error('Errore nell\'aggiornamento stato notifica:', error);
+        showNotification('Errore nell\'aggiornamento della notifica', 'error');
+    }
+}
+
+async function markAsRead() {
+    if (currentNotificationId) {
+        await markNotificationAsRead(currentNotificationId);
+        closeNotificationDetailsModal();
+    }
+}
+
+async function markAllAsRead() {
+    try {
+        // Simula aggiornamento di tutte le notifiche
+        showNotification('Tutte le notifiche sono state segnate come lette', 'success');
+        loadNotifications();
+        loadNotificationStats();
+    } catch (error) {
+        console.error('Errore nell\'aggiornamento notifiche:', error);
+        showNotification('Errore nell\'aggiornamento delle notifiche', 'error');
+    }
+}
+
+async function deleteNotification(notificationId) {
+    if (confirm('Sei sicuro di voler eliminare questa notifica?')) {
+        try {
+            // Simula eliminazione
+            showNotification('Notifica eliminata', 'success');
+            loadNotifications();
+            loadNotificationStats();
+        } catch (error) {
+            console.error('Errore nell\'eliminazione notifica:', error);
+            showNotification('Errore nell\'eliminazione della notifica', 'error');
+        }
+    }
+}
+
+// Gestione form notifica
+document.getElementById('notificationForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const notificationData = Object.fromEntries(formData.entries());
+    
+    // Processa le azioni
+    const actions = formData.getAll('actions[]');
+    notificationData.actions = actions;
+    
+    try {
+        const response = await fetch('/training/api/notifications', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(notificationData)
+        });
+        
+        if (response.ok) {
+            showNotification('Notifica creata con successo', 'success');
+            closeCreateNotificationModal();
+            loadNotifications();
+            loadNotificationStats();
+        } else {
+            throw new Error('Errore nella creazione');
+        }
+    } catch (error) {
+        console.error('Errore nella creazione notifica:', error);
+        showNotification('Errore nella creazione della notifica', 'error');
+    }
+});
+
+// Filtri
+document.getElementById('typeFilter').addEventListener('change', function() {
+    currentPage = 1;
+    loadNotifications();
+});
+
+document.getElementById('priorityFilter').addEventListener('change', function() {
+    currentPage = 1;
+    loadNotifications();
+});
+
+document.getElementById('statusFilter').addEventListener('change', function() {
+    currentPage = 1;
+    loadNotifications();
+});
+
+document.getElementById('recipientFilter').addEventListener('change', function() {
+    currentPage = 1;
+    loadNotifications();
+});
+
+function showNotification(message, type) {
+    // Implementa notifica (puoi usare toast o alert)
+    alert(message);
+}
+</script>
+{% endblock %}

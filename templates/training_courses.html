@@ -1,0 +1,689 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Corsi Disponibili - Training NIS2{% endblock %}
+
+{% block page_title %}Corsi Disponibili{% endblock %}
+
+{% block breadcrumb %}
+<span class="text-secondary">/ Training NIS2</span>
+<span class="text-secondary">/ Corsi</span>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .courses-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .courses-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        text-align: center;
+    }
+    
+    .stat-card .stat-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+        margin: 0 auto 1rem;
+    }
+    
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-card .stat-label {
+        color: var(--secondary-gray);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .courses-filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .filter-group label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--primary-blue);
+    }
+    
+    .filter-group input,
+    .filter-group select {
+        padding: 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        min-width: 150px;
+    }
+    
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .course-card {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        transition: var(--transition-normal);
+    }
+    
+    .course-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .course-header {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 1.5rem;
+        position: relative;
+    }
+    
+    .course-category {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .course-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .course-duration {
+        font-size: 0.875rem;
+        opacity: 0.9;
+    }
+    
+    .course-content {
+        padding: 1.5rem;
+    }
+    
+    .course-description {
+        color: var(--secondary-gray);
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+    
+    .course-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .course-meta .difficulty {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .difficulty-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .difficulty-beginner {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .difficulty-intermediate {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .difficulty-advanced {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .course-progress {
+        margin-bottom: 1rem;
+    }
+    
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: var(--gradient-success);
+        transition: width 0.3s ease;
+    }
+    
+    .progress-text {
+        font-size: 0.75rem;
+        color: var(--secondary-gray);
+        margin-top: 0.25rem;
+    }
+    
+    .course-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition-fast);
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        font-size: 0.875rem;
+    }
+    
+    .btn-primary {
+        background: var(--gradient-primary);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .btn-secondary {
+        background: var(--gradient-secondary);
+        color: var(--primary-blue);
+    }
+    
+    .btn-secondary:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+    
+    .btn-success {
+        background: var(--gradient-success);
+        color: white;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .btn-outline {
+        background: transparent;
+        color: var(--primary-blue);
+        border: 1px solid var(--primary-blue);
+    }
+    
+    .btn-outline:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+    
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 2rem;
+        border-radius: var(--border-radius-lg);
+        width: 90%;
+        max-width: 600px;
+        box-shadow: var(--shadow-xl);
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .modal-header h2 {
+        color: var(--primary-blue);
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+    .close {
+        color: var(--secondary-gray);
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    
+    .close:hover {
+        color: var(--accent-red);
+    }
+    
+    .course-details {
+        margin-bottom: 1.5rem;
+    }
+    
+    .course-details h3 {
+        color: var(--primary-blue);
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    
+    .course-details ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .course-details li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .course-details li:last-child {
+        border-bottom: none;
+    }
+    
+    .course-details .icon {
+        color: var(--accent-green);
+        width: 16px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle"></i>
+    Errore: {{ error }}
+</div>
+{% endif %}
+
+<!-- Header con Azioni -->
+<div class="courses-header">
+    <div>
+        <h2>Corsi Disponibili</h2>
+        <p class="text-secondary">Esplora i corsi di formazione NIS2</p>
+    </div>
+    <button onclick="openEnrollModal()" class="btn btn-primary">
+        <i class="fas fa-user-plus mr-2"></i>
+        Iscriviti a Corso
+    </button>
+</div>
+
+<!-- Statistiche Corsi -->
+<div class="courses-stats">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-book"></i>
+        </div>
+        <div class="stat-value">{{ courses|length }}</div>
+        <div class="stat-label">Corsi Totali</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-value">{{ stats.total_enrollments | default(0) }}</div>
+        <div class="stat-label">Iscrizioni Totali</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-certificate"></i>
+        </div>
+        <div class="stat-value">{{ stats.completed_courses | default(0) }}</div>
+        <div class="stat-label">Corsi Completati</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-percentage"></i>
+        </div>
+        <div class="stat-value">{{ stats.completion_rate | default(0) }}%</div>
+        <div class="stat-label">Tasso Completamento</div>
+    </div>
+</div>
+
+<!-- Filtri -->
+<div class="courses-filters">
+    <div class="filter-group">
+        <label for="searchCourse">Cerca Corso</label>
+        <input type="text" id="searchCourse" placeholder="Nome corso...">
+    </div>
+    <div class="filter-group">
+        <label for="filterCategory">Categoria</label>
+        <select id="filterCategory">
+            <option value="">Tutte le categorie</option>
+            <option value="Compliance">Compliance</option>
+            <option value="Cybersecurity">Cybersecurity</option>
+            <option value="Risk Management">Risk Management</option>
+            <option value="Data Protection">Data Protection</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="filterDifficulty">Difficoltà</label>
+        <select id="filterDifficulty">
+            <option value="">Tutte le difficoltà</option>
+            <option value="Beginner">Principiante</option>
+            <option value="Intermediate">Intermedio</option>
+            <option value="Advanced">Avanzato</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="filterStatus">Stato</label>
+        <select id="filterStatus">
+            <option value="">Tutti gli stati</option>
+            <option value="available">Disponibile</option>
+            <option value="in_progress">In Corso</option>
+            <option value="completed">Completato</option>
+        </select>
+    </div>
+</div>
+
+<!-- Griglia Corsi -->
+<div class="courses-grid">
+    {% for course in courses %}
+    <div class="course-card">
+        <div class="course-header">
+            <div class="course-category">{{ course.category }}</div>
+            <div class="course-title">{{ course.title }}</div>
+            <div class="course-duration">
+                <i class="fas fa-clock mr-1"></i>
+                {{ course.duration }} ore
+            </div>
+        </div>
+        <div class="course-content">
+            <p class="course-description">{{ course.description }}</p>
+            
+            <div class="course-meta">
+                <div class="difficulty">
+                    <span class="difficulty-badge difficulty-{{ course.difficulty_level.lower() }}">
+                        {{ course.difficulty_level }}
+                    </span>
+                </div>
+                <div>
+                    <i class="fas fa-users mr-1"></i>
+                    {{ course.enrolled_students | default(0) }} iscritti
+                </div>
+            </div>
+            
+            {% if course.progress is defined %}
+            <div class="course-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ course.progress }}%"></div>
+                </div>
+                <div class="progress-text">{{ course.progress }}% completato</div>
+            </div>
+            {% endif %}
+            
+                         <div class="course-actions">
+                 <button onclick="viewCourseDetails({{ course.id }})" class="btn btn-secondary">
+                     <i class="fas fa-eye mr-1"></i>
+                     Dettagli
+                 </button>
+                 {% if course.enrolled_students > 0 %}
+                 <button onclick="viewEnrolledCourse({{ course.id }})" class="btn btn-primary">
+                     <i class="fas fa-play mr-1"></i>
+                     Continua Corso
+                 </button>
+                 {% else %}
+                 <button onclick="enrollInCourse({{ course.id }})" class="btn btn-primary">
+                     <i class="fas fa-plus mr-1"></i>
+                     Iscriviti
+                 </button>
+                 {% endif %}
+             </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- ===== MODAL DETTAGLI CORSO ===== -->
+<div id="courseDetailsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalCourseTitle">Dettagli Corso</h2>
+            <span class="close" onclick="closeCourseDetailsModal()">&times;</span>
+        </div>
+        <div id="courseDetailsContent">
+            <!-- I dettagli del corso verranno caricati qui -->
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL ISCRIZIONE ===== -->
+<div id="enrollModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Iscriviti a un Corso</h2>
+            <span class="close" onclick="closeEnrollModal()">&times;</span>
+        </div>
+        <form id="enrollForm">
+            <div class="form-group">
+                <label for="enrollEmployee">Dipendente</label>
+                <select id="enrollEmployee" name="employee_id" required>
+                    <option value="">Seleziona dipendente</option>
+                    {% for employee in employees %}
+                    <option value="{{ employee.id }}">{{ employee.name }} - {{ employee.role }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="enrollCourse">Corso</label>
+                <select id="enrollCourse" name="course_id" required>
+                    <option value="">Seleziona corso</option>
+                    {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button type="button" class="btn btn-secondary" onclick="closeEnrollModal()">Annulla</button>
+                <button type="submit" class="btn btn-primary">Iscriviti</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Funzioni modal
+    function openCourseDetailsModal() {
+        document.getElementById('courseDetailsModal').style.display = 'block';
+    }
+    
+    function closeCourseDetailsModal() {
+        document.getElementById('courseDetailsModal').style.display = 'none';
+    }
+    
+    function openEnrollModal() {
+        document.getElementById('enrollModal').style.display = 'block';
+    }
+    
+    function closeEnrollModal() {
+        document.getElementById('enrollModal').style.display = 'none';
+        document.getElementById('enrollForm').reset();
+    }
+    
+    // Funzioni corsi
+    function viewCourseDetails(courseId) {
+        // Simula il caricamento dei dettagli del corso
+        const course = findCourseById(courseId);
+        if (course) {
+            document.getElementById('modalCourseTitle').textContent = course.title;
+            document.getElementById('courseDetailsContent').innerHTML = `
+                <div class="course-details">
+                    <h3>Descrizione</h3>
+                    <p>${course.description}</p>
+                    
+                    <h3>Obiettivi del Corso</h3>
+                    <ul>
+                        <li><i class="fas fa-check icon"></i> Comprendere i requisiti NIS2</li>
+                        <li><i class="fas fa-check icon"></i> Implementare misure di sicurezza</li>
+                        <li><i class="fas fa-check icon"></i> Gestire la compliance aziendale</li>
+                        <li><i class="fas fa-check icon"></i> Valutare i rischi informatici</li>
+                    </ul>
+                    
+                    <h3>Contenuti</h3>
+                    <ul>
+                        <li><i class="fas fa-play icon"></i> Introduzione al NIS2</li>
+                        <li><i class="fas fa-play icon"></i> Requisiti di sicurezza</li>
+                        <li><i class="fas fa-play icon"></i> Gestione degli incidenti</li>
+                        <li><i class="fas fa-play icon"></i> Valutazione della compliance</li>
+                    </ul>
+                </div>
+            `;
+            openCourseDetailsModal();
+        }
+    }
+    
+    function enrollInCourse(courseId) {
+        openEnrollModal();
+        document.getElementById('enrollCourse').value = courseId;
+    }
+    
+    function continueCourse(courseId) {
+        // Reindirizza alla pagina del corso
+        window.location.href = `/training/course/${courseId}`;
+    }
+    
+    function viewEnrolledCourse(courseId) {
+        // Trova l'iscrizione per questo corso
+        // Per ora, reindirizza alla prima iscrizione disponibile per l'azienda
+        window.location.href = `/training/course/5`;
+    }
+    
+    function findCourseById(courseId) {
+        // Simula la ricerca del corso
+        return {
+            id: courseId,
+            title: 'Corso NIS2 Compliance',
+            description: 'Corso completo sulla compliance NIS2 per la supply chain.',
+            category: 'Compliance',
+            difficulty_level: 'Intermediate',
+            duration: 8
+        };
+    }
+    
+    // Gestione form iscrizione
+    document.getElementById('enrollForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        fetch('/training/api/enroll', {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'  // Include i cookie di autenticazione
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Iscrizione effettuata con successo!');
+                closeEnrollModal();
+                location.reload();
+            } else {
+                alert('Errore: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Errore iscrizione:', error);
+            alert('Errore durante l\'iscrizione: ' + error.message);
+        });
+    });
+    
+    // Filtri
+    document.getElementById('searchCourse').addEventListener('input', function() {
+        filterCourses();
+    });
+    
+    document.getElementById('filterCategory').addEventListener('change', function() {
+        filterCourses();
+    });
+    
+    document.getElementById('filterDifficulty').addEventListener('change', function() {
+        filterCourses();
+    });
+    
+    document.getElementById('filterStatus').addEventListener('change', function() {
+        filterCourses();
+    });
+    
+    function filterCourses() {
+        // Implementa la logica di filtro
+        console.log('Filtro corsi...');
+    }
+    
+    // Chiudi modal cliccando fuori
+    window.onclick = function(event) {
+        const detailsModal = document.getElementById('courseDetailsModal');
+        const enrollModal = document.getElementById('enrollModal');
+        if (event.target === detailsModal) {
+            closeCourseDetailsModal();
+        }
+        if (event.target === enrollModal) {
+            closeEnrollModal();
+        }
+    }
+</script>
+{% endblock %}

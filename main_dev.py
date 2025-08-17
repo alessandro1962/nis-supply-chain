@@ -17,6 +17,10 @@ from io import BytesIO
 import tempfile
 import os
 
+# Import modulo training
+from training_api import training_router
+from unified_login import unified_router
+
 app = FastAPI(title="NIS2 Supply Chain Platform", version="1.0.0")
 
 # Configurazione JWT
@@ -274,7 +278,7 @@ async def get_current_user(request: Request):
 # Routes
 @app.get("/")
 async def root():
-    return RedirectResponse(url="/admin-login")
+    return RedirectResponse(url="/unified-login")
 
 @app.get("/admin-login")
 async def admin_login_page(request: Request):
@@ -2151,6 +2155,11 @@ async def edit_supplier(request: Request, supplier_id: int, name: str = Form(...
         conn.close()
         return RedirectResponse(url=f"/edit-supplier/{supplier_id}?error=unknown", status_code=302)
 
+# Includi il router del modulo training
+app.include_router(training_router)
+
+# Include unified login router
+app.include_router(unified_router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -1,0 +1,357 @@
+{% extends "professional_base.html" %}
+
+{% block title %}Dashboard Dipendente - Training NIS2{% endblock %}
+
+{% block page_title %}Benvenuto, {{ employee.employee_name }}{% endblock %}
+
+{% block breadcrumb %}
+<span class="text-secondary">/ Training NIS2</span>
+<span class="text-secondary">/ Dashboard Dipendente</span>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .welcome-header {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 2rem;
+        border-radius: var(--border-radius-lg);
+        margin-bottom: 2rem;
+    }
+    
+    .welcome-header h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .welcome-header p {
+        opacity: 0.9;
+        font-size: 0.875rem;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        text-align: center;
+    }
+    
+    .stat-card .stat-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+        margin: 0 auto 1rem;
+    }
+    
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-card .stat-label {
+        color: var(--secondary-gray);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .courses-section {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .section-header {
+        background: var(--gradient-secondary);
+        padding: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .section-header h3 {
+        color: var(--primary-blue);
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .courses-list {
+        padding: 1.5rem;
+    }
+    
+    .course-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--border-radius);
+        margin-bottom: 1rem;
+        transition: var(--transition-fast);
+    }
+    
+    .course-item:hover {
+        border-color: var(--primary-blue);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .course-info {
+        flex: 1;
+    }
+    
+    .course-title {
+        font-weight: 600;
+        color: var(--primary-blue);
+        margin-bottom: 0.25rem;
+    }
+    
+    .course-meta {
+        font-size: 0.875rem;
+        color: var(--secondary-gray);
+    }
+    
+    .course-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: 1rem;
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .status-enrolled {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .status-in-progress {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-completed {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition-fast);
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        font-size: 0.875rem;
+    }
+    
+    .btn-primary {
+        background: var(--gradient-primary);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .btn-secondary {
+        background: var(--gradient-secondary);
+        color: var(--primary-blue);
+    }
+    
+    .btn-secondary:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+    
+    .notifications-section {
+        background: white;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+    }
+    
+    .notification-item {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        transition: var(--transition-fast);
+    }
+    
+    .notification-item:hover {
+        background: #f8fafc;
+    }
+    
+    .notification-item:last-child {
+        border-bottom: none;
+    }
+    
+    .notification-title {
+        font-weight: 600;
+        color: var(--primary-blue);
+        margin-bottom: 0.25rem;
+    }
+    
+    .notification-message {
+        font-size: 0.875rem;
+        color: var(--secondary-gray);
+        margin-bottom: 0.5rem;
+    }
+    
+    .notification-time {
+        font-size: 0.75rem;
+        color: var(--secondary-gray);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="alert alert-danger">
+    <i class="fas fa-exclamation-triangle"></i>
+    Errore: {{ error }}
+</div>
+{% endif %}
+
+<!-- Header di Benvenuto -->
+<div class="welcome-header">
+    <h2>Benvenuto nel tuo Training NIS2</h2>
+    <p>{{ employee.employee_name }} - {{ employee.role }} | {{ employee.department }}</p>
+</div>
+
+<!-- Statistiche Personali -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-book"></i>
+        </div>
+        <div class="stat-value">{{ enrollments|length }}</div>
+        <div class="stat-label">Corsi Iscritti</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-play"></i>
+        </div>
+        <div class="stat-value">{{ enrollments|selectattr('status', 'equalto', 'IN_PROGRESS')|list|length }}</div>
+        <div class="stat-label">In Corso</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <div class="stat-value">{{ enrollments|selectattr('status', 'equalto', 'COMPLETED')|list|length }}</div>
+        <div class="stat-label">Completati</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-certificate"></i>
+        </div>
+        <div class="stat-value">{{ certifications|length }}</div>
+        <div class="stat-label">Certificazioni</div>
+    </div>
+</div>
+
+<!-- I Tuoi Corsi -->
+<div class="courses-section">
+    <div class="section-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>I Tuoi Corsi</h3>
+            <a href="/training/employee-courses" class="btn btn-secondary" style="font-size: 0.875rem;">
+                <i class="fas fa-list mr-1"></i>
+                Vedi Tutti
+            </a>
+        </div>
+    </div>
+    <div class="courses-list">
+        {% if enrollments %}
+            {% for enrollment in enrollments %}
+            <div class="course-item">
+                <div class="course-info">
+                    <div class="course-title">{{ enrollment.course_title }}</div>
+                    <div class="course-meta">
+                        <i class="fas fa-clock mr-1"></i>
+                        {{ enrollment.enrollment_date }}
+                        {% if enrollment.progress %}
+                        <span class="ml-2">
+                            <i class="fas fa-percentage mr-1"></i>
+                            {{ enrollment.progress }}% completato
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="course-status">
+                    <span class="status-badge status-{{ enrollment.status.lower() }}">
+                        {% if enrollment.status == 'ENROLLED' %}
+                            Iscritto
+                        {% elif enrollment.status == 'IN_PROGRESS' %}
+                            In Corso
+                        {% elif enrollment.status == 'COMPLETED' %}
+                            Completato
+                        {% else %}
+                            {{ enrollment.status }}
+                        {% endif %}
+                    </span>
+                    {% if enrollment.status == 'ENROLLED' or enrollment.status == 'IN_PROGRESS' %}
+                    <a href="/training/course/{{ enrollment.enrollment_id }}" class="btn btn-primary">
+                        <i class="fas fa-play mr-1"></i>
+                        Continua
+                    </a>
+                    {% elif enrollment.status == 'COMPLETED' %}
+                    <a href="/training/certificate/{{ enrollment.id }}" class="btn btn-secondary">
+                        <i class="fas fa-certificate mr-1"></i>
+                        Certificato
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-book-open text-4xl text-gray-400 mb-2"></i>
+                <p class="text-gray-500">Non sei ancora iscritto a nessun corso</p>
+                <p class="text-sm text-gray-400">Contatta l'amministratore per essere iscritto</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Notifiche -->
+{% if notifications %}
+<div class="notifications-section">
+    <div class="section-header">
+        <h3>Notifiche Recenti</h3>
+    </div>
+    {% for notification in notifications[:5] %}
+    <div class="notification-item">
+        <div class="notification-title">{{ notification.title }}</div>
+        <div class="notification-message">{{ notification.message }}</div>
+        <div class="notification-time">{{ notification.created_at }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

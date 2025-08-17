@@ -1,0 +1,265 @@
+{% extends "login_base.html" %}
+
+{% block title %}Accesso - NIS2 Supply Chain{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        max-width: 450px;
+        width: 100%;
+        padding: 2.5rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .login-header h2 {
+        color: #1e3a8a;
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .login-header p {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+    
+    .user-type-selector {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        background: #f8fafc;
+        padding: 0.5rem;
+        border-radius: var(--border-radius);
+    }
+    
+    .user-type-option {
+        flex: 1;
+        padding: 0.75rem;
+        text-align: center;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: var(--transition-fast);
+        font-size: 0.875rem;
+        font-weight: 500;
+        border: 2px solid transparent;
+    }
+    
+    .user-type-option:hover {
+        background: #e2e8f0;
+    }
+    
+    .user-type-option.active {
+        background: #1e3a8a;
+        color: white;
+        border-color: #1e3a8a;
+    }
+    
+    .user-type-option i {
+        display: block;
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #1e3a8a;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        transition: border-color 0.2s;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: #1e3a8a;
+        box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    }
+    
+    .btn-login {
+        width: 100%;
+        padding: 0.75rem;
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .alert {
+        padding: 0.75rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .alert-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+    
+    .login-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .login-footer a {
+        color: #1e3a8a;
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+    
+    .login-footer a:hover {
+        text-decoration: underline;
+    }
+    
+    .user-type-description {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        color: var(--secondary-gray);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-header">
+        <h2>Accesso Sistema NIS2</h2>
+        <p>Scegli il tipo di accesso e inserisci le tue credenziali</p>
+    </div>
+    
+    {% if error %}
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle mr-1"></i>
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    <!-- Selettore Tipo Utente -->
+    <div class="user-type-selector">
+        <div class="user-type-option" data-type="admin" onclick="selectUserType('admin')">
+            <i class="fas fa-user-shield"></i>
+            Admin
+        </div>
+        <div class="user-type-option" data-type="company" onclick="selectUserType('company')">
+            <i class="fas fa-building"></i>
+            Azienda
+        </div>
+        <div class="user-type-option" data-type="employee" onclick="selectUserType('employee')">
+            <i class="fas fa-user"></i>
+            Dipendente
+        </div>
+    </div>
+    
+    <!-- Descrizione Tipo Utente -->
+    <div class="user-type-description" id="userTypeDescription">
+        Seleziona il tipo di accesso per vedere la descrizione
+    </div>
+    
+    <!-- Form di Login -->
+    <form method="POST" action="/unified-login" id="loginForm">
+        <input type="hidden" name="user_type" id="userType" value="company">
+        
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required placeholder="La tua email">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="La tua password">
+        </div>
+        
+        <button type="submit" class="btn-login">
+            <i class="fas fa-sign-in-alt mr-1"></i>
+            Accedi
+        </button>
+    </form>
+    
+    <div class="login-footer">
+        <p>Hai dimenticato la password? <a href="#">Contatta l'amministratore</a></p>
+        <p>Problemi di accesso? <a href="#">Supporto tecnico</a></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Seleziona automaticamente "Azienda" come default
+    selectUserType('company');
+    
+    function selectUserType(type) {
+        // Rimuovi classe active da tutti
+        document.querySelectorAll('.user-type-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        
+        // Aggiungi classe active al selezionato
+        document.querySelector(`[data-type="${type}"]`).classList.add('active');
+        
+        // Aggiorna il campo nascosto
+        document.getElementById('userType').value = type;
+        
+        // Aggiorna la descrizione
+        updateDescription(type);
+        
+        // Aggiorna il placeholder dell'email
+        updateEmailPlaceholder(type);
+    }
+    
+    function updateDescription(type) {
+        const descriptions = {
+            'admin': 'Accesso amministratore per la gestione completa del sistema',
+            'company': 'Accesso aziendale per gestire dipendenti e compliance',
+            'employee': 'Accesso dipendente per i corsi di formazione NIS2'
+        };
+        
+        document.getElementById('userTypeDescription').textContent = descriptions[type];
+    }
+    
+    function updateEmailPlaceholder(type) {
+        const placeholders = {
+            'admin': 'admin@example.com',
+            'company': 'azienda@example.com',
+            'employee': 'dipendente@azienda.com'
+        };
+        
+        document.getElementById('email').placeholder = placeholders[type];
+    }
+</script>
+{% endblock %}
